@@ -38,6 +38,7 @@ end
 
 function Strip(length)
     StripForward(length)
+    os.sleep(0.5)
     while turtle.detectUp() do
         turtle.digUp()
         os.sleep(0.5)
