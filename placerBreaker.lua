@@ -27,8 +27,10 @@ while true do
         print("Need to dump items")
         DumpItems()
     end
+    
     turtle.select(2)
     if not turtle.placeUp() then
+        print("sucking items")
         turtle.suck()
         turtle.placeUp()
     end

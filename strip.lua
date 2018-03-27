@@ -1,10 +1,10 @@
-
 function Refuel()
-    for i=1, i<17 do
-        turtle.select(i)
-        while turtle.getFuelLevel < 19000 do                
-                turtle.refuel()  --geht nicht
-        end
+    turtle.select(1)
+    if not turtle.refuel(1) then
+        print("Need fuel in slot 1")
+    end
+    while turtle.getFuelLevel()<300 do
+        turtle.refuel(1)
     end
 end
 

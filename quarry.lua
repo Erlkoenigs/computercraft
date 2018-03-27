@@ -1,11 +1,10 @@
 function Refuel()
     turtle.select(1)
-    local askedForFuel = false
-    while turtle.getFuelLevel() < 300 do                
-        if not turtle.refuel(1) and askedForFuel == true then
-            print("Need fuel in slot 1")
-            askedForFuel = true
-        end
+    if not turtle.refuel(1) then
+        print("Need fuel in slot 1")
+    end
+    while turtle.getFuelLevel()<300 do
+        turtle.refuel(1)
     end
 end
 
