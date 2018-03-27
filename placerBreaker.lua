@@ -8,18 +8,17 @@ function Refuel()
     end
 end
 
+--Slots 3 to 16 are product slots. Inventory is needed in the front of the turtle
 function DumpItems()
     print("Dumping items")
-    turtle.turnLeft()
     for i=3,16 do
         turtle.select(i)
         turtle.drop()
     end
 turtle.select(3)
-turtle.turnRight()
 end
 
-while turtle.getItemCount(2)==1 do
+while true do
     if turtle.getFuelLevel()<10 then
         print("Need a refuel")
         Refuel()
@@ -28,5 +27,11 @@ while turtle.getItemCount(2)==1 do
         print("Need to dump items")
         DumpItems()
     end
-    turtle.dig()
+    turtle.select(2)
+    if not turtle.placeUp() then
+        turtle.suck()
+        turtle.placeUp()
+    end
+    turtle.select(3)
+    turtle.digUp()
 end
