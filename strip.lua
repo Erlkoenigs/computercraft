@@ -7,7 +7,7 @@ function Refuel()
     if not turtle.refuel(1) then
         print("Need fuel in slot 1")
     end
-    while turtle.getFuelLevel()<300 do
+    while turtle.getFuelLevel()<stripLength*1.5 do
         turtle.refuel(1)
     end
 end
@@ -38,6 +38,10 @@ end
 
 function Strip(length)
     StripForward(length)
+    while turtle.detectUp() do
+        turtle.digUp()
+        os.sleep(0.5)
+    end
     turtle.turnLeft()
     turtle.turnLeft()
     StripBack(length)
@@ -53,12 +57,8 @@ function Reposition(direction)
     else
         print("Invalid direction. Use left or right")
     end
-    while steps<3 do
-        turtle.dig()
-        if turtle.forward() then
-            steps = steps+1
-        end
-    end
+    Strip(3)
+    StripForward(3)
     if direction == "right" then
         turtle.turnLeft()
     elseif direction == "left" then
@@ -68,7 +68,13 @@ function Reposition(direction)
     end
 end
 
+Refuel()
+local strips = 0
 while strips<numberOfStrips do
+    if turtle.getFuelLevel()<10 then
+        print("Need a refuel")
+        Refuel()
+    end
     Strip(stripLength)
     Reposition(stripDirection)
     strips = strips+1
