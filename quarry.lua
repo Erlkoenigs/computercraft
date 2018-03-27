@@ -1,7 +1,7 @@
 function Refuel()
     turtle.select(1)
     local askedForFuel = false
-    while turtle.getFuelLevel < 300 do                
+    while turtle.getFuelLevel() < 300 do                
         if not turtle.refuel(1) and askedForFuel == true then
             print("Need fuel in slot 1")
             askedForFuel = true
@@ -26,7 +26,7 @@ function SetMark()
         turtle.select(2)
         turtle.placeDown()
     else
-        turtle.selcet(3)
+        turtle.select(3)
         turtle.placeDown()
         turtle.digUp()
         turtle.up()
