@@ -1,21 +1,25 @@
 --This program is meant for the computercraft turtle
 --It creates 1x2 mining strips with a 3 block spacing
---The turtle will need manual refueling in slot 1, a torch in slot 2 and a chest that is regularly emptied
+--To start the turtle will need fuel in slot 1, a torch in slot 2, a chest that is regularly emptied and chest that contains fuel
 --The turtle will start digging the first strip forward from its starting position
---the chest has to be placed directly behind the starting position
+--the chest for the mined items has to be placed directly behind the starting position
+--the chest with the fuel has to be placed to the left of the item chest, when looking down the strips
 --the entrance of an already finished strip can be marked by a torch. The turtle will skip it
 
 --turtles inventory slots: 1 to 16
 
 --The first part of this program defines functions. These are then used in the last paragraph
 
-local stripDirection = "right" --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
-local stripLength = 5
-local numberOfStrips = 3
+--get user input
+print("Enter strip direction: (left/right)")
+local stripDirection = read("*") --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
+print("Enter strip length:")
+local stripLength = read()
+print("Enter number of strips to dig:")
+local numberOfStrips = read()
 --keep track of the current position to return back to it after emptying the inventory into the chest
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local currentStrip = 0 --holds the count of the current strip
-
 
 function Forward(steps)
     print("Forward")
