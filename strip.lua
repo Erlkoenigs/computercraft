@@ -12,11 +12,11 @@
 
 --get user input
 print("Enter strip direction: (left/right)")
-local stripDirection = read("*") --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
+local stripDirection = read() --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
 print("Enter strip length:")
-local stripLength = read()
+local stripLength = tonumber(read())
 print("Enter number of strips to dig:")
-local numberOfStrips = read()
+local numberOfStrips = tonumber(read())
 --keep track of the current position to return back to it after emptying the inventory into the chest
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local currentStrip = 0 --holds the count of the current strip
