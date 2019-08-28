@@ -134,7 +134,7 @@ function StripForward(blocks)
         turtle.dig()   
         if turtle.getItemCount(16) ~=0 then
             EmptyInventory()
-        end     
+        end
         if turtle.forward() then
             torch=torch+1
             currentPosition = currentPosition+1
@@ -164,9 +164,12 @@ function Strip(length)
     StripForward(length)
     turtle.turnLeft()
     turtle.turnLeft()
-    Forward(length)
+    Forward(length) --walk back out of the strip
+    turtle.turnLeft() --turn around
     turtle.turnLeft()
-    turtle.turnLeft()
+    turtle.select(2) --place torch to mark the strip as finished
+    turtle.place()
+    turtle.select(3)
 end
 
 --Shift over to the next strip in the given direction. 
