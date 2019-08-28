@@ -46,7 +46,7 @@ function Refuel()
 end
 
 --return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
---also picks up fuel from the chest next to the item chest
+--also picks up fuel and torches from the chests next to the item chest
 function EmptyInventory()
     Refuel()
     --get back to the chest
@@ -80,7 +80,8 @@ function EmptyInventory()
         end
     end
     turtle.select(3)
-    --pick up fuel
+    --pick up fuel and torches
+    --fuel
     turtle.turnRight()
     turtle.forward()
     turtle.turnLeft()
@@ -90,7 +91,19 @@ function EmptyInventory()
             print("no fuel in chest")
         end
     end
+    --torches
+    turtle.turnRight()
+    turtle.forward()
     turtle.turnLeft()
+    turtle.select(2)
+    while turtle.getItemCount()<64 do
+        if not turtle.suck(64-turtle.getItemCount()) then
+            print("no torches in chest")
+        end
+    end
+    --back to starting position
+    turtle.turnLeft()
+    turtle.forward()
     turtle.forward()
     turtle.turnRight()
     turtle.select(3)
