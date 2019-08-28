@@ -1,3 +1,12 @@
+--this program is meant for the computercraft turtle
+--it will place Buildcraft Land Marks in a square of a given size
+
+--user input
+print("width of the quarry to the left of the starting position:")
+local width = tonumber(read())
+print("depth of the quarry:")
+local depth = tonumber(read())
+
 function Refuel()
     turtle.select(1)
     if not turtle.refuel(1) then
@@ -6,6 +15,7 @@ function Refuel()
     while turtle.getFuelLevel()<300 do
         turtle.refuel(1)
     end
+    print("refueled")
 end
 
 function DigForward(blocks)
@@ -18,7 +28,8 @@ function DigForward(blocks)
     end
 end
 
-function SetMark()
+--turns when above the mark it has set, then digs/goes foward and down one block
+function SetMarkAndTurn()
     if turtle.detectDown() then
         turtle.digUp()
         turtle.up()
@@ -32,23 +43,20 @@ function SetMark()
         turtle.select(2)
         turtle.placeDown()
     end
-end
-
-function SetMarkAndTurn()
-    SetMark()
+    --turn
     turtle.turnLeft()
     DigForward(1)
     turtle.digDown()
     turtle.down()
 end
 
+--action
 Refuel()
-DigForward(63)
-SetMarkAndTurn()
-DigForward(62)
-SetMarkAndTurn()
-DigForward(62)
-SetMarkAndTurn()
-DigForward(62)
-SetMark()
-turtle.turnLeft()
+DigForward(depth)
+SetMarkAndTurn() --already goes 1 block into next direction
+DigForward(width-1)
+SetMarkAndTurn() --already goes 1 block into next direction
+DigForward(depth-1)
+SetMarkAndTurn() --already goes 1 block into next direction
+DigForward(width-1)
+SetMark() -- back at starting position

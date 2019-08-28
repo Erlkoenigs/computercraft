@@ -107,7 +107,7 @@ function EmptyInventory()
     turtle.forward()
     turtle.turnRight()
     turtle.select(3)
-    --return to current position in strip
+    --return to current strip
     if stripDirection == "right" then
         turtle.turnLeft()
     elseif stripDirection == "left" then
@@ -205,6 +205,10 @@ while currentStrip<numberOfStrips do
     currentStrip = currentStrip+1
 end
 --return home
-turtle.turnLeft()
+if direction == "right" then
+    turtle.turnLeft()
+elseif direction == "left" then
+    turtle.turnRight()
+end
 Forward(numberOfStrips*4)
 turtle.turnRight()
