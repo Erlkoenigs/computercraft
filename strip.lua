@@ -1,9 +1,11 @@
 --This program is meant for the computercraft turtle
 --It creates 1x2 mining strips with a 3 block spacing
---To start the turtle will need fuel in slot 1, a torch in slot 2, a chest that is regularly emptied and chest that contains fuel
+--To start the turtle will need fuel in slot 1, torches in slot 2, a chest that is regularly emptied,
+--a chest that contains fuel and a chest that contains torches
 --The turtle will start digging the first strip forward from its starting position
 --the chest for the mined items has to be placed directly behind the starting position
 --the chest with the fuel has to be placed to the left of the item chest, when looking down the strips
+--the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips
 --the entrance of an already finished strip can be marked by a torch. The turtle will skip it
 
 --turtles inventory slots: 1 to 16
@@ -113,6 +115,7 @@ end
 
 --Digs a 1x2 strip of a given length in the forward direction. Picks up mined items
 function StripForward(blocks)
+    local torch = 0
     currentPosition = 0
     while currentPosition<blocks do
         turtle.dig()   
@@ -120,6 +123,7 @@ function StripForward(blocks)
             EmptyInventory()
         end     
         if turtle.forward() then
+            torch=torch+1
             currentPosition = currentPosition+1
             if turtle.getFuelLevel()<80 then
                 Refuel()
@@ -129,34 +133,15 @@ function StripForward(blocks)
         turtle.digUp()
         os.sleep(0.5)
         end
+        --place a torch every 10 blocks
+        if blocks > 5 and torch % 10 == 0 then
+            turtle.select(2)
+            turtle.placeUp()
+            turtle.select(3)
+        end
+        --when item in last slot, inventory is "full"
         if turtle.getItemCount(16) ~=0 then
             EmptyInventory()
-        end
---        while turtle.suck() do
---            local slot = 1
---           while slot<17 do --16 slots
---                turtle.select(slot)
---                slot=slot+1                
---            end
---            if turtle.getItemCount(16) then --drops inventory into chest, when theres an item in the 16th slot. This is inefficient but reliable
---                EmptyInventory()
---                print("inventory full")
---            end
---        end
-    end
-end
-
---obsolete function
---Similar to StripForward but with timers to wait for blocks to fall down
-function StripBack(blocks)
-    local steps = 0
-    while steps<blocks do
-        while turtle.detect() do
-            turtle.dig()
-            os.sleep(0.5)
-        end
-        if turtle.forward() then
-            steps = steps+1
         end
     end
 end
