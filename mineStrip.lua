@@ -11,6 +11,8 @@ local amountOfStrips = 0 --tracks hoow many strips it cleared to find its way ba
 local steps = 0 --tracks how many steps to the side the turtle took after the last strip to be able to find its way back to the starting position
 local target = "minecraft:iron_ore"
 local currentPosition = 0 --in the strip
+local currentHeight = 0
+local torchTaken = false
 local deviation = 0 --deviation from currentPosition in strip direction. forward is positive, backward is negative
 local deviationSide = 0 --deviation from strip to the sides. left is negative, right is positive
 local deviationVert = 0 --vertical deviation. up is positive, down is negative
@@ -168,8 +170,9 @@ function stepBackOnPath(s)
     for i,v in ipairs(path) do
         print(v)
     end
-    for i=0,s do
+    for i=0,s-1 do
         local dir=table.remove(path) --get and remove last entry
+        print("reversing "..dir)
         if dir == 3 then
             local i=0
             while not turtle.down() do
@@ -181,7 +184,6 @@ function stepBackOnPath(s)
             end
         else
             local directionFromPath= dir 
-            print("direction "..directionFromPath)
             local directionToGo = getOppositeOrientation(directionFromPath)
             turn(directionToGo)
             while not turtle.forward() do
@@ -212,6 +214,14 @@ function emptyInventory()
     stepBackOnPath(#path)
     --turn toward the beginning of the strip
     turn(2)
+    if height == 1 then --if on upper level, go down
+        local i=0
+        while i<1 do
+            if turtle.down() then
+                i=i+1
+            end
+        end
+    end
     --walk back the strip to the beginning
     local i=0
     while i<currentPosition do
@@ -248,13 +258,13 @@ function emptyInventory()
             print("no fuel in chest")
         end
     end
-    --move to torch chest
+    --move to torch chest. torch refill not necessary in current version
     right()
     turtle.forward()
     left()
     turtle.select(2)
     print("picking up torches")
-    while turtle.getItemCount()<64 do
+    while turtle.getItemCount()<10 do
         if not turtle.suck(64-turtle.getItemCount()) then
         end
     end
@@ -359,24 +369,58 @@ function mineVein()
 end
 
 if not test then
-    while reposition() do
+    while reposition() do --reposition for the next strip as long as you can
         if turtle.detect() then --when reposition() was able to go 4 blocks to the left, but there's no more strips
             break
         end
         while turtle.forward() do --go forward through strip till the end
             currentPosition=currentPosition+1
             --check surrounding blocks
-            turtle.turnLeft() --left one first
-            if check() then --start of a vein
-                dig() --go one block into the vein
-                left()
+            if check("down") then --start of a vein
+                dig("down") --go one block into the vein
                 mineVein() --follow it
             end
+            turn(1) --right
+            if check() then --start of a vein
+                dig() --go one block into the vein
+                mineVein() --follow it
+                turn(0)
+            end            
+            turn(-1) --left
+            if check() then --start of a vein
+                dig() --go one block into the vein
+                mineVein() --follow it
+                turn(0)
+            end
+            if not turtle.up() then
+                turtle.digUp()
+                turtle.up()
+                torchTaken = true
+            end
+            if check("up") then --start of a vein
+                dig("up") --go one block into the vein
+                mineVein() --follow it
+            end
+            turn(1) --right
+            if check() then --start of a vein
+                dig() --go one block into the vein
+                mineVein() --follow it
+                turn(0)
+            end            
+            turn(-1) --left
+            if check() then --start of a vein
+                dig() --go one block into the vein
+                mineVein() --follow it
+                turn(0)
+            end
 
-            turn(0)
+            turtle.select(2)
+            turtle.placeUp()
+            torchTaken = false
+            turtle.select(3)
         end
-        turtle.turnLeft() --turn around
-        turtle.turnLeft()
+        left() --turn around
+        left()
         for i=0,currentPosition do --back to the start of the strip
             turtle.forward()
         end
