@@ -5,8 +5,8 @@
 --will continue till the end of every strip and until the last strip
 local test = false
 tArgs={...}
-local stripDirection = tArgs[1]
-local amountOfStrips = tArgs[2]
+local stripDirection = tonumber(tArgs[1])
+local amountOfStrips = tonumber(tArgs[2])
 if #tArgs == 0 then
     print("Enter direction of next strips (left/right)")
     stripDirection = read()
