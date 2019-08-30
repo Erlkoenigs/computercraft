@@ -319,21 +319,21 @@ end
 function check(direction)
     if direction == nil then
         s,data=turtle.inspect()
-        if not s then
+        if s then
             if string.sub(data.name,-4)==target then
                 return true
             end
         end        
     elseif direction=="up" then
         s,data=turtle.inspectUp()
-        if not s then
+        if s then
             if string.sub(data.name,-4)==target then
                 return true
             end
         end
     elseif direction=="down" then
         s,data=turtle.inspectDown()
-        if not s then
+        if s then
             if string.sub(data.name,-4)==target then
                 return true
             end
