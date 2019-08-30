@@ -287,7 +287,7 @@ function emptyInventory()
     turnStripDirection(true)
     --back to the current strip
     local i=0
-    while i<(amountOfStrips-1)*4 do
+    while i<(currentStrip-1)*4 do
         if turtle.forward() then
             i=i+1
         end
