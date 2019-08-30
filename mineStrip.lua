@@ -3,12 +3,18 @@
 --won't look for diagonal ores in a vein
 --place in front of first strip
 --will continue till the end of every strip and until the last strip
-
 local test = false
-print("Enter direction of next strips (left/right)")
-local stripDirection = read()
-print("amount of strips:")
-local amountOfStrips = tonumber(read())
+tArgs={...}
+local stripDirection = tArgs[1]
+local amountOfStrips = tArgs[2]
+if #tArgs == 0 then
+    print("Enter direction of next strips (left/right)")
+    stripDirection = read()
+    print("amount of strips:")
+    amountOfStrips = tonumber(read())
+end
+print("direction: "..stripDirection)
+print(amountOfStrips.." strips")
 local target = "minecraft:iron_ore"
 local currentStrip = 0
 local currentPosition = 0 --in the strip
@@ -236,7 +242,7 @@ function emptyInventory()
     turnStripDirection(false)
     --empty Inventory in chest
     print("emptying inventory")
-    local slot=2 --keep fuel and torches
+    local slot=3 --keep fuel and torches
     while slot<17 do
         turtle.select(slot)
         while turtle.getItemCount() > 0 do
