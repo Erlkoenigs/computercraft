@@ -166,7 +166,7 @@ end
 function stepBackOnPath(s)
     print("stepping back")
     for i=0,s do
-        dir=table.remove(path)
+        local dir=table.remove(path) --get and remove last entry
         if dir == 3 then
             local i=0
             while not turtle.down() do
@@ -177,7 +177,7 @@ function stepBackOnPath(s)
                 turtle.digUp()
             end
         else
-            local directionFromPath= table.remove(path) --get and remove last entry
+            local directionFromPath= dir 
             print("direction "..directionFromPath)
             local directionToGo = getOppositeOrientation(directionFromPath)
             turn(directionToGo)
