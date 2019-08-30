@@ -21,7 +21,7 @@ print("direction: "..stripDirection)
 print(amountOfStrips.." strips")
 
 local target = "minecraft:iron_ore"
-local currentStrip = 1
+local currentStrip = 0
 local currentPosition = 0 --in the strip
 local currentHeight = 0
 local torchTaken = false --torch taken within strip
@@ -382,7 +382,7 @@ if not test then
     while currentStrip < amountOfStrips do
         refuel()
         print("currentStrip: "..currentStrip)
-        if currentStrip>1 then
+        if currentStrip>0 then
             reposition(stripDirection)            
         end
         currentStrip=currentStrip+1
