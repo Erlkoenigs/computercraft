@@ -38,6 +38,7 @@ function newOrientation(turn) --1 is right turn, -1 is left turn
     elseif orientation == -3 then --3 left turns are one right turn
         orientation = 1
     end
+    print("new orientation: "..orientation)
 end
 
 --returns the opposite of a given orientation
@@ -365,8 +366,12 @@ end
 if not test then
     while currentStrip < amountOfStrips do
         refuel()
+        if not currentStrip==0 then
+            reposition(stripDirection)
+        end
         while turtle.forward() do --go forward through strip till the end
             currentPosition=currentPosition+1
+            print("forward")
             --check surrounding blocks
             if check("down") then --start of a vein
                 dig("down") --go one block into the vein
@@ -422,8 +427,7 @@ if not test then
         for i=0,currentPosition do --back to the start of the strip
             turtle.forward()
         end
-        turn(0)
-        reposition(stripDirection)
+        turn(0)        
     end
     --return home
     turn(0)
