@@ -3,8 +3,9 @@ tArgs={...}
 if #tArgs == 0 then
     print("program to download:")
     program = read()
+else
+    program = tArgs[1]
 end
-program = tArgs[1]
 local url = "https://raw.githubusercontent.com/Erlkoenigs/computercraft/master/"..program..".lua"    
 local website = http.get(url)
 if website then
