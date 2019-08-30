@@ -224,6 +224,7 @@ function emptyInventory()
     --turn toward the beginning of the strip
     turn(2)
     if currentHeight == 1 then --if on upper level, go down
+        print("height == 1")
         local i=0
         while i<1 do
             if turtle.down() then
@@ -422,6 +423,7 @@ if not test then
                     turtle.digUp()
                     turtle.up()
                     currentHeight=currentHeight+1
+                    print("currentHeight: "..currentHeight)
                     torchTaken = true
                 end
                 turn(-1) --left
@@ -444,6 +446,7 @@ if not test then
                 turn(0)            
                 turtle.down()
                 currentHeight=currentHeight-1
+                print("currentHeight: "..currentHeight)
 
                 if torchTaken then --if there was a torch on this position, put it back
                     turtle.select(2)
