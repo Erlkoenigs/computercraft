@@ -23,6 +23,7 @@ local path = {} --the path the turtle has taken while following a vein. 3 is up,
 
 --refuel from slot 1
 function refuel()
+    print("refuel")
     turtle.select(1)
     while turtle.getFuelLevel()<250 do --random value
         turtle.refuel(1)
@@ -370,6 +371,7 @@ if not test then
             if check("down") then --start of a vein
                 dig("down") --go one block into the vein
                 mineVein() --follow it
+                turn(0)
             end
             turn(1) --right
             if check() then --start of a vein
@@ -388,22 +390,24 @@ if not test then
                 turtle.up()
                 torchTaken = true
             end
-            if check("up") then --start of a vein
-                dig("up") --go one block into the vein
-                mineVein() --follow it
-            end
-            turn(1) --right
-            if check() then --start of a vein
-                dig() --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end            
             turn(-1) --left
             if check() then --start of a vein
                 dig() --go one block into the vein
                 mineVein() --follow it
                 turn(0)
             end
+            if check("up") then --start of a vein
+                dig("up") --go one block into the vein
+                mineVein() --follow it
+                turn(0)
+            end
+            turn(1) --right
+            if check() then --start of a vein
+                dig() --go one block into the vein
+                mineVein() --follow it
+                turn(0)
+            end
+            turn(0)            
             turtle.down()
 
             if torchTaken then
