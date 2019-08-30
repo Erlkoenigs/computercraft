@@ -218,8 +218,8 @@ end
 --go back to chest and empty inventory, then come back
 function emptyInventory()
     refuel()
-    local tempPath = path
-    stepBackOnPath(#path)
+    --local tempPath = path
+    --stepBackOnPath(#path)
     --turn toward the beginning of the strip
     turn(2)
     if currentHeight == 1 then --if on upper level, go down
@@ -304,7 +304,7 @@ function emptyInventory()
             i=i+1
         end
     end
-    followPath(tempPath)
+    --followPath(tempPath)
 end
 
 --check if last item slot contains items. if true, emptyInventory()
