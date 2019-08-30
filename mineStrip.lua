@@ -363,6 +363,7 @@ end
 
 if not test then
     while currentStrip < amountOfStrips do
+        refuel()
         while turtle.forward() do --go forward through strip till the end
             currentPosition=currentPosition+1
             --check surrounding blocks
@@ -403,11 +404,14 @@ if not test then
                 mineVein() --follow it
                 turn(0)
             end
+            turtle.down()
 
-            turtle.select(2)
-            turtle.placeUp()
-            torchTaken = false
-            turtle.select(3)
+            if torchTaken then
+                turtle.select(2)
+                turtle.placeUp()
+                torchTaken = false
+                turtle.select(3)
+            end
         end
         left() --turn around
         left()
