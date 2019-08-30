@@ -390,8 +390,8 @@ if not test then
             turtle.dig()
             torchTakenStrip = true
         end
-        turtle.forwad()
-        if turtle.detect() then --if there's a second torch behind the first one, you've been here before
+        turtle.forward()
+        if not turtle.detect() then --if there's a second torch behind the first one, you've been here before
             turtle.back()
             while turtle.forward() do --go forward through strip till the end
                 currentPosition=currentPosition+1
