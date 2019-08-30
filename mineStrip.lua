@@ -391,8 +391,9 @@ if not test then
             torchTakenStrip = true
         end
         turtle.forward()
-        if not turtle.detect() then --if there's a second torch behind the first one, you've been here before
-            turtle.back()
+        local torch = turtle.detect()
+        turtle.back()
+        if not turtle.detect() then --if there's a torch on the second block in the strip, you've been here before
             while turtle.forward() do --go forward through strip till the end
                 currentPosition=currentPosition+1
                 print("forward")
@@ -447,17 +448,19 @@ if not test then
                     turtle.select(3)
                 end
             end
-        end
-        left() --turn around
-        left()
-        for i=0,currentPosition do --back to the start of the strip
+            left() --turn around
+            left()
+            for i=0,currentPosition do --back to the start of the strip
+                turtle.forward()
+            end
+            currentPosition = 0
+            turn(0)
+
             turtle.forward()
+            turtle.select(2)
+            turtle.place()
+            turtle.back()
         end
-        turn(0)
-        turtle.forward()
-        turtle.select(2)
-        turtle.place()
-        turtle.back()
         if torchTakenStrip then
             turtle.place()
         end
