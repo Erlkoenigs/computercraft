@@ -1,5 +1,10 @@
-print("program to download:")
-local program = read()
+local program = ""
+tArgs={...}
+if #tArgs == 0 then
+    print("program to download:")
+    program = read()
+end
+program = tArgs[1]
 local url = "https://raw.githubusercontent.com/Erlkoenigs/computercraft/master/"..program..".lua"    
 local website = http.get(url)
 if website then
