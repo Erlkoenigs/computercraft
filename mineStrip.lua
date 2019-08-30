@@ -4,7 +4,7 @@
 --place in front of first strip
 --will continue till the end of every strip and until the last strip
 
-local test = true
+local test = false
 print("Enter direction of next strips (left/right)")
 local stripDirection = read()
 local amountOfStrips = 0 --tracks hoow many strips it cleared to find its way back to the starting position
@@ -436,7 +436,3 @@ if not test then
     end
     turtle.turnRight() --turn to starting orientation
 end
-
-refuel()
-dig()
-mineVein()
