@@ -275,7 +275,7 @@ function emptyInventory()
     turtle.select(2)
     print("picking up torches")
     while turtle.getItemCount()<50 do --leave a little space
-        if not turtle.suck(64-turtle.getItemCount()) then
+        if not turtle.suck(2) then
         end
     end
     turtle.select(3)
