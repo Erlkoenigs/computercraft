@@ -7,9 +7,10 @@
 local test = false
 print("Enter direction of next strips (left/right)")
 local stripDirection = read()
-local amountOfStrips = 0 --tracks hoow many strips it cleared to find its way back to the starting position
-local steps = 0 --tracks how many steps to the side the turtle took after the last strip to be able to find its way back to the starting position
+print("amount of strips:")
+local amountOfStrips = tonumber(read())
 local target = "minecraft:iron_ore"
+local currentStrip = 0
 local currentPosition = 0 --in the strip
 local currentHeight = 0
 local torchTaken = false
@@ -97,24 +98,16 @@ end
 
 --Shift over to the next strip in the given direction. 
 function reposition(direction)
-    if amountOfStrips == 0 then --when just starting
-        amountOfStrips = 1
-    else
-        --turn
-        turnStripDirection(true)
-        --go to next strip
-        local i=0
-        while i<4 do --4 blocks
-            if turtle.forward() then 
-                i=i+1
-                steps=i
-            else --if last strip is reached, turtle cant move further
-                return false
-            end
+    --turn
+    turnStripDirection(true)
+    --go to next strip
+    local i=0
+    while i<4 do --4 blocks
+        if turtle.forward() then 
+            i=i+1
         end
-        amountOfStrips=amountOfStrips+1
-        turnStripDirection(false)
     end
+    turnStripDirection(false)
 end
 
 --set new deviation from currentPosition when following a vein. called when moving one step forward, up or down. based on orientation
@@ -369,10 +362,7 @@ function mineVein()
 end
 
 if not test then
-    while reposition() do --reposition for the next strip as long as you can
-        if turtle.detect() then --when reposition() was able to go 4 blocks to the left, but there's no more strips
-            break
-        end
+    while currentStrip < amountOfStrips do
         while turtle.forward() do --go forward through strip till the end
             currentPosition=currentPosition+1
             --check surrounding blocks
@@ -424,15 +414,17 @@ if not test then
         for i=0,currentPosition do --back to the start of the strip
             turtle.forward()
         end
-        turtle.turnLeft()
-        turtle.turnLeft()
+        turn(0)
+        reposition(stripDirection)
     end
-    turtle.turnRight()
-    turtle.turnRight()
-    while i<(amountOfStrips-1)*4+steps do
+    --return home
+    turn(0)
+    turnStripDirection(false)
+    local i=0
+    while i<(amountOfStrips-1)*4 do
         if turtle.forward() then
             i=i+1
         end
     end
-    turtle.turnRight() --turn to starting orientation
+    turn(0) --turn to starting orientation
 end
