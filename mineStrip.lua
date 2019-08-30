@@ -91,20 +91,20 @@ end
 --turn depending on stripDirection, true for turn in stripDirection false for opposite direction
 function turnStripDirection(notInverted)
     if notInverted then
-        if stripDirection == "right" then
+        if stripDirection == "r" then
             right()
-        elseif stripDirection == "left" then
+        elseif stripDirection == "l" then
             left()
         else
-            print("Invalid direction. Use left or right")
+            print("Invalid direction. Use l or r")
         end
     elseif not notInverted then
-        if stripDirection == "right" then
+        if stripDirection == "r" then
             left()
-        elseif stripDirection == "left" then
+        elseif stripDirection == "l" then
             right()
         else
-            print("Invalid direction. Use left or right")
+            print("Invalid direction. Use l or r")
         end
     end
 end
@@ -319,19 +319,25 @@ end
 function check(direction)
     if direction == nil then
         s,data=turtle.inspect()
-        if string.sub(data.name,-4)==target then
-            return true
-        end
+        if not s then
+            if string.sub(data.name,-4)==target then
+                return true
+            end
+        end        
     elseif direction=="up" then
         s,data=turtle.inspectUp()
-        if string.sub(data.name,-4)==target then
-            return true
+        if not s then
+            if string.sub(data.name,-4)==target then
+                return true
+            end
         end
     elseif direction=="down" then
         s,data=turtle.inspectDown()
-        if string.sub(data.name,-4)==target then
-            return true
-        end
+        if not s then
+            if string.sub(data.name,-4)==target then
+                return true
+            end
+        end        
     end
     return false
 end
