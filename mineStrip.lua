@@ -164,7 +164,10 @@ end
 --go a variable amount of steps back on the path you went in
 --dont add steps taken to path again
 function stepBackOnPath(s)
-    print("stepping back")
+    print("stepping back. path:")
+    for i,v in ipairs(path) do
+        print(v)
+    end
     for i=0,s do
         local dir=table.remove(path) --get and remove last entry
         if dir == 3 then
