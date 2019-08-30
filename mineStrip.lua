@@ -169,7 +169,6 @@ function dig(direction) --ore true when called to mine an ore
         print("added "..path[#path].." to path")
         refuel()
     end
-    checkInventory()
 end
 
 --go a variable amount of steps back on the path you went in
@@ -376,6 +375,7 @@ function mineVein()
         else
             stepBackOnPath(1)
         end
+        checkInventory()
     end
 end
 
@@ -465,7 +465,6 @@ if not test then
             end
             currentPosition = 0
             turn(0)
-
             turtle.forward()
             turtle.select(2)
             turtle.place()
@@ -477,6 +476,7 @@ if not test then
             turtle.placeDown()
             turtle.back()
             turtle.down()
+            torchTakenStrip = false
         end
         turtle.select(3)
     end
