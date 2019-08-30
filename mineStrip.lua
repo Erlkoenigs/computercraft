@@ -50,7 +50,6 @@ function newOrientation(turn) --1 is right turn, -1 is left turn
     elseif orientation == -3 then --3 left turns are one right turn
         orientation = 1
     end
-    print("new orientation: "..orientation)
 end
 
 --returns the opposite of a given orientation
@@ -399,7 +398,7 @@ if not test then
         if not torch then --if there's a torch on the second block in the strip, you've been here before
             while turtle.forward() do --go forward through strip till the end
                 currentPosition=currentPosition+1
-                print("forward")
+                print("currentPosition: "..currentPosition)
                 --check surrounding blocks
                 if check("down") then --start of a vein
                     dig("down") --go one block into the vein
@@ -460,8 +459,11 @@ if not test then
             end
             left() --turn around
             left()
-            for i=0,currentPosition do --back to the start of the strip
-                turtle.forward()
+            local i=0
+            while i<currentPosition do --back to the start of the strip
+                if turtle.forward() then
+                    i=i+1
+                end
             end
             currentPosition = 0
             turn(0)
