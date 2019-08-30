@@ -381,7 +381,8 @@ end
 if not test then
     while currentStrip < amountOfStrips do
         refuel()
-        if not currentStrip==1 then
+        print("currentStrip: "..currentStrip)
+        if currentStrip>1 then
             reposition(stripDirection)            
         end
         currentStrip=currentStrip+1
@@ -475,7 +476,7 @@ if not test then
     turn(0)
     turnStripDirection(false)
     local i=0
-    while i<(amountOfStrips-1)*4 do
+    while i<(currentStrip-1)*4 do
         if turtle.forward() then
             i=i+1
         end
