@@ -163,6 +163,7 @@ end
 
 --go a variable amount of steps back on the path you went in
 function stepBackOnPath(s)
+    print("stepping back")
     for i=0,s do
         dir=table.remove(path)
         if dir == 3 then
@@ -286,20 +287,20 @@ function checkInventory()
 end
 
 --check block in front, up or down. true if block is wanted
-function check(d)
-    if d == nil then
-        s,d=turtle.inspect()
-        if d.name==target then
+function check(direction)
+    if direction == nil then
+        s,data=turtle.inspect()
+        if data.name==target then
             return true
         end
-    elseif d=="up" then
-        s,d=turtle.inspectUp()
-        if d.name==target then
+    elseif direction=="up" then
+        s,data=turtle.inspectUp()
+        if data.name==target then
             return true
         end
-    elseif d=="down" then
-        s,d=turtle.inspectDown()
-        if d.name==target then
+    elseif direction=="down" then
+        s,data=turtle.inspectDown()
+        if data.name==target then
             return true
         end
     end
@@ -309,10 +310,13 @@ end
 --scan up, down and all sides. return "up" or "down" when ore found in those directions return true or false when ore found on a side
 --will leave the turtle in the direction of the found ore
 function scan()
+    print("scan")
     if check("up") then
+        print("detected up")
         return "up"
     end
     if check("down") then
+        print("detected down")
         return "down"
     end
     local i = 0
@@ -321,8 +325,10 @@ function scan()
         i=i+1
     end
     if i == 4 then
+        print("nothing detected")
         return false
     end
+    print("detected on a side")
     return true
 end
 
