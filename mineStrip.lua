@@ -3,6 +3,7 @@
 --won't look for diagonal ores in a vein
 --place in front of first strip
 --will continue till the end of every strip and until the last strip
+
 local test = false
 tArgs={...}
 local stripDirection = ""
@@ -18,11 +19,13 @@ else
 end
 print("direction: "..stripDirection)
 print(amountOfStrips.." strips")
+
 local target = "minecraft:iron_ore"
 local currentStrip = 0
 local currentPosition = 0 --in the strip
 local currentHeight = 0
-local torchTaken = false
+local torchTaken = false --torch taken within strip
+local torchTakenStrip = false --torch taken from beginning of the strip
 local deviation = 0 --deviation from currentPosition in strip direction. forward is positive, backward is negative
 local deviationSide = 0 --deviation from strip to the sides. left is negative, right is positive
 local deviationVert = 0 --vertical deviation. up is positive, down is negative
@@ -109,6 +112,7 @@ end
 
 --Shift over to the next strip in the given direction. 
 function reposition(direction)
+    print("reposition")
     --turn
     turnStripDirection(true)
     --go to next strip
@@ -264,13 +268,13 @@ function emptyInventory()
             print("no fuel in chest")
         end
     end
-    --move to torch chest. torch refill not necessary in current version
+    --move to torch chest
     right()
     turtle.forward()
     left()
     turtle.select(2)
     print("picking up torches")
-    while turtle.getItemCount()<10 do
+    while turtle.getItemCount()<50 do --leave a little space
         if not turtle.suck(64-turtle.getItemCount()) then
         end
     end
@@ -380,59 +384,68 @@ if not test then
         if not currentStrip==0 then
             reposition(stripDirection)
         end
-        while turtle.forward() do --go forward through strip till the end
-            currentPosition=currentPosition+1
-            print("forward")
-            --check surrounding blocks
-            if check("down") then --start of a vein
-                dig("down") --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end
-            turn(1) --right
-            if check() then --start of a vein
-                dig() --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end            
-            turn(-1) --left
-            if check() then --start of a vein
-                dig() --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end
-            if not turtle.up() then
-                turtle.select(2)
-                turtle.digUp()
-                turtle.select(3)
-                turtle.up()
-                torchTaken = true
-            end
-            turn(-1) --left
-            if check() then --start of a vein
-                dig() --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end
-            if check("up") then --start of a vein
-                dig("up") --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end
-            turn(1) --right
-            if check() then --start of a vein
-                dig() --go one block into the vein
-                mineVein() --follow it
-                turn(0)
-            end
-            turn(0)            
-            turtle.down()
+        local s,data = turtle.inspect()
+        if data.name == "minecraft:torch" then -- if there's a torch at the entrance of the strip, take it and remember to place it when you leave
+            turtle.select(2)
+            turtle.dig()
+            torchTakenStrip = true
+        end
+        turtle.forwad()
+        if turtle.detect() then --if there's a second torch behind the first one, you've been here before
+            turtle.back()
+            while turtle.forward() do --go forward through strip till the end
+                currentPosition=currentPosition+1
+                print("forward")
+                --check surrounding blocks
+                if check("down") then --start of a vein
+                    dig("down") --go one block into the vein
+                    mineVein() --follow it
+                    turn(0)
+                end
+                turn(1) --right
+                if check() then --start of a vein
+                    dig() --go one block into the vein
+                    mineVein() --follow it
+                    turn(0)
+                end            
+                turn(-1) --left
+                if check() then --start of a vein
+                    dig() --go one block into the vein
+                    mineVein() --follow it
+                    turn(0)
+                end
+                if not turtle.up() then --if the way up is block, there's a torch. Take it and put it back later
+                    turtle.select(2)
+                    turtle.digUp()
+                    turtle.up()
+                    torchTaken = true
+                end
+                turn(-1) --left
+                if check() then --start of a vein
+                    dig() --go one block into the vein
+                    mineVein() --follow it
+                    turn(0)
+                end
+                if check("up") then --start of a vein
+                    dig("up") --go one block into the vein
+                    mineVein() --follow it
+                    turn(0)
+                end
+                turn(1) --right
+                if check() then --start of a vein
+                    dig() --go one block into the vein
+                    mineVein() --follow it
+                    turn(0)
+                end
+                turn(0)            
+                turtle.down()
 
-            if torchTaken then
-                turtle.select(2)
-                turtle.placeUp()
-                torchTaken = false
-                turtle.select(3)
+                if torchTaken then --if there was a torch on this position, put it back
+                    turtle.select(2)
+                    turtle.placeUp()
+                    torchTaken = false
+                    turtle.select(3)
+                end
             end
         end
         left() --turn around
@@ -440,7 +453,15 @@ if not test then
         for i=0,currentPosition do --back to the start of the strip
             turtle.forward()
         end
-        turn(0)        
+        turn(0)
+        turtle.forward()
+        turtle.select(2)
+        turtle.place()
+        turtle.back()
+        if torchTakenStrip then
+            turtle.place()
+        end
+        turtle.select(3)
     end
     --return home
     turn(0)
