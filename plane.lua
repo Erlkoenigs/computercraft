@@ -1,3 +1,4 @@
+--not finished
 --This program is meant for the computercraft turtle
 --It will create a plane of a configurable radius around the starting position
 --by digging everything on the level of its starting position and above

@@ -144,7 +144,7 @@ function StripForward(blocks)
         end        
         while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
         turtle.digUp()
-        os.sleep(0.5)
+        os.sleep(0.75)
         end
         --place a torch every 10 blocks
         if blocks > 5 and torch % 10 == 0 then
