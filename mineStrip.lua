@@ -121,8 +121,7 @@ function reposition(direction)
         if turtle.forward() then 
             i=i+1
         end
-    end
-    currentStrip=currentStrip+1
+    end    
     turnStripDirection(false)
 end
 
@@ -384,6 +383,7 @@ if not test then
         refuel()
         if not currentStrip==1 then
             reposition(stripDirection)
+            currentStrip=currentStrip+1
         end
         local s,data = turtle.inspect()
         if data.name == "minecraft:torch" then -- if there's a torch at the entrance of the strip, take it and remember to place it when you leave
@@ -463,7 +463,11 @@ if not test then
             turtle.back()
         end
         if torchTakenStrip then
-            turtle.place()
+            turtle.up()
+            turtle.forward()
+            turtle.placeDown()
+            turtle.back()
+            turtle.down()
         end
         turtle.select(3)
     end
