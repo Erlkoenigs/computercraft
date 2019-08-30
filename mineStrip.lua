@@ -391,7 +391,9 @@ if not test then
                 turn(0)
             end
             if not turtle.up() then
+                turtle.select(2)
                 turtle.digUp()
+                turtle.select(3)
                 turtle.up()
                 torchTaken = true
             end
