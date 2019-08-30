@@ -382,9 +382,9 @@ if not test then
     while currentStrip < amountOfStrips do
         refuel()
         if not currentStrip==1 then
-            reposition(stripDirection)
-            currentStrip=currentStrip+1
+            reposition(stripDirection)            
         end
+        currentStrip=currentStrip+1
         local s,data = turtle.inspect()
         if data.name == "minecraft:torch" then -- if there's a torch at the entrance of the strip, take it and remember to place it when you leave
             turtle.select(2)
@@ -394,7 +394,7 @@ if not test then
         turtle.forward()
         local torch = turtle.detect()
         turtle.back()
-        if not turtle.detect() then --if there's a torch on the second block in the strip, you've been here before
+        if not torch then --if there's a torch on the second block in the strip, you've been here before
             while turtle.forward() do --go forward through strip till the end
                 currentPosition=currentPosition+1
                 print("forward")
