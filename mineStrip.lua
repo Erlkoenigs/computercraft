@@ -9,7 +9,7 @@ print("Enter direction of next strips (left/right)")
 local stripDirection = read()
 local amountOfStrips = 0 --tracks hoow many strips it cleared to find its way back to the starting position
 local steps = 0 --tracks how many steps to the side the turtle took after the last strip to be able to find its way back to the starting position
-local target = "minecraft:coal_ore"
+local target = "minecraft:iron_ore"
 local currentPosition = 0 --in the strip
 local deviation = 0 --deviation from currentPosition in strip direction. forward is positive, backward is negative
 local deviationSide = 0 --deviation from strip to the sides. left is negative, right is positive
@@ -39,9 +39,9 @@ end
 --returns the opposite of a given orientation
 function getOppositeOrientation(o)
     local newO
-    if o<0 then
+    if o<1 then
         newO = o+2
-    elseif o>2 then
+    elseif o>0 then
         newO = o-2
     end
     return newO
@@ -140,6 +140,7 @@ function dig(direction) --ore true when called to mine an ore
         end
         newDeviation()
         table.insert(path,orientation)
+        print("added "..path[#path].." to path")
         refuel()
     elseif direction == "up" then
         while not turtle.up() do
@@ -147,6 +148,7 @@ function dig(direction) --ore true when called to mine an ore
         end
         newDeviation("up")
         table.insert(path,3)
+        print("added "..path[#path].." to path")
         refuel()
     elseif direction == "down" then
         while not turtle.down() do
@@ -154,6 +156,7 @@ function dig(direction) --ore true when called to mine an ore
         end
         newDeviation("down")
         table.insert(path,-3)
+        print("added "..path[#path].." to path")
         refuel()
     end
 end
@@ -168,7 +171,10 @@ function stepBackOnPath(s)
         elseif dir == -3 then
             dig("up")
         else
-            turn(getOppositeOrientation(table.remove(path)))
+            local directionFromPath= table.remove(path) --get and remove last entry
+            print("direction"..directionFromPath)
+            local directionToGo = getOppositeOrientation(directionFromPath)
+            turn(directionToGo)
             dig()
         end
     end 
