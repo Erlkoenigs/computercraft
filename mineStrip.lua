@@ -21,7 +21,7 @@ print("direction: "..stripDirection)
 print(amountOfStrips.." strips")
 
 local target = "minecraft:iron_ore"
-local currentStrip = 0
+local currentStrip = 1
 local currentPosition = 0 --in the strip
 local currentHeight = 0
 local torchTaken = false --torch taken within strip
@@ -122,6 +122,7 @@ function reposition(direction)
             i=i+1
         end
     end
+    currentStrip=currentStrip+1
     turnStripDirection(false)
 end
 
@@ -381,7 +382,7 @@ end
 if not test then
     while currentStrip < amountOfStrips do
         refuel()
-        if not currentStrip==0 then
+        if not currentStrip==1 then
             reposition(stripDirection)
         end
         local s,data = turtle.inspect()
