@@ -425,6 +425,9 @@ if not test then
                     currentHeight=currentHeight+1
                     print("currentHeight: "..currentHeight)
                     torchTaken = true
+                else
+                    currentHeight=currentHeight+1
+                    print("currentHeight: "..currentHeight)
                 end
                 turn(-1) --left
                 if check() then --start of a vein
