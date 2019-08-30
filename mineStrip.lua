@@ -20,7 +20,7 @@ end
 print("direction: "..stripDirection)
 print(amountOfStrips.." strips")
 
-local target = "_ore"
+local target = "ore"
 local currentStrip = 0
 local currentPosition = 0 --in the strip
 local currentHeight = 0
@@ -320,21 +320,21 @@ function check(direction)
     if direction == nil then
         s,data=turtle.inspect()
         if s then
-            if string.sub(data.name,-4)==target then
+            if string.sub(data.name,-#target)==target then
                 return true
             end
         end        
     elseif direction=="up" then
         s,data=turtle.inspectUp()
         if s then
-            if string.sub(data.name,-4)==target then
+            if string.sub(data.name,-#target)==target then
                 return true
             end
         end
     elseif direction=="down" then
         s,data=turtle.inspectDown()
         if s then
-            if string.sub(data.name,-4)==target then
+            if string.sub(data.name,-#target)==target then
                 return true
             end
         end        
