@@ -156,6 +156,7 @@ function dig(direction) --ore true when called to mine an ore
         print("added "..path[#path].." to path")
         refuel()
     end
+    checkInventory()
 end
 
 --go a variable amount of steps back on the path you went in
