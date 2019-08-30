@@ -62,9 +62,7 @@ end
 --turn turtle in new direction
 function turn(newOrientation)
     diff=newOrientation-orientation
-    if diff == 0 then
-        break
-    elseif diff == -1 or diff == 3 then
+    if diff == -1 or diff == 3 then
         left()    
     elseif diff == 1 or diff == -3 then
         right()
@@ -305,15 +303,15 @@ end
 --scan up, down and all sides. return "up" or "down" when ore found in those directions return true or false when ore found on a side
 --will leave the turtle in the direction of the found ore
 function scan()
-    if turtle.check("up") then
+    if check("up") then
         return "up"
     end
-    if turtle.check("down") then
+    if check("down") then
         return "down"
     end
     local i = 0
     while not check() and i<4 do --if no target block around, turn back to previous orientation
-        right()
+        left()
         i=i+1
     end
     if i == 4 then
@@ -372,6 +370,7 @@ if not test then
     end
     turtle.turnRight() --turn to starting orientation
 end
+
+refuel()
 dig()
-left()
 mineVein()
