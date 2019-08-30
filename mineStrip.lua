@@ -223,7 +223,7 @@ function emptyInventory()
     stepBackOnPath(#path)
     --turn toward the beginning of the strip
     turn(2)
-    if height == 1 then --if on upper level, go down
+    if currentHeight == 1 then --if on upper level, go down
         local i=0
         while i<1 do
             if turtle.down() then
@@ -421,7 +421,7 @@ if not test then
                     turtle.select(2)
                     turtle.digUp()
                     turtle.up()
-                    height=height+1
+                    currentHeight=currentHeight+1
                     torchTaken = true
                 end
                 turn(-1) --left
@@ -443,7 +443,7 @@ if not test then
                 end
                 turn(0)            
                 turtle.down()
-                height=height-1
+                currentHeight=currentHeight-1
 
                 if torchTaken then --if there was a torch on this position, put it back
                     turtle.select(2)
