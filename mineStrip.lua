@@ -374,9 +374,9 @@ function mineVein()
             dig()
         else
             stepBackOnPath(1)
-        end
-        checkInventory()
+        end        
     end
+    checkInventory()
 end
 
 if not test then
