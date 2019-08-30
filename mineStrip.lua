@@ -239,9 +239,10 @@ function emptyInventory()
     local slot=2 --keep fuel and torches
     while slot<17 do
         turtle.select(slot)
-        if turtle.drop() then
-            slot=slot+1
+        while turtle.getItemCount() > 0 do
+            turtle.drop()    
         end
+        slot=slot+1
     end
     --move to fuel chest
     right()
