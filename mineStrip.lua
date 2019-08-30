@@ -1,13 +1,22 @@
---not finished
---finds and mines specific ores in strips by going down the strips looking for ores and following the connected ore veins
---won't look for diagonal ores in a vein
---place in front of first strip
---will continue till the end of every strip and until the last strip
+--This program is meant for the computercraft turtle
+--It finds and mines specific ores in 1x2 strips by going down the strips looking for ores and following the connected ore veins
+--It may be used with the "strip" program
+--It won't look for diagonal ores in a vein
+--Strips have to have a spacing of 3
+--Strips may start with a torch as a marker for the "strip" program. This program will break them and place them again afterwards
+--Strips marked by a torch on the second block of the strip will be skipped
+--Strips may have torches on the upper level. This program will break and replace them afterwards
+--Strips may not have obstructions on the lower level
+--Place the turtle in front of first strip
+--Input fuel in the first slot and torches in the second. Don't fill up the torch slot
+--Needs an item chest behind its starting position, a fuel chest to the left of the item chest and a torch chest to the left of that
 
 local test = false
+--get command line arguments
 tArgs={...}
 local stripDirection = ""
 local amountOfStrips = 0
+--when no arguments are given, ask for the info
 if #tArgs == 0 then
     print("Enter direction of next strips (left/right)")
     stripDirection = read()
@@ -17,21 +26,15 @@ else
     stripDirection = tArgs[1]
     amountOfStrips = tonumber(tArgs[2])
 end
-print("direction: "..stripDirection)
-print(amountOfStrips.." strips")
 
-local target = "ore"
+local target = "ore" --will search for this string at the end of the block information
 local currentStrip = 0
 local currentPosition = 0 --in the strip
-local currentHeight = 0
+local currentHeight = 0 --only tracked within a strip, not within a vein. values 0 or 1
 local torchTaken = false --torch taken within strip
 local torchTakenStrip = false --torch taken from beginning of the strip
-local deviation = 0 --deviation from currentPosition in strip direction. forward is positive, backward is negative
-local deviationSide = 0 --deviation from strip to the sides. left is negative, right is positive
-local deviationVert = 0 --vertical deviation. up is positive, down is negative
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is right, -1 is left, 2 and -2 are back
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
---local orePosition = {} --track the steps on the path that had ores
 
 --refuel from slot 1
 function refuel()
@@ -43,7 +46,7 @@ function refuel()
 end
 
 --track orientation when turning. left turn is -1, right turn is +1
-function newOrientation(turn) --1 is right turn, -1 is left turn
+function newOrientation(turn)
     orientation = orientation + turn
     if orientation == 3 then --3 right turns are one left turn
         orientation = -1
@@ -124,30 +127,12 @@ function reposition(direction)
     turnStripDirection(false)
 end
 
---set new deviation from currentPosition when following a vein. called when moving one step forward, up or down. based on orientation
-function newDeviation(direction)
-    if direction == nil then
-        if orientation == 0 then
-            deviation = deviation + 1
-        elseif orientation == 1 or orientation == -1 then
-            deviationSide = deviationSide + orientation
-        elseif orientation == 2 or orientation == -2 then
-            deviation = deviation - 1
-        end
-    elseif direction == "up" then
-        deviationVert=deviationVert+1
-    elseif direction == "down" then
-        deviationVert=deviationVert-1
-    end
-end
-
---dig block in front, up or down, then move in that direction
+--dig block in front, up or down, then move in that direction. Update path
 function dig(direction) --ore true when called to mine an ore
     if direction == nil then --if no direction given
         while not turtle.forward() do
             turtle.dig()          
         end
-        newDeviation()
         table.insert(path,orientation)
         print("added "..path[#path].." to path")
         refuel()
@@ -155,7 +140,6 @@ function dig(direction) --ore true when called to mine an ore
         while not turtle.up() do
             turtle.digUp()          
         end
-        newDeviation("up")
         table.insert(path,3)
         print("added "..path[#path].." to path")
         refuel()
@@ -163,7 +147,6 @@ function dig(direction) --ore true when called to mine an ore
         while not turtle.down() do
             turtle.digDown()
         end
-        newDeviation("down")
         table.insert(path,-3)
         print("added "..path[#path].." to path")
         refuel()
@@ -200,7 +183,7 @@ function stepBackOnPath(s)
     end 
 end
 
---follow a given path
+--follow a given path. Not used
 function followPath(path)
     for i=1,#path do
         if path[i] == 3 then
@@ -345,25 +328,21 @@ end
 --scan up, down and all sides. return "up" or "down" when ore found in those directions return true or false when ore found on a side
 --will leave the turtle in the direction of the found ore
 function scan()
-    print("scan")
     if check("up") then
-        print("detected up")
         return "up"
     end
     if check("down") then
-        print("detected down")
         return "down"
     end
+    --turn left until block in front is wanted
     local i = 0
-    while not check() and i<4 do --if no target block around, turn back to previous orientation
+    while not check() and i<4 do
         left()
         i=i+1
     end
-    if i == 4 then
-        print("nothing detected")
+    if i == 4 then --if full turn, no block was wanted
         return false
     end
-    print("detected on a side")
     return true
 end
 
@@ -387,25 +366,25 @@ end
 if not test then
     while currentStrip < amountOfStrips do
         refuel()
-        print("currentStrip: "..currentStrip)
-        if currentStrip>0 then
+        if currentStrip>0 then --don't reposition before going through the first strip
             reposition(stripDirection)            
         end
         currentStrip=currentStrip+1
+        --if there's a torch at the entrance of the strip, take it and remember to place it when you leave
         local s,data = turtle.inspect()
-        if data.name == "minecraft:torch" then -- if there's a torch at the entrance of the strip, take it and remember to place it when you leave
+        if data.name == "minecraft:torch" then
             turtle.select(2)
             turtle.dig()
             torchTakenStrip = true
         end
+        --if there's a torch on the second block in the strip, you've been here before
         turtle.forward()
         local torch = turtle.detect()
         turtle.back()
-        if not torch then --if there's a torch on the second block in the strip, you've been here before
+        if not torch then
             while turtle.forward() do --go forward through strip till the end
                 currentPosition=currentPosition+1
-                print("currentPosition: "..currentPosition)
-                --check surrounding blocks
+                --check surrounding blocks, if wanted, follow the vein
                 if check("down") then --start of a vein
                     dig("down") --go one block into the vein
                     mineVein() --follow it
