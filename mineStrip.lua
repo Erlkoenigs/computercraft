@@ -162,21 +162,28 @@ function dig(direction) --ore true when called to mine an ore
 end
 
 --go a variable amount of steps back on the path you went in
+--dont add steps taken to path again
 function stepBackOnPath(s)
     print("stepping back")
     for i=0,s do
         dir=table.remove(path)
         if dir == 3 then
-            dig("down")
-            table.remove(path)
+            local i=0
+            while not turtle.down() do
+                turtle.digDown()
+            end
         elseif dir == -3 then
-            dig("up")
+            while not turtle.up() do
+                turtle.digUp()
+            end
         else
             local directionFromPath= table.remove(path) --get and remove last entry
-            print("direction"..directionFromPath)
+            print("direction "..directionFromPath)
             local directionToGo = getOppositeOrientation(directionFromPath)
             turn(directionToGo)
-            dig()
+            while not turtle.forward() do
+                turtle.dig()
+            end
         end
     end 
 end
