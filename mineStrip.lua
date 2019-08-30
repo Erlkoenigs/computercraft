@@ -421,6 +421,7 @@ if not test then
                     turtle.select(2)
                     turtle.digUp()
                     turtle.up()
+                    height=height+1
                     torchTaken = true
                 end
                 turn(-1) --left
@@ -442,6 +443,7 @@ if not test then
                 end
                 turn(0)            
                 turtle.down()
+                height=height-1
 
                 if torchTaken then --if there was a torch on this position, put it back
                     turtle.select(2)
