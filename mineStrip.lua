@@ -18,7 +18,7 @@ local stripDirection = ""
 local amountOfStrips = 0
 --when no arguments are given, ask for the info
 if #tArgs == 0 then
-    print("Enter direction of next strips (left/right)")
+    print("Enter direction of next strips (l/r)")
     stripDirection = read()
     print("amount of strips:")
     amountOfStrips = tonumber(read())
