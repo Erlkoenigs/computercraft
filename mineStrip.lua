@@ -402,17 +402,13 @@ if not test then
                     mineVein() --follow it
                     turn(0)
                 end
-                if not turtle.up() then --if the way up is block, there's a torch. Take it and put it back later
+                while not turtle.up() do --if the way up is blocked, there's a torch. Take it and put it back later
                     turtle.select(2)
-                    turtle.digUp()
-                    turtle.up()
-                    currentHeight=currentHeight+1
-                    print("currentHeight: "..currentHeight)
-                    torchTaken = true
-                else
-                    currentHeight=currentHeight+1
-                    print("currentHeight: "..currentHeight)
+                    if turtle.digUp() then
+                        torchTaken = true
+                    end                    
                 end
+                currentHeight=currentHeight+1
                 turn(-1) --left
                 if check() then --start of a vein
                     dig() --go one block into the vein
@@ -431,7 +427,9 @@ if not test then
                     turn(0)
                 end
                 turn(0)            
-                turtle.down()
+                while not turtle.down() do 
+                    turtle.digDown()
+                end
                 currentHeight=currentHeight-1
                 print("currentHeight: "..currentHeight)
 
