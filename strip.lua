@@ -171,6 +171,8 @@ function Strip(length)
     turtle.select(2) 
     turtle.place()
     turtle.turnRight() -- shake the torch if it was placed on the turtle
+    turtle.forward()
+    turtle.back()
     turtle.turnLeft()
     --make sure the torch has been placed. It can't be placed if there's no block there and it will break again on gravel
     while not turtle.detect() do
@@ -209,6 +211,8 @@ function Strip(length)
         turtle.select(2)
         turtle.place()
         turtle.turnRight()
+        turtle.forward()
+        turtle.back()
         turtle.turnLeft()
     end
 end
