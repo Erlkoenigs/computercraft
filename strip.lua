@@ -183,7 +183,7 @@ function Strip(length)
         turtle.select(3)
         --need a block to place the torch on
         --find cobblestone in the inventory
-        local i=0
+        local i=1
         local cobb = false
         while i<16 and cobb == false do
             turtle.select(i)
