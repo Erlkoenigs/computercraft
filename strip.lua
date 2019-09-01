@@ -189,6 +189,7 @@ function Strip(length)
             turtle.select(i)
             d=turtle.getItemDetail()
             if string.sub(d.name,-11)=="cobblestone" then cobb=true end
+            i=i+1
         end
         if not cobb then --if no cobblestone found in inventory
             --get a block from above
