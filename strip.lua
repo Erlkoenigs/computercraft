@@ -167,9 +167,46 @@ function Strip(length)
     Forward(length) --walk back out of the strip
     turtle.turnLeft() --turn around
     turtle.turnLeft()
-    turtle.select(2) --place torch to mark the strip as finished
+    --place torch to mark the strip as finished
+    turtle.select(2) 
     turtle.place()
-    turtle.select(3)
+    --make sure the torch has been placed. It can't be placed if there's no block there and it will break again on gravel
+    while not turtle.detect() do
+        turtle.forward() --to where the torch should be
+        turtle.digDown() --get rid of the gravel
+        turtle.select(16)
+        if turtle.getItemCount()>0 then EmptyInventory() end --in case the gravel went to 16
+        turtle.select(3)
+        --need a block to place the torch on
+        --find cobblestone in the inventory
+        local i=0
+        local cobb = false
+        while i<16 and cobb == false do
+            turtle.select(i)
+            d=turtle.getItemDetail()
+            if string.sub(d.name,-11)=="cobblestone" then cobb=true end
+        end
+        if not cobb then --if no cobblestone found in inventory
+            --get a block from above
+            turtle.select(16) --16 should be free
+            local i=0
+            while turtle.getItemCount()<1 do --dig up until there's a block in the 16th slot
+                turtle.digUp()
+                if turtle.up() then
+                    i=i+1
+                end
+            end
+            local j=0
+            while j<i do --go back down
+                if turtle.down() then j=j+1 end
+            end
+        end
+        while turtle.detectUp() do turtle.digUp() end --get rid of possible gravel
+        turtle.placeDown()
+        while not turtle.back() do end --go back one
+        turtle.select(2)
+        turtle.place()
+    end
 end
 
 --Shift over to the next strip in the given direction. 
