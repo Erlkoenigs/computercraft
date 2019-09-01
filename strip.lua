@@ -187,8 +187,10 @@ function Strip(length)
         local cobb = false
         while i<16 and cobb == false do
             turtle.select(i)
-            d=turtle.getItemDetail()
-            if string.sub(d.name,-11)=="cobblestone" then cobb=true end
+            if turtle.getItemCounty()>0 then
+                d=turtle.getItemDetail()
+                if string.sub(d.name,-11)=="cobblestone" then cobb=true end
+            end
             i=i+1
         end
         if not cobb then --if no cobblestone found in inventory
