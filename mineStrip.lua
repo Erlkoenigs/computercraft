@@ -38,7 +38,7 @@ local path = {} --the path the turtle has taken while following a vein. 3 is up,
 
 --refuel from slot 1
 function refuel()
-    print("refuel")
+    print("function:refuel")
     turtle.select(1)
     while turtle.getFuelLevel()<250 do --random value
         turtle.refuel(1)
@@ -208,9 +208,7 @@ function emptyInventory()
         print("height == 1")
         local i=0
         while i<1 do
-            if turtle.down() then
-                i=i+1
-            end
+            if turtle.down() then i=i+1 end
         end
     end
     --walk back the strip to the beginning
@@ -303,21 +301,21 @@ function check(direction)
     if direction == nil then
         s,data=turtle.inspect()
         if s then
-            if string.sub(data.name,-#target)==target then
+            if not string.find(data.name,target)==nil then
                 return true
             end
         end        
     elseif direction=="up" then
         s,data=turtle.inspectUp()
         if s then
-            if string.sub(data.name,-#target)==target then
+            if not string.find(data.name,target)==nil then
                 return true
             end
         end
     elseif direction=="down" then
         s,data=turtle.inspectDown()
         if s then
-            if string.sub(data.name,-#target)==target then
+            if not string.find(data.name,target)==nil then
                 return true
             end
         end        
