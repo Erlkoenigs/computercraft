@@ -83,6 +83,7 @@ if #tArgs>0 then
             elseif stripDir == "r" then
                 sDir = "right"
             end
+            term.clear()
             print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
             print("press any button to continue")
             os.pullEvent("key")
@@ -332,7 +333,7 @@ function checkInventory()
         end
         --return to current strip from torch chest
         turnStripDirection(false)
-        forward(lateralPosition*4-2) --back to the strip
+        forward(lateralPosition-2) --back to the strip
         turnStripDirection(false)
         forward(currentPosition) --back to the position in the strip
     end
