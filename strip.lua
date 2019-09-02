@@ -87,7 +87,7 @@ end
 --if command line arguments are ok, use them
 if #tArgs>0 then
     print("got command line arguments")
-    if type(tArgs[2]) == "number" and type(tArgs[3]) == "number" then
+    if type(tonumber(tArgs[2])) == "number" and type(tonumber(tArgs[3])) == "number" then
         print("is number!")
         if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
             print("valid input")
