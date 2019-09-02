@@ -12,25 +12,6 @@
 
 --The first part of this program defines functions. These are then used in the last paragraph
 
---get command line arguments
-tArgs={...}
-local stripDirection = ""
-local numberOfStrips = 0
-local stripLength = 0
---when no arguments are given, ask for the info
-if #tArgs == 0 then
-    print("Enter strip direction: (left/right)")
-    local stripDirection = read() --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
-    print("Enter strip length:")
-    local stripLength = tonumber(read())
-    print("Enter number of strips to dig:")
-    local numberOfStrips = tonumber(read())
-else
-    stripDirection = tArgs[1]
-    amountOfStrips = tonumber(tArgs[2])
-    stripLength = tonumber(tArgs[3])
-end
-
 local torchDistance = 12
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is right, -1 is left, 2 and -2 are back
 local target = "ore" --will search for this string in the block information
@@ -39,13 +20,82 @@ local currentPosition = 0 --holds the current position within a strip. Is reset 
 local currentStrip = 0
 local currentHeight = 0
 
+--get command line arguments
+tArgs={...}
+local stripDirection = "" --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
+local stripAmount = 0
+local stripLength = 0
+
+function confirmInput()
+    local answer = ""
+    while not (answer == "y" or answer == "n") do
+        print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..stripDirection.." of the current position.")
+        print("Is that correct? (y/n)")
+        answer = io.read()
+        if answer == "y" then
+            return true
+        elseif answer == "n" then
+            return false
+        else
+            print("Incorrect input. Use 'y' or 'n'")
+            print()
+            return false
+        end
+    end
+end
+
+--if command line arguments are ok, use them
+if (tArgs[1] == l or tArgs[1] == r) and tonumber(tArgs[2]) == "number" and tonumber(tArgs[2])>0 and tonumber(tArgs[3]) == "number" and tonumber(tArgs[3])>0 then
+    stripDirection = tArgs[1]
+    stripAmount = tonumber(tArgs[2])
+    stripLength = tonumber(tArgs[3])
+else
+    --if there were invalid command line arguments, give a hint, then ask for the info manually
+    if #tArgs>0 then
+        print("Invalid command line arguments")
+        print("use: strip <direction> <amount> <length>")
+        print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
+    end
+    repeat
+        --direction
+        while not (stripDirection == r or stripDirection == l) do
+            print("Enter strip direction (l/r):")
+            stripDirection = read()
+            if not (stripDirection == r or stripDirection == l) then 
+                print("Invalid direction. Please use 'l' or 'r'")
+            end
+        end    
+        --amount
+        while not stripAmount > 0 do
+            print("Enter strip amount:")
+            stripAmount = tonumber(read())
+            if stripAmount == nil then stripAmount = 0 end --make sure it's a number
+            if not (type(stripAmount) == "number" and stripAmount > 0) then 
+                print("Invalid amount. Please input any number greater than zero.")
+            end
+        end
+        --length
+        while not stripLength > 0 do
+            print("Enter strip length:")
+            stripLength = tonumber(read())
+            if stripLength == nil then stripLength = 0 end --make sure it's a number
+            if not (type(stripLength) == "number" and stripLength > 0) then 
+                print("Invalid length. Please input any number greater than zero.")
+            end
+        end
+    until (confirmInput() == true)
+end
+
+--otherwise ask for the info
+
+
 function forward(steps)
     print("function:forward")
+    refuel(steps)
     local blocked = false
     local blocks = 0
     while blocks < steps do        
         if turtle.forward() then
-            refuel()
             blocks=blocks+1
         else
             if not blocked then
@@ -60,7 +110,7 @@ end
 function refuel(level)
     turtle.select(1)
     if level == nil then
-        while turtle.getFuelLevel()<300 do --random value
+        while turtle.getFuelLevel()<stripLength*3 do --random value
             turtle.refuel(1)
         end
     else
@@ -83,7 +133,7 @@ end
 --returns the opposite of a given orientation
 function getOppositeOrientation(o)
     local newO
-    if o<1 then
+    if o<=0 then
         newO = o+2
     elseif o>0 then
         newO = o-2
@@ -164,17 +214,18 @@ function dig(direction) --ore true when called to mine an ore
 end
 
 --go a variable amount of steps back on the path you went in
---dont add steps taken to path again
 function stepBackOnPath(s)
+    --debugging
     print("stepping back. path:")
     for i,v in ipairs(path) do
         print(v)
     end
-    for i=0,s-1 do
+    --action
+    if s == nil then s = 1 end
+    for i=1,s do
         local dir=table.remove(path) --get and remove last entry
         print("reversing "..dir)
         if dir == 3 then
-            local i=0
             while not turtle.down() do
                 turtle.digDown()
             end
@@ -183,9 +234,7 @@ function stepBackOnPath(s)
                 turtle.digUp()
             end
         else
-            local directionFromPath= dir 
-            local directionToGo = getOppositeOrientation(directionFromPath)
-            turn(directionToGo)
+            turn(getOppositeOrientation(dir))
             while not turtle.forward() do
                 turtle.dig()
             end
@@ -194,93 +243,92 @@ function stepBackOnPath(s)
 end
 
 --follow a given path. Not used
-function followPath(path)
-    for i=1,#path do
-        if path[i] == 3 then
+function followPath(newPath)
+    for i=1,#newPath do
+        if newPath[i] == 3 then
             dig("up")
-        elseif path[i] == -3 then
+        elseif newPath[i] == -3 then
             dig("down")
         else
-            turn(path[i])
+            turn(newPath[i])
             dig()
         end
     end
 end
 
---return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
---also picks up fuel and torches from the chests next to the item chest
 function emptyInventory()
-    refuel()
-    --get back to the chest
-    turn(2)
-    if currentHeight == 1 then --if on upper level, go down
-        local i=0
-        while not turtle.down() do end
-    end
-    forward(currentPosition) --back down the strip
-    turnStripDirection(true)
-    forward(currentStrip*4) --back to the chest
-    turnStripDirection(false)
-    --Empty inventory. If chest is full, try again till it isn't
-    local full = false
-    local slot=3 --keep torch and fuel
-    while slot<17 and not full do
-        turtle.select(slot)
-        if turtle.drop() then
-            slot=slot+1
-        else
-            if not full then
-                print("chest is full") --only print this once
-                full = true
-            end
-            os.sleep(30) --wait for 30 seconds
-        end
-    end
-    turtle.select(3)
-    --pick up fuel and torches
-    --fuel
-    right()
-    turtle.forward()
-    left()
-    refuel()
-    turtle.select(1)
-    full = false
-    while turtle.getItemCount()<64 do
-        if not turtle.suck(64-turtle.getItemCount()) then
-            if not full then
-                print("no fuel in chest")
-                full = true
-            end
-        end
-    end
-    --torches
-    right()
-    turtle.forward()
-    left()
-    turtle.select(2)
-    full = false
-    while turtle.getItemCount()<64 do
-        if not turtle.suck(64-turtle.getItemCount()) then
-            if not full then
-                print("no torches in chest")
-                full = true
-            end
-        end
-    end
-    --return to current strip from torch chest
-    turnStripDirection(false)
-    forward(currentStrip*4-2) --back to the strip
-    turnStripDirection(false)
-    forward(currentPosition) --back to the position in the strip
+    
 end
 
---check if last item slot contains items. if true, emptyInventory()
+--check if last item slot contains items. if true,
+--return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
+--also picks up fuel and torches from the chests next to the item chest
 function checkInventory()
     turtle.select(16)
     if turtle.getItemCount() > 0 then
-        emptyInventory()
+        refuel(stripLength+stripAmount*4+5)
+        --get back to the chest
+        turn(2)
+        if currentHeight == 1 then --if on upper level, go down
+            while not turtle.down() do end
+        end
+        forward(currentPosition) --back down the strip
+        turnStripDirection(true)
+        forward(currentStrip*4) --back to the chest
+        turnStripDirection(false)
+        --Empty inventory. If chest is full, try again till it isn't
+        local full = false
+        local slot=3 --keep torch and fuel
+        while slot<17 do
+            turtle.select(slot)
+            if turtle.drop() then
+                slot=slot+1
+            else
+                if not full then
+                    print("chest is full") --only print this once
+                    full = true
+                end
+                os.sleep(30) --wait for 30 seconds
+            end
+        end
+        turtle.select(3)
+        --pick up fuel and torches
+        --fuel
+        right()
+        turtle.forward()
+        left()
+        refuel()
+        turtle.select(1)
+        full = false
+        while turtle.getItemCount()<64 do
+            if not turtle.suck(64-turtle.getItemCount()) then
+                if not full then
+                    print("no fuel in chest")
+                    full = true
+                end
+            end
+        end
+        --torches
+        right()
+        turtle.forward()
+        left()
+        turtle.select(2)
+        full = false
+        while turtle.getItemCount()<64 do
+            if not turtle.suck(64-turtle.getItemCount()) then
+                if not full then
+                    print("no torches in chest")
+                    full = true
+                end
+            end
+        end
+        --return to current strip from torch chest
+        turnStripDirection(false)
+        forward(currentStrip*4-2) --back to the strip
+        turnStripDirection(false)
+        forward(currentPosition) --back to the position in the strip
     end
-    turtle.select(2)
+    turtle.select(3)
 end
 
 --check block in front, up or down. true if block is wanted
@@ -433,9 +481,7 @@ function strip(length)
     while not turtle.detect() do
         turtle.forward() --to where the torch should be
         turtle.digDown() --get rid of the gravel
-        turtle.select(16)
-        if turtle.getItemCount()>0 then EmptyInventory() end --in case the gravel went to 16
-        turtle.select(3)
+        checkInventory()
         --need a block to place the torch on
         --find cobblestone in the inventory
         local i=1
@@ -448,7 +494,8 @@ function strip(length)
             end
             i=i+1
         end
-        if not cobb then --if no cobblestone found in inventory
+        --if no cobblestone found in inventory
+        if not cobb then
             --get a block from above
             turtle.select(16) --16 should be free
             local i=0
@@ -463,7 +510,6 @@ function strip(length)
                 if turtle.down() then j=j+1 end
             end
         end
-        while turtle.detectUp() do turtle.digUp() end --get rid of possible gravel
         turtle.placeDown()
         while not turtle.back() do end --go back one
         turtle.select(2)
@@ -485,7 +531,7 @@ end
 --action
 currentStrip = 0
 currentPosition = 0
-while currentStrip<numberOfStrips do
+while currentStrip<stripAmount do
     refuel()
     turtle.select(2)
     if not turtle.compare() then 
@@ -496,5 +542,5 @@ while currentStrip<numberOfStrips do
 end
 --return home
 turnStripDirection(false)
-forward(numberOfStrips*4)
+forward(stripAmount*4)
 right()
