@@ -15,10 +15,10 @@
 local torchDistance = 12
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is right, -1 is left, 2 and -2 are back
 local target = "ore" --will search for this string in the block information
-local target2 = "resources"
+local target2 = "resources" --forestry ores
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
-local currentStrip = 0
+local lateralPosition = 0
 local currentHeight = 0
 
 --get command line arguments
@@ -110,7 +110,6 @@ else
 end
 
 function forward(steps)
-    print("function:forward")
     refuel(steps)
     local blocked = false
     local blocks = 0
@@ -294,7 +293,7 @@ function checkInventory()
         end
         forward(currentPosition) --back down the strip
         turnStripDirection(true)
-        forward(currentStrip*4) --back to the chest
+        forward(lateralPosition) --back to the chest
         turnStripDirection(false)
         --Empty inventory. If chest is full, try again till it isn't
         local full = false
@@ -344,7 +343,7 @@ function checkInventory()
         end
         --return to current strip from torch chest
         turnStripDirection(false)
-        forward(currentStrip*4-2) --back to the strip
+        forward(lateralPosition*4-2) --back to the strip
         turnStripDirection(false)
         forward(currentPosition) --back to the position in the strip
     end
@@ -357,7 +356,7 @@ function check(direction)
     if direction == nil then
         success,data=turtle.inspect()
         if success then
-            if string.sub(data.name,-#target)==target then
+            if string.sub(data.name,-#target)==target or string.sub(data.name,-#target2)==target2 then
                 print("detected")
                 return true
             end
@@ -365,7 +364,7 @@ function check(direction)
     elseif direction=="up" then
         success,data=turtle.inspectUp()
         if success then
-            if string.sub(data.name,-#target)==target then
+            if string.sub(data.name,-#target)==target or string.sub(data.name,-#target2)==target2 then
                 print("detected up")
                 return true
             end
@@ -373,7 +372,7 @@ function check(direction)
     elseif direction=="down" then
         success,data=turtle.inspectDown()
         if success then
-            if string.sub(data.name,-#target)==target then
+            if string.sub(data.name,-#target)==target or string.sub(data.name,-#target2)==target2 then
                 print("detected down")
                 return true
             end
@@ -554,23 +553,25 @@ end
 --Shift over to the next strip in the given direction. 
 function reposition()
     turnStripDirection(true)
-    stripForward(4) --three steps to the right or left
+    for i=1,4 do
+        stripForward(1)
+        lateralPosition = lateralPosition+1
+    end
     turnStripDirection(false)
 end
 
 --action
-while currentStrip<stripAmount do
+repeat
     refuel()
     turtle.select(2)
     if not turtle.compare() then 
         strip(stripLength)
-    end    
+    end
     reposition()
-    currentStrip = currentStrip+1
-end
+until lateralPosition<(stripAmount-1)*4
 --return home
 turnStripDirection(false)
-forward(stripAmount*4)
+forward(lateralPosition)
 turnStripDirection(false)
 --empty inventory into chest
 local full = false
