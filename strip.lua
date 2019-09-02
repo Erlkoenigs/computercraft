@@ -15,6 +15,7 @@
 local torchDistance = 12
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is right, -1 is left, 2 and -2 are back
 local target = "ore" --will search for this string in the block information
+local target2 = "resources"
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local currentStrip = 0
@@ -357,7 +358,7 @@ function check(direction)
     if direction == nil then
         s,data=turtle.inspect()
         if s then
-            if type(string.find(data.name,target))=="number" then
+            if string.sub(data.name,-#target)==target then
                 print("detected")
                 return true
             end
@@ -365,7 +366,7 @@ function check(direction)
     elseif direction=="up" then
         s,data=turtle.inspectUp()
         if s then
-            if type(string.find(data.name,target))=="number" then
+            if string.sub(data.name,-#target)==target then
                 print("detected up")
                 return true
             end
@@ -373,7 +374,7 @@ function check(direction)
     elseif direction=="down" then
         s,data=turtle.inspectDown()
         if s then
-            if type(string.find(data.name,target))=="number" then
+            if string.sub(data.name,-#target)==target then
                 print("detected down")
                 return true
             end
