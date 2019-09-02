@@ -87,21 +87,16 @@ end
 
 --if command line arguments are ok, use them
 if #tArgs>0 then
-    print("got command line arguments")
     if type(tonumber(tArgs[2])) == "number" and type(tonumber(tArgs[3])) == "number" then
-        print("is number!")
         if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
-            print("valid input")
             stripDirection = tArgs[1]
             stripAmount = tonumber(tArgs[2])
             stripLength = tonumber(tArgs[3])
         else
-            print("invalid input")
             usageHint()
             getUserInput()
         end
     else
-        print("arguments 2 and 3 not valid")
         usageHint()
         getUserInput()
     end
@@ -568,7 +563,7 @@ repeat
         strip(stripLength)
     end
     reposition()
-until lateralPosition<(stripAmount-1)*4
+until lateralPosition==(stripAmount-1)*4
 --return home
 turnStripDirection(false)
 forward(lateralPosition)
