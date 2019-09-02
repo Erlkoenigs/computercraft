@@ -50,22 +50,10 @@ function usageHint()
     print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
 end
 
---if command line arguments are ok, use them
-if #tArgs>0 then
-    if type(tArgs[2]) == "number" and type(tArgs[3]) == "number" then
-        print("is number!")
-        if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
-            print("valid input")
-            stripDirection = tArgs[1]
-            stripAmount = tonumber(tArgs[2])
-            stripLength = tonumber(tArgs[3])
-        else
-            usageHint()
-        end
-    else
-        usageHint()
-    end
-elseif not confirmInput() then
+function getUserInput()
+    stripDirection = ""
+    stripLength = 0
+    stripAmount = 0
     repeat
         --direction
         while not (stripDirection == r or stripDirection == l) do
@@ -94,6 +82,30 @@ elseif not confirmInput() then
             end
         end
     until (confirmInput() == true)
+end
+
+--if command line arguments are ok, use them
+if #tArgs>0 then
+    print("got command line arguments")
+    if type(tArgs[2]) == "number" and type(tArgs[3]) == "number" then
+        print("is number!")
+        if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
+            print("valid input")
+            stripDirection = tArgs[1]
+            stripAmount = tonumber(tArgs[2])
+            stripLength = tonumber(tArgs[3])
+        else
+            print("invalid input")
+            usageHint()
+            getUserInput()
+        end
+    else
+        print("arguments 2 and 3 not valid")
+        usageHint()
+        getUserInput()
+    end
+else
+    getUserInput()
 end
 
 function forward(steps)
@@ -536,8 +548,6 @@ function reposition()
 end
 
 --action
-currentStrip = 0
-currentPosition = 0
 while currentStrip<stripAmount do
     refuel()
     turtle.select(2)
