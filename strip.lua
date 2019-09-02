@@ -419,17 +419,18 @@ end
 function stripForward(blocks)
     currentPosition = 0
     while currentPosition<blocks do
-        turtle.dig()   
-        checkInventory()
+        if turtle.dig() then checkInventory() end
         if turtle.forward() then
             currentPosition = currentPosition+1
             refuel()
-        end        
-        while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
-        turtle.digUp()
-        os.sleep(0.75)
+            if turtle.detectUp() then
+                while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
+                    turtle.digUp()
+                    os.sleep(0.75)
+                end
+                checkInventory()
+            end
         end
-        checkInventory()
     end
 end
 
@@ -439,7 +440,7 @@ function strip(length)
     left()
     left()
     --Forward(length) --walk back out of the strip
-    while currentPosiotion>0 do
+    while currentPosition>0 do
         if check("down") then --start of a vein
             dig("down") --go one block into the vein
             mineVein() --follow it
