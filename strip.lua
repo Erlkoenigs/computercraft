@@ -27,24 +27,6 @@ local stripDirection = "" --New strips will be created to the "stripDirection" o
 local stripAmount = 0
 local stripLength = 0
 
-function confirmInput()
-    local answer = ""
-    while not (answer == "y" or answer == "n") do
-        
-        print("Is that correct? (y/n)")
-        answer = io.read()
-        if answer == "y" then
-            return true
-        elseif answer == "n" then
-            return false
-        else
-            print("Incorrect input. Use 'y' or 'n'")
-            print()
-            return false
-        end
-    end
-end
-
 function getUserInput()
     stripDirection = ""
     stripLength = 0
@@ -75,6 +57,12 @@ function getUserInput()
             print("Invalid length. Please input any number greater than zero.")
         end
     end
+end
+
+function usageHint()
+    print("Invalid command line arguments")
+    print("use: strip <direction> <amount> <length>")
+    print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
 end
 
 --if command line arguments are ok, use them
