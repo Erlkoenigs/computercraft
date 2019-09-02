@@ -53,7 +53,9 @@ end
 --if command line arguments are ok, use them
 if #tArgs>0 then
     if type(tArgs[2]) == "number" and type(tArgs[3]) == "number" then
+        print("is number!")
         if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
+            print("valid input")
             stripDirection = tArgs[1]
             stripAmount = tonumber(tArgs[2])
             stripLength = tonumber(tArgs[3])
@@ -527,7 +529,7 @@ function strip(length)
 end
 
 --Shift over to the next strip in the given direction. 
-function reposition(direction)
+function reposition()
     turnStripDirection(true)
     stripForward(4) --three steps to the right or left
     turnStripDirection(false)
@@ -542,7 +544,7 @@ while currentStrip<stripAmount do
     if not turtle.compare() then 
         strip(stripLength)
     end    
-    reposition(stripDirection)
+    reposition()
     currentStrip = currentStrip+1
 end
 --return home
