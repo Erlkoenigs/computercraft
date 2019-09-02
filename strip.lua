@@ -183,7 +183,7 @@ function turnStripDirection(notInverted)
         elseif stripDirection == "l" then
             left()
         else
-            print("Invalid direction. Use l or r")
+            error("Invalid direction. Use l or r")
         end
     elseif not notInverted then
         if stripDirection == "r" then
@@ -191,7 +191,7 @@ function turnStripDirection(notInverted)
         elseif stripDirection == "l" then
             right()
         else
-            print("Invalid direction. Use l or r")
+            error("Invalid direction. Use l or r")
         end
     end
 end
@@ -203,37 +203,28 @@ function dig(direction) --ore true when called to mine an ore
             turtle.dig()          
         end
         table.insert(path,orientation)
-        print("added "..path[#path].." to path")
         refuel()
     elseif direction == "up" then
         while not turtle.up() do
             turtle.digUp()          
         end
         table.insert(path,3)
-        print("added "..path[#path].." to path")
         refuel()
     elseif direction == "down" then
         while not turtle.down() do
             turtle.digDown()
         end
         table.insert(path,-3)
-        print("added "..path[#path].." to path")
         refuel()
     end
 end
 
 --go a variable amount of steps back on the path you went in
 function stepBackOnPath(s)
-    --debugging
-    print("stepping back. path:")
-    for i,v in ipairs(path) do
-        print(v)
-    end
     --action
     if s == nil then s = 1 end
     for i=1,s do
         local dir=table.remove(path) --get and remove last entry
-        print("reversing "..dir)
         if dir == 3 then
             while not turtle.down() do
                 turtle.digDown()
@@ -265,14 +256,11 @@ function followPath(newPath)
     end
 end
 
-function emptyInventory()
-    
-end
-
 --check if last item slot contains items. if true,
 --return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
 --also picks up fuel and torches from the chests next to the item chest
 function checkInventory()
+    print("function:checkInventory:back to chest")
     turtle.select(16)
     if turtle.getItemCount() > 0 then
         refuel(stripLength+stripAmount*4+5)
@@ -332,9 +320,11 @@ function checkInventory()
             end
         end
         --return to current strip from torch chest
+        print("function:checkInventory:back to strip")
         turnStripDirection(false)
         forward(lateralPosition-2) --back to the strip
         turnStripDirection(false)
+        print("function:checkInventory:back to curren position")
         forward(currentPosition) --back to the position in the strip
     end
     turtle.select(3)
@@ -427,6 +417,7 @@ end
 
 --dig a strip and return to starting position of the strip. Uses StripForward, but returns to the starting position afterwards
 function strip(length)
+    print("function:strip")
     stripForward(length)    
     left()
     left()
@@ -535,6 +526,7 @@ end
 
 --Shift over to the next strip in the given direction. 
 function reposition()
+    print("function:reposition")
     turnStripDirection(true)
     for i=1,4 do
         stripForward(1)
@@ -576,3 +568,4 @@ end
 turtle.select(3)
 turnStripDirection(true)
 turnStripDirection(true)
+print("finished")
