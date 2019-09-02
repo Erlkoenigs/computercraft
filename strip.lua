@@ -44,18 +44,26 @@ function confirmInput()
     end
 end
 
+function usageHint()
+    print("Invalid command line arguments")
+    print("use: strip <direction> <amount> <length>")
+    print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
+end
+
 --if command line arguments are ok, use them
-if (tArgs[1] == l or tArgs[1] == r) and tonumber(tArgs[2]) == "number" and tonumber(tArgs[2])>0 and tonumber(tArgs[3]) == "number" and tonumber(tArgs[3])>0 then
-    stripDirection = tArgs[1]
-    stripAmount = tonumber(tArgs[2])
-    stripLength = tonumber(tArgs[3])
-else
-    --if there were invalid command line arguments, give a hint, then ask for the info manually
-    if #tArgs>0 then
-        print("Invalid command line arguments")
-        print("use: strip <direction> <amount> <length>")
-        print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
+if #tArgs>0 then
+    if type(tArgs[2]) == "number" and type(tArgs[3]) == "number" then
+        if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
+            stripDirection = tArgs[1]
+            stripAmount = tonumber(tArgs[2])
+            stripLength = tonumber(tArgs[3])
+        else
+            usageHint()
+        end
+    else
+        usageHint()
     end
+elseif not confirmInput() then
     repeat
         --direction
         while not (stripDirection == r or stripDirection == l) do
@@ -85,9 +93,6 @@ else
         end
     until (confirmInput() == true)
 end
-
---otherwise ask for the info
-
 
 function forward(steps)
     print("function:forward")
