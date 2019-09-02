@@ -56,7 +56,7 @@ function getUserInput()
     stripAmount = 0
     repeat
         --direction
-        while not (stripDirection == r or stripDirection == l) do
+        while not (stripDirection == "r" or stripDirection == "l") do
             print("Enter strip direction (l/r):")
             stripDirection = read()
             if not (stripDirection == r or stripDirection == l) then 
