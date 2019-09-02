@@ -36,6 +36,7 @@ function getUserInput()
         print("Enter strip direction (l/r):")
         stripDirection = read()
         if not (stripDirection == "r" or stripDirection == "l") then 
+            term.clear()
             print("Invalid direction. Please use 'l' or 'r'")
         end
     end    
@@ -45,6 +46,7 @@ function getUserInput()
         stripAmount = tonumber(read())
         if stripAmount == nil then stripAmount = 0 end --make sure it's a number
         if not (type(stripAmount) == "number" and stripAmount > 0) then 
+            term.clear()
             print("Invalid amount. Please input any number greater than zero.")
         end
     end
@@ -53,7 +55,8 @@ function getUserInput()
         print("Enter strip length:")
         stripLength = tonumber(read())
         if stripLength == nil then stripLength = 0 end --make sure it's a number
-        if not (type(stripLength) == "number" and stripLength > 0) then 
+        if not (type(stripLength) == "number" and stripLength > 0) then
+            term.clear()
             print("Invalid length. Please input any number greater than zero.")
         end
     end
