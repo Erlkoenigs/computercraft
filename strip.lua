@@ -30,7 +30,7 @@ local stripLength = 0
 function confirmInput()
     local answer = ""
     while not (answer == "y" or answer == "n") do
-        print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..stripDirection.." of the current position.")
+        
         print("Is that correct? (y/n)")
         answer = io.read()
         if answer == "y" then
@@ -45,44 +45,36 @@ function confirmInput()
     end
 end
 
-function usageHint()
-    print("Invalid command line arguments")
-    print("use: strip <direction> <amount> <length>")
-    print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
-end
-
 function getUserInput()
     stripDirection = ""
     stripLength = 0
     stripAmount = 0
-    repeat
-        --direction
-        while not (stripDirection == "r" or stripDirection == "l") do
-            print("Enter strip direction (l/r):")
-            stripDirection = read()
-            if not (stripDirection == "r" or stripDirection == "l") then 
-                print("Invalid direction. Please use 'l' or 'r'")
-            end
-        end    
-        --amount
-        while stripAmount == 0 do
-            print("Enter strip amount:")
-            stripAmount = tonumber(read())
-            if stripAmount == nil then stripAmount = 0 end --make sure it's a number
-            if not (type(stripAmount) == "number" and stripAmount > 0) then 
-                print("Invalid amount. Please input any number greater than zero.")
-            end
+    --direction
+    while not (stripDirection == "r" or stripDirection == "l") do
+        print("Enter strip direction (l/r):")
+        stripDirection = read()
+        if not (stripDirection == "r" or stripDirection == "l") then 
+            print("Invalid direction. Please use 'l' or 'r'")
         end
-        --length
-        while stripLength == 0 do
-            print("Enter strip length:")
-            stripLength = tonumber(read())
-            if stripLength == nil then stripLength = 0 end --make sure it's a number
-            if not (type(stripLength) == "number" and stripLength > 0) then 
-                print("Invalid length. Please input any number greater than zero.")
-            end
+    end    
+    --amount
+    while stripAmount == 0 do
+        print("Enter strip amount:")
+        stripAmount = tonumber(read())
+        if stripAmount == nil then stripAmount = 0 end --make sure it's a number
+        if not (type(stripAmount) == "number" and stripAmount > 0) then 
+            print("Invalid amount. Please input any number greater than zero.")
         end
-    until (confirmInput() == true)
+    end
+    --length
+    while stripLength == 0 do
+        print("Enter strip length:")
+        stripLength = tonumber(read())
+        if stripLength == nil then stripLength = 0 end --make sure it's a number
+        if not (type(stripLength) == "number" and stripLength > 0) then 
+            print("Invalid length. Please input any number greater than zero.")
+        end
+    end
 end
 
 --if command line arguments are ok, use them
@@ -92,6 +84,15 @@ if #tArgs>0 then
             stripDirection = tArgs[1]
             stripAmount = tonumber(tArgs[2])
             stripLength = tonumber(tArgs[3])
+            local sDir = ""
+            if stripDirection == "l" then
+                sDir = "left"
+            elseif stripDir == "r" then
+                sDir = "right"
+            end
+            print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
+            print("press any button to continue")
+            os.pullEvent("key")
         else
             usageHint()
             getUserInput()
@@ -352,7 +353,6 @@ function check(direction)
         success,data=turtle.inspect()
         if success then
             if string.sub(data.name,-#target)==target or string.sub(data.name,-#target2)==target2 then
-                print("detected")
                 return true
             end
         end        
@@ -360,7 +360,6 @@ function check(direction)
         success,data=turtle.inspectUp()
         if success then
             if string.sub(data.name,-#target)==target or string.sub(data.name,-#target2)==target2 then
-                print("detected up")
                 return true
             end
         end
@@ -368,15 +367,9 @@ function check(direction)
         success,data=turtle.inspectDown()
         if success then
             if string.sub(data.name,-#target)==target or string.sub(data.name,-#target2)==target2 then
-                print("detected down")
                 return true
             end
         end        
-    end
-    if success then
-        print("no match: "..data.name)
-    else
-        print("nothing detected: ")
     end
     return false
 end
@@ -542,6 +535,7 @@ function strip(length)
         turtle.forward()
         turtle.back()
         left()
+        currentPosition = 0
     end
 end
 
