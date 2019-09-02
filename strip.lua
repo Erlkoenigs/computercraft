@@ -59,12 +59,12 @@ function getUserInput()
         while not (stripDirection == "r" or stripDirection == "l") do
             print("Enter strip direction (l/r):")
             stripDirection = read()
-            if not (stripDirection == r or stripDirection == l) then 
+            if not (stripDirection == "r" or stripDirection == "l") then 
                 print("Invalid direction. Please use 'l' or 'r'")
             end
         end    
         --amount
-        while not stripAmount > 0 do
+        while stripAmount == 0 do
             print("Enter strip amount:")
             stripAmount = tonumber(read())
             if stripAmount == nil then stripAmount = 0 end --make sure it's a number
@@ -73,7 +73,7 @@ function getUserInput()
             end
         end
         --length
-        while not stripLength > 0 do
+        while stripLength == 0 do
             print("Enter strip length:")
             stripLength = tonumber(read())
             if stripLength == nil then stripLength = 0 end --make sure it's a number
@@ -353,8 +353,9 @@ end
 --check block in front, up or down. true if block is wanted
 function check(direction)
     print("function:check")
+    local s,data
     if direction == nil then
-        local s,data=turtle.inspect()
+        s,data=turtle.inspect()
         if s then
             if not string.find(data.name,target)==nil then
                 print("detected")
@@ -362,7 +363,7 @@ function check(direction)
             end
         end        
     elseif direction=="up" then
-        local s,data=turtle.inspectUp()
+        s,data=turtle.inspectUp()
         if s then
             if not string.find(data.name,target)==nil then
                 print("detected up")
@@ -370,7 +371,7 @@ function check(direction)
             end
         end
     elseif direction=="down" then
-        local s,data=turtle.inspectDown()
+        s,data=turtle.inspectDown()
         if s then
             if not string.find(data.name,target)==nil then
                 print("detected down")
