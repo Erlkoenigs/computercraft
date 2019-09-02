@@ -357,7 +357,7 @@ function check(direction)
     if direction == nil then
         s,data=turtle.inspect()
         if s then
-            if not string.find(data.name,target)==nil then
+            if type(string.find(data.name,target))=="number" then
                 print("detected")
                 return true
             end
@@ -365,7 +365,7 @@ function check(direction)
     elseif direction=="up" then
         s,data=turtle.inspectUp()
         if s then
-            if not string.find(data.name,target)==nil then
+            if type(string.find(data.name,target))=="number" then
                 print("detected up")
                 return true
             end
@@ -373,7 +373,7 @@ function check(direction)
     elseif direction=="down" then
         s,data=turtle.inspectDown()
         if s then
-            if not string.find(data.name,target)==nil then
+            if type(string.find(data.name,target))=="number" then
                 print("detected down")
                 return true
             end
@@ -571,4 +571,21 @@ end
 --return home
 turnStripDirection(false)
 forward(stripAmount*4)
-right()
+turnStripDirection(false)
+--empty inventory into chest
+local full = false
+local slot=3 --keep torch and fuel
+while slot<17 do
+    turtle.select(slot)
+    if turtle.drop() then
+        slot=slot+1
+    else
+        if not full then
+            print("chest is full") --only print this once
+            full = true
+        end
+        os.sleep(30) --wait for 30 seconds
+    end
+end
+turtle.select(3)
+turnStripDirection(true)
