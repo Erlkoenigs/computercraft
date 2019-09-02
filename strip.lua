@@ -352,28 +352,33 @@ end
 
 --check block in front, up or down. true if block is wanted
 function check(direction)
+    print("function:check")
     if direction == nil then
-        s,data=turtle.inspect()
+        local s,data=turtle.inspect()
         if s then
             if not string.find(data.name,target)==nil then
+                print("detected")
                 return true
             end
         end        
     elseif direction=="up" then
-        s,data=turtle.inspectUp()
+        local s,data=turtle.inspectUp()
         if s then
             if not string.find(data.name,target)==nil then
+                print("detected up")
                 return true
             end
         end
     elseif direction=="down" then
-        s,data=turtle.inspectDown()
+        local s,data=turtle.inspectDown()
         if s then
             if not string.find(data.name,target)==nil then
+                print("detected down")
                 return true
             end
         end        
     end
+    print("nothing detected: "..data.name)
     return false
 end
 
