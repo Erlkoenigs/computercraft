@@ -60,9 +60,11 @@ function getUserInput()
 end
 
 function usageHint()
+    term.clear()
     print("Invalid command line arguments")
     print("use: strip <direction> <amount> <length>")
     print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
+    print()
 end
 
 --if command line arguments are ok, use them
