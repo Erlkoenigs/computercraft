@@ -378,7 +378,11 @@ function check(direction)
             end
         end        
     end
-    print("nothing detected: "..data.name)
+    if s then
+        print("no match: "..data.name)
+    else
+        print("nothing detected: ")
+    end
     return false
 end
 
