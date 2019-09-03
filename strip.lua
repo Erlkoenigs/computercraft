@@ -27,6 +27,19 @@ local stripDirection = "" --New strips will be created to the "stripDirection" o
 local stripAmount = 0
 local stripLength = 0
 
+function informUser()
+    local sDir = ""
+        if stripDirection == "l" then
+            sDir = "left"
+        elseif stripDir == "r" then
+            sDir = "right"
+        end
+    print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
+    print("Make sure there's fuel in slot one and torches in slot 2")
+    print("press any button to continue")
+    os.pullEvent("key")
+end
+
 function getUserInput()
     stripDirection = ""
     stripLength = 0
@@ -66,13 +79,6 @@ function getUserInput()
     informUser()
 end
 
-function informUser()
-    print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
-    print("Make sure there's fuel in slot one and torches in slot 2")
-    print("press any button to continue")
-    os.pullEvent("key")
-end
-
 function usageHint()
     term.clear()
     term.setCursorPos(1,1)
@@ -89,12 +95,6 @@ if #tArgs>0 then
             stripDirection = tArgs[1]
             stripAmount = tonumber(tArgs[2])
             stripLength = tonumber(tArgs[3])
-            local sDir = ""
-            if stripDirection == "l" then
-                sDir = "left"
-            elseif stripDir == "r" then
-                sDir = "right"
-            end
             term.clear()
             term.setCursorPos(1,1)
             informUser()
