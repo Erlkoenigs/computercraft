@@ -238,6 +238,7 @@ function stepBackOnPath(s)
     if s == nil then s = 1 end
     for i=1,s do
         local dir=table.remove(path) --get and remove last entry
+        print("reversing "..dir)
         if dir == 3 then
             while not turtle.down() do
                 turtle.digDown()
@@ -247,7 +248,9 @@ function stepBackOnPath(s)
                 turtle.digUp()
             end
         else
-            turn(getOppositeOrientation(dir))
+            local directi = dir
+            local oppo = getOppositeOrientation(directi)
+            turn(oppo)
             while not turtle.forward() do
                 turtle.dig()
             end
