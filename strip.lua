@@ -565,7 +565,7 @@ repeat
     if not turtle.compare() then 
         strip(stripLength)
     end
-    if not lateralPosition==(stripAmount-1)*4 then reposition() end
+    if lateralPosition~=(stripAmount-1)*4 then reposition() end
 until lateralPosition==(stripAmount-1)*4
 --return home
 turnStripDirection(false)
