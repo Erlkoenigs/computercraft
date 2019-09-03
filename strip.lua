@@ -35,7 +35,7 @@ function informUser()
             sDir = "right"
         end
     print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
-    print("Make sure there's fuel in slot one and torches in slot 2")
+    print("Make sure there's fuel in slot one and torches in slot two")
     print("press any button to continue")
     os.pullEvent("key")
 end
