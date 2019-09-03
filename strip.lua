@@ -418,7 +418,8 @@ end
 
 --Digs a 1x2 strip of a given length in the forward direction. Picks up mined items
 function stripForward(blocks)
-    while currentPosition<blocks and lateralPosition<blocks do
+    local i=0
+    while i<blocks do
         if turtle.dig() then checkInventory() end
         if turtle.forward() then
             if orientation == 0 then --count currentPosition up when going down the strip
@@ -434,6 +435,7 @@ function stripForward(blocks)
                 end
                 checkInventory()
             end
+            i=i+1
         end
     end
 end
