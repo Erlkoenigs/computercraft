@@ -250,6 +250,7 @@ function stepBackOnPath(s)
         else
             local directi = dir
             local oppo = getOppositeOrientation(directi)
+            print("opposite of "..dir.." is "..oppo)
             turn(oppo)
             while not turtle.forward() do
                 turtle.dig()
