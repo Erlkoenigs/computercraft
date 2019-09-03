@@ -153,7 +153,7 @@ function newOrientation(turn)
 end
 
 --returns the opposite of a given orientation
-function getOppositeOrientation(o)
+function getOppositeOrientation(orientation)
     local opppositeOrientation
     if orientation<=0 then
         opppositeOrientation = orientation+2
@@ -238,7 +238,7 @@ function stepBackOnPath(s)
     if s == nil then s = 1 end
     for i=1,s do
         local dir=table.remove(path) --get and remove last entry
-        print("reversing "..dir)
+        --print("reversing "..dir)
         if dir == 3 then
             while not turtle.down() do
                 turtle.digDown()
@@ -248,10 +248,8 @@ function stepBackOnPath(s)
                 turtle.digUp()
             end
         else
-            local directi = dir
-            local oppo = getOppositeOrientation(directi)
-            print("opposite of "..dir.." is "..oppo)
-            turn(oppo)
+            --print("opposite of "..dir.." is "..oppo)
+            turn(getOppositeOrientation(dir))
             while not turtle.forward() do
                 turtle.dig()
             end
