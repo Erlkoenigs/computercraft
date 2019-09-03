@@ -424,10 +424,11 @@ function stripForward(blocks)
             if orientation == 0 then --count currentPosition up when going down the strip
                 currentPosition = currentPosition+1
                 print("stripFW:forward movement")
-            end
-            if orientation == -1 or orientation == 1 then -- count lateralPosition up when repositioning
+            elseif orientation == -1 or orientation == 1 then -- count lateralPosition up when repositioning
                 lateralPosition = lateralPosition + 1
                 print("stripFW:lateral movement")
+            else
+                print("orientation: "..orientation)
             end
             refuel()
             if turtle.detectUp() then
