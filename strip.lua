@@ -293,14 +293,18 @@ function checkInventory()
         local slot=3 --keep torch and fuel
         while slot<17 do
             turtle.select(slot)
-            if turtle.drop() then
-                slot=slot+1
-            else
-                if not full then
-                    print("chest is full") --only print this once
-                    full = true
+            if turtle.getItemCount(slot)>0 then
+                if turtle.drop() then
+                    slot=slot+1
+                else
+                    if not full then
+                        print("chest is full") --only print this once
+                        full = true
+                    end
+                    os.sleep(30) --wait for 30 seconds
                 end
-                os.sleep(30) --wait for 30 seconds
+            else
+                slot=slot+1
             end
         end
         turtle.select(3)
@@ -580,7 +584,7 @@ local full = false
 local slot=3 --keep torch and fuel
 while slot<17 do
     turtle.select(slot)
-    if turtle.getItemCount()>0 then
+    if turtle.getItemCount(slot)>0 then
         if turtle.drop() then
             slot=slot+1
         else
@@ -590,6 +594,8 @@ while slot<17 do
             end
             os.sleep(30) --wait for 30 seconds
         end
+    else
+        slot=slot+1
     end
 end
 turtle.select(3)
