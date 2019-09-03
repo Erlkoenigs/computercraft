@@ -63,6 +63,14 @@ function getUserInput()
             print("Invalid length. Please input any number greater than zero.")
         end
     end
+    informUser()
+end
+
+function informUser()
+    print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
+    print("Make sure there's fuel in slot one and torches in slot 2")
+    print("press any button to continue")
+    os.pullEvent("key")
 end
 
 function usageHint()
@@ -89,9 +97,7 @@ if #tArgs>0 then
             end
             term.clear()
             term.setCursorPos(1,1)
-            print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
-            print("press any button to continue")
-            os.pullEvent("key")
+            informUser()
         else
             usageHint()
             getUserInput()
