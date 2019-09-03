@@ -330,10 +330,14 @@ function checkInventory()
                 end
             end
         end
-        --return to current strip from torch chest
+        --back to starting position
+        left()
+        forward(2)
+        left()
+        --return to current strip
         print("checkInventory:back to strip")
-        turnStripDirection(false)
-        forward(lateralPosition-2) --back to the strip
+        turnStripDirection(true)
+        forward(lateralPosition) --back to the strip
         turnStripDirection(false)
         print("checkInventory:back to current position")
         forward(currentPosition) --back to the position in the strip
