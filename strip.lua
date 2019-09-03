@@ -112,6 +112,7 @@ end
 
 function forward(steps)
     refuel(steps)
+    if steps == nil then steps = 1 end
     local blocked = false
     local blocks = 0
     while blocks < steps do        
@@ -417,11 +418,14 @@ end
 
 --Digs a 1x2 strip of a given length in the forward direction. Picks up mined items
 function stripForward(blocks)
-    while currentPosition<blocks do
+    while currentPosition<blocks or lateralPosition<blocks do
         if turtle.dig() then checkInventory() end
         if turtle.forward() then
-            if orientation == 0 then --only count position up when going down the strip
+            if orientation == 0 then --count currentPosition up when going down the strip
                 currentPosition = currentPosition+1
+            end
+            if orientation == -1 or orientation == 1 then -- count lateralPosition up when repositioning
+                lateralPosition = lateralPosition + 1
             end
             refuel()
             if turtle.detectUp() then
@@ -547,10 +551,7 @@ end
 function reposition()
     print("reposition")
     turnStripDirection(true)
-    for i=1,4 do
-        stripForward(1)
-        lateralPosition = lateralPosition+1
-    end
+        stripForward(4)
     turnStripDirection(false)
 end
 
