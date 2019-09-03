@@ -427,6 +427,7 @@ function stripForward(blocks)
             elseif orientation == -1 or orientation == 1 then -- count lateralPosition up when repositioning
                 lateralPosition = lateralPosition + 1
                 print("stripFW:lateral movement")
+                print(lateralPosition)
             else
                 print("orientation: "..orientation)
             end
