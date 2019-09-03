@@ -559,14 +559,18 @@ function reposition()
 end
 
 --action
-repeat
+while lateralPosition<=(stripAmount-1)*4 do
     refuel()
     turtle.select(2)
     if not turtle.compare() then 
         strip(stripLength)
     end
-    if lateralPosition~=(stripAmount-1)*4 then reposition() end
-until lateralPosition==(stripAmount-1)*4
+    if lateralPosition==(stripAmount-1)*4 then 
+        break
+    else
+        reposition()
+    end
+end
 --return home
 turnStripDirection(false)
 forward(lateralPosition)
