@@ -37,6 +37,7 @@ function getUserInput()
         stripDirection = read()
         if not (stripDirection == "r" or stripDirection == "l") then 
             term.clear()
+            term.setCursorPos(1,1)
             print("Invalid direction. Please use 'l' or 'r'")
         end
     end    
@@ -47,6 +48,7 @@ function getUserInput()
         if stripAmount == nil then stripAmount = 0 end --make sure it's a number
         if not (type(stripAmount) == "number" and stripAmount > 0) then 
             term.clear()
+            term.setCursorPos(1,1)
             print("Invalid amount. Please input any number greater than zero.")
         end
     end
@@ -57,6 +59,7 @@ function getUserInput()
         if stripLength == nil then stripLength = 0 end --make sure it's a number
         if not (type(stripLength) == "number" and stripLength > 0) then
             term.clear()
+            term.setCursorPos(1,1)
             print("Invalid length. Please input any number greater than zero.")
         end
     end
@@ -64,6 +67,7 @@ end
 
 function usageHint()
     term.clear()
+    term.setCursorPos(1,1)
     print("Invalid command line arguments")
     print("use: strip <direction> <amount> <length>")
     print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
@@ -84,6 +88,7 @@ if #tArgs>0 then
                 sDir = "right"
             end
             term.clear()
+            term.setCursorPos(1,1)
             print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
             print("press any button to continue")
             os.pullEvent("key")
@@ -260,10 +265,10 @@ end
 --return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
 --also picks up fuel and torches from the chests next to the item chest
 function checkInventory()
-    print("function:checkInventory:back to chest")
     turtle.select(16)
     if turtle.getItemCount() > 0 then
         refuel(stripLength+stripAmount*4+5)
+        print("checkInventory:back to chest")
         --get back to the chest
         turn(2)
         if currentHeight == 1 then --if on upper level, go down
@@ -320,12 +325,15 @@ function checkInventory()
             end
         end
         --return to current strip from torch chest
-        print("function:checkInventory:back to strip")
+        print("checkInventory:back to strip")
         turnStripDirection(false)
         forward(lateralPosition-2) --back to the strip
         turnStripDirection(false)
-        print("function:checkInventory:back to curren position")
+        print("checkInventory:back to current position")
         forward(currentPosition) --back to the position in the strip
+        if currentHeight == 1 then --if on upper level, go down
+            while not turtle.up() do end
+        end
     end
     turtle.select(3)
 end
@@ -417,7 +425,7 @@ end
 
 --dig a strip and return to starting position of the strip. Uses StripForward, but returns to the starting position afterwards
 function strip(length)
-    print("function:strip")
+    print("strip")
     stripForward(length)    
     left()
     left()
@@ -526,7 +534,7 @@ end
 
 --Shift over to the next strip in the given direction. 
 function reposition()
-    print("function:reposition")
+    print("reposition")
     turnStripDirection(true)
     for i=1,4 do
         stripForward(1)
