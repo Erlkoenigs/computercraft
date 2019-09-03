@@ -118,6 +118,7 @@ function forward(steps)
         if turtle.forward() then
             blocks=blocks+1
         else
+            os.sleep(30)
             if not blocked then
                 blocked = true
                 print("path is blocked") --only print this once
@@ -152,13 +153,13 @@ end
 
 --returns the opposite of a given orientation
 function getOppositeOrientation(o)
-    local newO
-    if o<=0 then
-        newO = o+2
-    elseif o>0 then
-        newO = o-2
+    local opppositeOrientation
+    if orientation<=0 then
+        opppositeOrientation = orientation+2
+    elseif orientation>0 then
+        opppositeOrientation = orientation-2
     end
-    return newO
+    return opppositeOrientation
 end
 
 --turn left and set new orientation
