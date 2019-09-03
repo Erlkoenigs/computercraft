@@ -417,11 +417,12 @@ end
 
 --Digs a 1x2 strip of a given length in the forward direction. Picks up mined items
 function stripForward(blocks)
-    currentPosition = 0
     while currentPosition<blocks do
         if turtle.dig() then checkInventory() end
         if turtle.forward() then
-            currentPosition = currentPosition+1
+            if orientation == 0 then --only count position up when going down the strip
+                currentPosition = currentPosition+1
+            end
             refuel()
             if turtle.detectUp() then
                 while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
@@ -485,7 +486,7 @@ function strip(length)
             turtle.select(2)
             turtle.placeUp()
         end
-        while not turtle.forward() do end
+        forward()
         currentPosition=currentPosition-1
         refuel()
     end
@@ -539,7 +540,6 @@ function strip(length)
         turtle.forward()
         turtle.back()
         left()
-        currentPosition = 0
     end
 end
 
