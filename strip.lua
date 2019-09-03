@@ -31,7 +31,7 @@ function informUser()
     local sDir = ""
         if stripDirection == "l" then
             sDir = "left"
-        elseif stripDir == "r" then
+        elseif stripDirection == "r" then
             sDir = "right"
         end
     print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
