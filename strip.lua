@@ -279,7 +279,8 @@ function checkInventory()
     turtle.select(16)
     if turtle.getItemCount() > 0 then
         refuel(stripLength+stripAmount*4+5)
-        print("checkInventory:back to chest")
+        print("checkInventory:down the strip")
+        print("currentPosition: "..currentPosition)
         --get back to the chest
         turn(2)
         if currentHeight == 1 then --if on upper level, go down
@@ -287,6 +288,8 @@ function checkInventory()
         end
         forward(currentPosition) --back down the strip
         turnStripDirection(true)
+        print("checkInventory:back to chest")
+        print("lateralPosition: "..lateralPosition)
         forward(lateralPosition) --back to the chest
         turnStripDirection(false)
         --Empty inventory. If chest is full, try again till it isn't
