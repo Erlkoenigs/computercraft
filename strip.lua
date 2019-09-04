@@ -1,25 +1,23 @@
 --This program is meant for the computercraft turtle
 --It creates 1x2 mining strips with a 3 block spacing
---To start the turtle will need fuel in slot 1, torches in slot 2, a chest that is regularly emptied,
+--On the way back it will mine ore veins it finds
+--The turtle needs fuel in slot 1, torches in slot 2, a chest that is regularly emptied,
 --a chest that contains fuel and a chest that contains torches
 --The turtle will start digging the first strip forward from its starting position
---the chest for the mined items has to be placed directly behind the starting position
---the chest with the fuel has to be placed to the left of the item chest, when looking down the strips
---the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips
---the entrance of an already finished strip can be marked by a torch. The turtle will skip it
+--the chest for the mined items has to be placed directly behind the starting position,
+--the chest with the fuel has to be placed to the left of the item chest, when looking down the strips,
+--the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips.
+--the entrance of an already finished strip can be marked by a torch. The turtle will do the same and skip the marked strips
 
---turtles inventory slots: 1 to 16
-
---The first part of this program defines functions. These are then used in the last paragraph
-
-local torchDistance = 12
-local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is right, -1 is left, 2 and -2 are back
-local target = "ore" --will search for this string in the block information
-local target2 = "resources" --forestry ores
+local torchDistance = 12 -- place torches every x blocks
+local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
+local target = "ore" --will search for this string at the end of the block information
+local target2 = "resources" --to find forestry ores, it will also search for this at the end of the block information
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local lateralPosition = 0
-local currentHeight = 0
+local currentHeight = 0 --only tracked within strips, not within veins. Will only have values 0 and 1
+local torchBlock = false --is there a block to place the finishing torch on
 
 --get command line arguments
 tArgs={...}
@@ -27,6 +25,7 @@ local stripDirection = "" --New strips will be created to the "stripDirection" o
 local stripAmount = 0
 local stripLength = 0
 
+--inform user about the program setup and wait for acknowledgement
 function informUser()
     local sDir = ""
         if stripDirection == "l" then
@@ -40,6 +39,7 @@ function informUser()
     os.pullEvent("key")
 end
 
+--ask for the information needed, if not properly given in command line arguments
 function getUserInput()
     stripDirection = ""
     stripLength = 0
@@ -110,6 +110,7 @@ else
     getUserInput()
 end
 
+--make sure turtle goes forward. If path is blocked, print it once
 function forward(steps)
     refuel(steps)
     if steps == nil then steps = 1 end
@@ -142,7 +143,7 @@ function refuel(level)
     end
 end
 
---track orientation when turning. left turn is -1, right turn is +1
+--track orientation when turning. Left turn is -1, right turn is +1
 function newOrientation(turn)
     orientation = orientation + turn
     if orientation == 3 then --3 right turns are one left turn
@@ -188,7 +189,7 @@ function turn(newOrientation)
     end
 end
 
---turn depending on stripDirection, true for turn in stripDirection false for opposite direction
+--turn depending on stripDirection, true for turn in stripDirection false for turn in opposite direction
 function turnStripDirection(notInverted)
     if notInverted then
         if stripDirection == "r" then
@@ -497,6 +498,21 @@ function strip(length)
             turtle.select(2)
             turtle.placeUp()
         end
+        --check if there's a block underneath the first block of the strip
+        if currentPosition == 1 then
+            local s,d=turtle.inspectDown()
+            if s then
+                if d == "minecraft:gravel" then
+                    torchBlock = false
+                    turtle.digDown() --get rid of the gravel
+                    checkInventory()
+                else
+                    torchBlock = true
+                end
+            else
+                torchBlock = false
+            end
+        end
         --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
         while not turtle.forward() do
             local s,d = turtle.inspect()
@@ -514,17 +530,10 @@ function strip(length)
     left() --turn around
     left()
     --place torch to mark the strip as finished
-    turtle.select(2) 
-    turtle.place()
-    turnStripDirection(false) --shake the torch off if it was placed on the turtle
-    turtle.forward()
-    turtle.back()
-    turnStripDirection(true)
-    --check if the torch is there. It will be placed on the turtle if there's no block there and it will break again on gravel
-    while not turtle.detect() do
-        turtle.forward() --to where the torch should be
-        turtle.digDown() --get rid of the gravel
-        checkInventory()
+    if torchBlock then
+        turtle.select(2)
+        turtle.place()
+    else
         --need a block to place the torch on
         --find cobblestone in the inventory
         local i=1
@@ -553,14 +562,11 @@ function strip(length)
                 if turtle.down() then j=j+1 end
             end
         end
+        forward()
         turtle.placeDown()
-        while not turtle.back() do end --go back one
+        while not turtle.back() do end
         turtle.select(2)
         turtle.place()
-        right()
-        turtle.forward()
-        turtle.back()
-        left()
     end
 end
 
