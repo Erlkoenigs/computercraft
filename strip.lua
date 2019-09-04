@@ -210,7 +210,7 @@ function turnStripDirection(notInverted)
 end
 
 --dig block in front, up or down, then move in that direction. Update path
-function dig(direction) --ore true when called to mine an ore
+function digVein(direction) --ore true when called to mine an ore
     if direction == nil then --if no direction given
         while not turtle.forward() do
             turtle.dig()          
@@ -261,12 +261,12 @@ end
 function followPath(newPath)
     for i=1,#newPath do
         if newPath[i] == 3 then
-            dig("up")
+            digVein("up")
         elseif newPath[i] == -3 then
-            dig("down")
+            digVein("down")
         else
             turn(newPath[i])
-            dig()
+            digVein()
         end
     end
 end
@@ -410,11 +410,11 @@ function mineVein()
     while #path>0 do    
         local s = scan()
         if s == "up" then
-            dig("up")
+            digVein("up")
         elseif s == "down" then
-            dig("down")
+            digVein("down")
         elseif s == true then
-            dig()
+            digVein()
         else
             stepBackOnPath(1)
         end        
@@ -455,19 +455,19 @@ function strip(length)
     --Forward(length) --walk back out of the strip
     while currentPosition>0 do
         if check("down") then --start of a vein
-            dig("down") --go one block into the vein
+            digVein("down") --go one block into the vein
             mineVein() --follow it
             turn(2)
         end
         turn(1) --right
         if check() then --start of a vein
-            dig() --go one block into the vein
+            digVein() --go one block into the vein
             mineVein() --follow it
             turn(2)
         end            
         turn(-1) --left
         if check() then --start of a vein
-            dig() --go one block into the vein
+            digVein() --go one block into the vein
             mineVein() --follow it
             turn(2)
         end
@@ -475,18 +475,18 @@ function strip(length)
         currentHeight=currentHeight+1
         turn(-1) --left
         if check() then --start of a vein
-            dig() --go one block into the vein
+            digVein() --go one block into the vein
             mineVein() --follow it
             turn(2)
         end
         if check("up") then --start of a vein
-            dig("up") --go one block into the vein
+            digVein("up") --go one block into the vein
             mineVein() --follow it
             turn(2)
         end
         turn(1) --right
         if check() then --start of a vein
-            dig() --go one block into the vein
+            digVein() --go one block into the vein
             mineVein() --follow it
             turn(2)
         end
@@ -497,7 +497,17 @@ function strip(length)
             turtle.select(2)
             turtle.placeUp()
         end
-        forward()
+        --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
+        while not turtle.forward() do
+            local s,d = turtle.inspect()
+            if s then
+                if d.name == "minecraft:gravel" then
+                    turtle.dig()
+                else
+                    os.sleep(30)
+                end
+            end
+        end
         currentPosition=currentPosition-1
         refuel()
     end
@@ -510,7 +520,7 @@ function strip(length)
     turtle.forward()
     turtle.back()
     turnStripDirection(true)
-    --make sure the torch has been placed. It can't be placed if there's no block there and it will break again on gravel
+    --check if the torch is there. It will be placed on the turtle if there's no block there and it will break again on gravel
     while not turtle.detect() do
         turtle.forward() --to where the torch should be
         turtle.digDown() --get rid of the gravel
