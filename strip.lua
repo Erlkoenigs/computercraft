@@ -312,7 +312,7 @@ function checkInventory()
         --pick up fuel and torches
         --fuel
         right()
-        turtle.forward()
+        forward()
         left()
         refuel()
         turtle.select(1)
@@ -327,7 +327,7 @@ function checkInventory()
         end
         --torches
         right()
-        turtle.forward()
+        forward()
         left()
         turtle.select(2)
         full = false
