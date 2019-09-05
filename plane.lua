@@ -68,8 +68,6 @@ function newOrientation(turn)
         orientation = -1
     elseif orientation == -3 then --3 left turns are one right turn
         orientation = 1
-    else
-        error("newOrientation: invalid turn")
     end
 end
 
