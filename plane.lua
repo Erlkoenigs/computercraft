@@ -1,21 +1,16 @@
 --not finished
 --This program is meant for the computercraft turtle
 --It will create a plane of a configurable radius around the starting position
---by digging everything on the level of its starting position and above
+--by digging everything in the defined area down to a given depth
+--A chest has to be placed above the turtle
 
 --radius excludes starting position: radius = 2 planes a 5x5 area
 
---Order of digging in one plane with radius = 2:
---t - turtle
---c - chest
---19 18 11 10 6
---20 17 12 9  5
---21 16 t  1  2
---22 15 c  8  3
---23 14 13 7  4
-
 print("Radius:")
 local r = tonumber(read())
+
+print("Depth:")
+local depth = tonumber(read())
 
 local pos={}
 pos["x"]=0 --right(+)-left(-)
@@ -28,14 +23,19 @@ pos["z"]=0 --up(+)-down(-)
 local currentHeight = 0
 local currentPosition = 0
 local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
-local dug = true
 
-function refuel()
+--refuel from slot 1
+function refuel(level)
     turtle.select(1)
-    while turtle.getFuelLevel()<300 do --random value
-        turtle.refuel(1)
+    if level == nil then
+        while turtle.getFuelLevel()<stripLength*3 do --random value
+            turtle.refuel(1)
+        end
+    else
+        while turtle.getFuelLevel()<level do
+            turtle.refuel(1)
+        end
     end
-    turtle.select(2)
 end
 
 --track position. called when moving forward, up or down
@@ -136,24 +136,38 @@ function turn(newOrientation)
     end
 end
 
+function dig(direction)
+    if direction == nil or direction == "forward" then
+        while not forward() do
+            if turtle.dig() then
+                checkInventory()
+            end
+        end
+    elseif direction == "up" then
+        while not up() do
+            if turtle.digUp() then
+                checkInventory()
+            end
+        end
+    elseif direction == "down" then
+        while not down() do
+            if turtle.digDown() then
+                checkInventory()
+            end
+        end
+    end
+end
+
 function emptyInventory()
-    --back to starting position
-    --two problems: 
-    --1. the chest might be in the way 
-    --2. if the turtle is still in the first half of the first level, only the path it took to get from the starting position to the lower right corner is free
-    --=> path to take:
-    --move down one level (to get around potentially uncleard blocks)
-    --if not on ground level now (not pos.z==0), then move to pos.y=0, then move to pos.x=0, then move to pos.z=0
-    --if on ground level now (pos.z==0) and the chest is on the path (pos.x=0 and currentPosition<(2*r^2+2*r+1)(=starting position)), then go around it
-    --if r%2==0, then go around right, else go around left
-    if pos.z>0 then
+    --[[for i=1,pos.z do
         down()
     end
-    if pos.z==0 and pos.x==0 and currentPosition<2*r^2+2*r+1 then --chest is in the way
-        --go around chest
-    else
-
+    if pos.x>0 then
+        turn(-1)
+    elseif pos.x<0 then
+        turn(1)
     end
+    ]]
 end
 
 function checkInventory()
@@ -168,7 +182,6 @@ function digForward(blocks)
     for i=0, blocks do
         while not forward() do
             if turtle.dig() then
-                dug = true
                 checkInventory()
             end            
         end
@@ -179,67 +192,45 @@ function digForward(blocks)
     end
 end
 
---dig a plane with given radius
+--dig an area defined by a given radius down to a given depth
 function plane()
-    dug = false
-    currentPosition = 1
-    --dig straights up and down, starting from the lower right corner (point (r/-r/0))
-    for i=0,r*2+1 do --(plus starting position block)
-        if i==2*r^2+2*r+1-r and currentHeight==0 then --if in middle row on the lowest level, go over chest
-            digForward(r)
-            while not turtle.up() do
-                turtle.digUp()
-            end
-            currentHeight=currentHeight+1
-            digForward(2)
-            while not turtle.down() do
-                turtle.digDown()
-            end
-            currentHeight=currentHeight-1
-            digForward(r-2)
-            --turn
-            if i%2==0 or i==0 then
+    while currentPosition<depth*(r+1)^2 do
+        for i=1,(r+1)^2 do
+            dig()
+            currentPosition = currentPosition+1
+            --turn at the end of each straight
+            if currentPosition % (2*r+1) == 0 and currentPosition % 2*(2*r+1) ~= 0 then
                 left()
-            else
+            elseif currentPosition % (2*r+1) == 0 and currentPosition % 2*(2*r+1) == 0 then
                 right()
             end
-            digForward(1)
-            if i%2==0 or i==0 then
+            --turn at the beginning of each straight
+            if currentPosition-1 % (2*r+1) == 0 and currentPosition-1 % 2*(2*r+1) ~= 0 then
                 left()
-            else
+            elseif currentPosition-1 % (2*r+1) == 0 and currentPosition-1 % 2*(2*r+1) == 0 then
                 right()
             end
-        else
-            digForward(r*2+1)
-            --turn
-            if i%2==0 or i==0 then
-                left()
-            else
-                right()
-            end
-            digForward(1)
-            if i%2==0 or i==0 then
-                left()
-            else
-                right()
-            end
-        end
+        end  
+    dig("down")
+    currentPosition = currentPosition+1
+    left()
+    left()
     end
 end
 
 --action
 refuel()
---to lower right corner
+--go to right edge
 right()
-digForward(r) --to the right edge
-right()
-turtle.digForward(r) --to the lower right corner
-left() --turn around
-left()
-while dug == true and pos.z < height do
-    refuel()
-
-    if not up() then --go up one level
-        turtle.digUp()
-    end
+local i=0
+while i<r do
+    dig()
 end
+--go to lower right corner
+right()
+while i<r do
+    dig()
+end
+left()
+left()
+currentPosition = 1
