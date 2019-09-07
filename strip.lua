@@ -12,12 +12,10 @@
 local stripSpacing = 4 --dig a strip every x blocks
 local torchDistance = 12 -- place torches every x blocks
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
-local target = {}
+local target = {} --will search for these strings at the end of the block information
 target[1] = "ore"
-target[2] = "resources"
+target[2] = "resources" --forestry ores
 target[3] = "obsidian"
-local target1 = "ore" --will search for this string at the end of the block information
-local target2 = "resources" --to find forestry ores, it will also search for this at the end of the block information
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local lateralPosition = 0
