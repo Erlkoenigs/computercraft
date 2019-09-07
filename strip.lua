@@ -9,6 +9,7 @@
 --the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips.
 --the entrance of an already finished strip can be marked by a torch. The turtle will do the same and skip the marked strips
 
+local stripSpacing = 4 --dig a strip every x blocks
 local torchDistance = 12 -- place torches every x blocks
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
 local target = "ore" --will search for this string at the end of the block information
@@ -578,7 +579,7 @@ end
 function reposition()
     print("reposition")
     turnStripDirection(true)
-        stripForward(4)
+        stripForward(stripSpacing)
     turnStripDirection(false)
 end
 
