@@ -110,6 +110,21 @@ else
     getUserInput()
 end
 
+--refuel from slot 1
+function refuel(level)
+    if level == nil then
+        while turtle.getFuelLevel()<stripLength*3 do --random value
+            turtle.select(1)
+            turtle.refuel(1)
+        end
+    else
+        while turtle.getFuelLevel()<level do
+            turtle.select(1)
+            turtle.refuel(1)
+        end
+    end
+end
+
 --make sure turtle goes forward. If path is blocked, print it once
 function forward(steps)
     refuel(steps)
@@ -125,20 +140,6 @@ function forward(steps)
                 blocked = true
                 print("path is blocked") --only print this once
             end
-        end
-    end
-end
-
---refuel from slot 1
-function refuel(level)
-    turtle.select(1)
-    if level == nil then
-        while turtle.getFuelLevel()<stripLength*3 do --random value
-            turtle.refuel(1)
-        end
-    else
-        while turtle.getFuelLevel()<level do
-            turtle.refuel(1)
         end
     end
 end
@@ -565,8 +566,8 @@ function strip(length)
                 if turtle.down() then j=j+1 end
             end
         end
-        forward()
-        turtle.placeDown()
+        while not turtle.forward() do end
+        while not turtle.placeDown() do end
         while not turtle.back() do end
         turtle.select(2)
         turtle.place()
