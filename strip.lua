@@ -280,7 +280,7 @@ end
 function checkInventory()
     turtle.select(16)
     if turtle.getItemCount() > 0 then
-        refuel(stripLength+stripAmount*4+5)
+        refuel(stripLength+stripAmount*stripSpacing+5)
         print("checkInventory:down the strip")
         print("currentPosition: "..currentPosition)
         --get back to the chest
@@ -584,13 +584,13 @@ function reposition()
 end
 
 --action
-while lateralPosition<=(stripAmount-1)*4 do
+while lateralPosition<=(stripAmount-1)*stripSpacing do
     refuel()
     turtle.select(2)
     if not turtle.compare() then 
         strip(stripLength)
     end
-    if lateralPosition==(stripAmount-1)*4 then 
+    if lateralPosition==(stripAmount-1)*stripSpacing then 
         break
     else
         reposition()
