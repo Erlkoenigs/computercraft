@@ -16,6 +16,7 @@ local target = {} --will search for these strings at the end of the block inform
 target[1] = "ore"
 target[2] = "resources" --forestry ores
 target[3] = "obsidian"
+target[4] = "yellorite" --big reactors
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local lateralPosition = 0
