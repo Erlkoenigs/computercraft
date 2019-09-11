@@ -1,5 +1,5 @@
 --This program is meant for the computercraft turtle
---It creates 1x2 mining strips with a 3 block spacing
+--It creates 1x2 mining strips with a variable spacing
 --On the way back it will mine ore veins it finds
 --The turtle needs fuel in slot 1, torches in slot 2, a chest that is regularly emptied,
 --a chest that contains fuel and a chest that contains torches
@@ -7,16 +7,19 @@
 --the chest for the mined items has to be placed directly behind the starting position,
 --the chest with the fuel has to be placed to the left of the item chest, when looking down the strips,
 --the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips.
---the entrance of an already finished strip can be marked by a torch. The turtle will do the same and skip the marked strips
+--the entrance of an already finished strip can be marked by a torch. The turtle will do the same and skip, but still count, marked strips
 
+--settings
 local stripSpacing = 4 --dig a strip every x blocks
 local torchDistance = 12 -- place torches every x blocks
-local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
 local target = {} --will search for these strings at the end of the block information
 target[1] = "ore"
 target[2] = "resources" --forestry ores
 target[3] = "obsidian"
 target[4] = "yellorite" --big reactors
+
+--states
+local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
 local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local lateralPosition = 0
@@ -117,7 +120,7 @@ end
 --refuel from slot 1
 function refuel(level)
     if level == nil then
-        while turtle.getFuelLevel()<stripLength*3 do --random value
+        while turtle.getFuelLevel()<stripLength*5 do --random value
             turtle.select(1)
             turtle.refuel(1)
         end
@@ -283,7 +286,8 @@ end
 function checkInventory()
     turtle.select(16)
     if turtle.getItemCount() > 0 then
-        refuel(stripLength+stripAmount*stripSpacing+5)
+        local currentOrientation = orientation
+        refuel(currentPosition+currentHeight+lateralPosition+4)
         print("checkInventory:down the strip")
         print("currentPosition: "..currentPosition)
         --get back to the chest
@@ -298,7 +302,7 @@ function checkInventory()
         forward(lateralPosition) --back to the chest
         turnStripDirection(false)
         --Empty inventory. If chest is full, try again till it isn't
-        local full = false
+        local full = false --to only print errors once
         local slot=3 --keep torch and fuel
         while slot<17 do
             turtle.select(slot)
@@ -358,6 +362,7 @@ function checkInventory()
         turnStripDirection(false)
         print("checkInventory:back to current position")
         forward(currentPosition) --back to the position in the strip
+        turn(currentOrientation)
         if currentHeight == 1 then --if on upper level, go down
             while not turtle.up() do end
         end
