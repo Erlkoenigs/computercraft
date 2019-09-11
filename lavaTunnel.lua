@@ -3,6 +3,8 @@
 --It creates a 1x2 tunnel, which can be used to get rid of a lava flow
 print("Input length of the tunnel:")
 local length = read()
+
+--places a blocks all around a 1x2 area
 function place()
     turtle.up()
     turtle.placeUp()
@@ -21,16 +23,22 @@ function place()
     turtle.turnLeft()
     turtle.placeDown()
 end
+
 turtle.select(1)
-turtle.refuel()
+while turtle.getFuelLevel()<length*5 do
+    turtle.refuel(1)
+end
 turtle.select(2)
 
 for i=0, length do
     place()
     turtle.forward()
 end
+--return to starting position
 turtle.turnLeft()
 turtle.turnLeft()
 for i=0,length do
     turtle.forward()
 end
+turtle.turnLeft()
+turtle.turnLeft()
