@@ -10,7 +10,8 @@ Variable parameters:
 * length of strips
 
 Parameters can be input via command line arguments
-> strip r 5 50
+'<strip r 5 50>'
+
 This creates 5 strips to the right of the starting position with a length of 50.
 
 Setup:
