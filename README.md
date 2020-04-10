@@ -2,7 +2,7 @@
 Lua scripts for Minecrafts Computercraft Mod
 
 ## getGithub
-Can be used to download programs from this repository onto a turtle. The name of the program can be command line argument
+Can be used to download programs from this repository onto a turtle. The name of the program can be a command line argument
 
 `getGithub strip`
 
@@ -52,3 +52,11 @@ Problems:
 * Materials have to be put in manually and into specific slots
 * The turtle doesn't check for Land Marks and dummy material
 
+## lavaTunnel
+This program will create a 1x2 tunnel of variable length by placing a dummy material above, below and to the sides of it. This can be used to clear a path of a lava flow.
+
+Usage:
+* place turtle in front of a lava flow you want to pass
+* input fuel in the first slot
+* input dummy material in the second slot
+* start the program and input the desired length of the tunnel
