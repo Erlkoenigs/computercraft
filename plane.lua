@@ -310,11 +310,13 @@ end
 
 --dig an area defined by a given radius down to a given depth
 function plane()
+    print("beginning of plane")
     local dug = 0
     while dug < (2*r+1)^2 do
         for i=1, 2*r+1 do
             dig()
             dug = dug + 1
+            print(dug)
             --turn at the top
             if pos.y == r then
                 left()
@@ -330,6 +332,7 @@ function plane()
             end
         end  
     end
+    print("end of plane")
 end
 
 --action
