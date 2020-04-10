@@ -2,7 +2,7 @@
 Lua scripts for Minecrafts Computercraft Mod
 
 ## strip
-Creates parallel 1x2 tunnels (or "stips"). On it's way back down the strip the turtle will scan for and mine ore veins.
+Creates parallel 1x2 tunnels (or "strips"). On it's way back down the strip the turtle will scan for and mine ore veins.
 If, at any point, the turtles inventory is full, it will return to an item chest, dump its contents and return back to where it left off.
 
 Variable parameters:
