@@ -312,7 +312,7 @@ end
 --dig an area defined by a given radius down to a given depth
 function plane()
     while currentPosition<depth*(r+1)^2 do
-        for 1, (r+1)^2 do
+        for i=1, (r+1)^2 do
             dig()
             currentPosition = currentPosition+1
             --turn at the end of each straight
@@ -339,12 +339,12 @@ end
 refuel()
 --go to right edge
 right()
-for 1, r do
+for i=1, r do
     dig()
 end
 --go to lower right corner
 right()
-for 1, r do
+for i=1, r do
     dig()
 end
 left()
