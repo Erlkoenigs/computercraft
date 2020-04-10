@@ -305,33 +305,30 @@ function digForward(blocks)
         if turtle.getFuelLevel()<80 then
             Refuel()
         end
-        currentPosition=currentPosition+1
     end
 end
 
 --dig an area defined by a given radius down to a given depth
 function plane()
-    while currentPosition<depth*(r+1)^2 do
-        for i=1, (r+1)^2 do
+    local dug = 0
+    while dug < (2*r+1)^2 do
+        for i=1, 2*r+1 do
             dig()
-            currentPosition = currentPosition+1
-            --turn at the end of each straight
-            if currentPosition % (2*r+1) == 0 and currentPosition % 2*(2*r+1) ~= 0 then
+            dug = dug + 1
+            --turn at the top
+            if pos.y == r then
                 left()
-            elseif currentPosition % (2*r+1) == 0 and currentPosition % 2*(2*r+1) == 0 then
+                dig()
+                dug = dug +1
+                left()
+            --turn at the bottom
+            elseif pos.y == 0-r then
                 right()
-            end
-            --turn at the beginning of each straight
-            if currentPosition-1 % (2*r+1) == 0 and currentPosition-1 % 2*(2*r+1) ~= 0 then
-                left()
-            elseif currentPosition-1 % (2*r+1) == 0 and currentPosition-1 % 2*(2*r+1) == 0 then
+                dig()
+                dug = dug +1
                 right()
             end
         end  
-        dig("down")
-        currentPosition = currentPosition+1
-        left()
-        left()
     end
 end
 
@@ -350,4 +347,6 @@ end
 left()
 left()
 currentPosition = 1
-plane()
+while pos.z > 0-depth do
+    plane()
+    dig("down")
