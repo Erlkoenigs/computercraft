@@ -180,7 +180,7 @@ function toXZero()
      --go to x = 0
      if pos.x > 0 then
         turn(-1)
-     elseif
+     elseif pos.x > 0 then
         turn(1)
     end
      while pos.x ~= 0 do
