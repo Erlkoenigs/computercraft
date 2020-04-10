@@ -312,25 +312,26 @@ end
 function plane()
     print("beginning of plane")
     local dug = 0
-    while dug < (2*r+1)^2 do
-        for i=1, 2*r+1 do
+    while true do
+        dig()
+        dug = dug + 1
+        print(dug)
+        if dug == (2*r+1)^2 then
+            break
+        end
+        --turn at the top
+        if pos.y == r then
+            left()
             dig()
-            dug = dug + 1
-            print(dug)
-            --turn at the top
-            if pos.y == r then
-                left()
-                dig()
-                dug = dug +1
-                left()
-            --turn at the bottom
-            elseif pos.y == 0-r then
-                right()
-                dig()
-                dug = dug +1
-                right()
-            end
-        end  
+            dug = dug +1
+            left()
+        --turn at the bottom
+        elseif pos.y == 0-r then
+            right()
+            dig()
+            dug = dug +1
+            right()
+        end
     end
     print("end of plane")
 end
