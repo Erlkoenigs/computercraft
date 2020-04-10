@@ -350,3 +350,7 @@ currentPosition = 1
 while pos.z > 0-depth do
     plane()
     dig("down")
+    left()
+    left()
+end
+plane()
