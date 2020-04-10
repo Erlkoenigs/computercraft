@@ -217,7 +217,7 @@ function emptyInventory()
     while slot<17 do
         turtle.select(slot)
         if turtle.getItemCount(slot)>0 then
-            if turtle.dropDown() then
+            if turtle.dropUp() then
                 slot=slot+1
             else
                 if not full then
@@ -311,7 +311,7 @@ end
 --dig an area defined by a given radius down to a given depth
 function plane()
     print("beginning of plane")
-    local dug = 0
+    local dug = 1
     while true do
         dig()
         dug = dug + 1
