@@ -11,9 +11,10 @@ Variable parameters:
 
 Parameters can be input via command line arguments
 
-`<strip r 5 50>`
+`strip r 5 50`
 
 This creates 5 strips to the right of the starting position with a length of 50.
+Alternatively the turtle will ask for these parameters one by one.
 
 Setup:
 * chest to dump items into behind the strating position
