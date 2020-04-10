@@ -333,7 +333,7 @@ function plane()
                 dug = dug +1
                 right()
             end
-        if pos.z % 2 ~= 0 then
+        elseif pos.z % 2 ~= 0 then
             if pos.y == r then
                 right()
                 dig()
