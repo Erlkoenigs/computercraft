@@ -177,15 +177,15 @@ end
 
 --go to y axis
 function toXZero()
-     --go to x = 0
-     if pos.x > 0 then
+    --go to x = 0
+    if pos.x > 0 then
         turn(-1)
-     elseif pos.x > 0 then
+    elseif pos.x > 0 then
         turn(1)
     end
-     while pos.x ~= 0 do
-         forward()
-     end
+    while pos.x ~= 0 do
+        forward()
+    end
 end
 
 function emptyInventory()
@@ -341,6 +341,10 @@ refuel()
 right()
 local i=0
 while i<r do
+    dig()
+    i = i + 1
+end
+for i = 1, r do
     dig()
 end
 --go to lower right corner
