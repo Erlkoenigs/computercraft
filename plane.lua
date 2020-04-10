@@ -163,7 +163,7 @@ function goToX()
 end
 
 --go to x axis
-function toYZero()
+function goToYZero()
     --go to y = 0
     if pos.y > 0 then
         turn(2)
@@ -176,7 +176,7 @@ function toYZero()
 end
 
 --go to y axis
-function toXZero()
+function goToXZero()
     --go to x = 0
     if pos.x > 0 then
         turn(-1)
