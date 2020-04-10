@@ -18,9 +18,9 @@ This creates 5 strips to the right of the starting position with a length of 50.
 Alternatively the turtle will ask for these parameters one by one.
 
 Setup:
-* chest to dump items into behind the strating position
+* chest to dump items into behind the starting position
 * chest with fuel to the left of the item chest
 * chest with torches to the left of the fuel chest
 
 The turtle will try to fill the fuel and troch slots to 64 items every time it returns to dump its inventory into the item chest.
-If there's not enough fuel of torches in the chest, it will wait until there is.
+If there's not enough fuel or torches in the chest, it will wait until there is.
