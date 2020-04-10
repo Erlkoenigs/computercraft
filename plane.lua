@@ -17,7 +17,11 @@ pos["x"]=0 --right(+)-left(-)
 pos["y"]=0 --front(+)-back(-)
 pos["z"]=0 --up(+)-down(-)
 --starting point is (0/0/0)
---chest is at (0/-1/0)
+--chest is at (0/0/1)
+local pos_snap = {} --snapshot of the current postition
+pos_snap["x"]=0
+pos_snap["y"]=0
+pos_snap["z"]=0
 
 --track current position
 local currentHeight = 0
@@ -134,6 +138,141 @@ function turn(newOrientation)
     end
 end
 
+--go to snapshot Y position
+function goToY()
+    if pos_snap.y > 0 then
+        turn(0)
+    elseif pos_snap.y < 0 then
+        turn(2)
+    end
+    while pos.y ~= snap_pos.y do
+        forward()
+    end
+end
+
+--go to snapshot X position
+function goToX()
+    if pos_snap.x > 0 then
+        turn(1)
+    elseif pos_snap.x < 0 then
+        turn(-1)
+    end
+    while pos.x ~= pos_snap.y do
+        forward()
+    end
+end
+
+--go to x axis
+function toYZero()
+    --go to y = 0
+    if pos.y > 0 then
+        turn(2)
+    elseif pos.y < 0 then
+        turn(0)
+    end
+    while pos.y ~= 0 do 
+        forward()
+    end
+end
+
+--go to y axis
+function toXZero()
+     --go to x = 0
+     if pos.x > 0 then
+        turn(-1)
+     elseif
+        turn(1)
+    end
+     while pos.x ~= 0 do
+         forward()
+     end
+end
+
+function emptyInventory()
+    --return home
+    pos_snap.x = pos.x
+    pos_snap.y = pos.y
+    pos_snap.z = pos.z
+    --go to z = 0
+    while pos.z > 0 do
+        up()
+    end
+    if pos.x > 0 then
+        --go to right border
+        turn(1)
+        while pos.x < r do
+            forward()
+        end
+        goToYZero()
+        goToXZero()
+    elseif pos.x == 0 then
+        goToYZero()
+    elseif pos.x < 0 then
+        goToXZero()
+        goToYZero()
+    end
+    --Empty inventory. If chest is full, try again till it isn't
+    local full = false --to only print errors once
+    local slot=2 --keep fuel
+    while slot<17 do
+        turtle.select(slot)
+        if turtle.getItemCount(slot)>0 then
+            if turtle.dropDown() then
+                slot=slot+1
+            else
+                if not full then
+                    print("chest is full") --only print this once
+                    full = true
+                end
+                os.sleep(30) --wait for 30 seconds
+            end
+        else
+            slot=slot+1
+        end
+    end
+    --fill fuel
+    turtle.select(1)
+    full = false
+    while turtle.getItemCount()<64 do
+        if not turtle.suck(64-turtle.getItemCount()) then
+            if not full then
+                print("no fuel in chest")
+                full = true
+            end
+        end
+    end
+    --return back to where it left off
+    if pos_snap.x > 0 then
+        --go to right border
+        turn(1)
+        while pos.x < r do
+            forward()
+        end
+        goToYZero()
+        --go to x = 0
+        goToXZero()
+        --reached home
+    elseif pos_snap.x == 0 then
+        goToYZero()
+        --reached home
+    elseif pos_snap.x < 0 then
+        goToXZero()
+        goToYZero()
+    end
+    --go to z position
+    while pos.z < pos_snap.z do
+        down()
+    end
+end
+
+function checkInventory()
+    turtle.select(16)
+    if turtle.getItemCount() > 0 then
+        emptyInventory()
+    end
+    turtle.select(2)
+end
+
 function dig(direction)
     if direction == nil or direction == "forward" then
         while not forward() do
@@ -154,26 +293,6 @@ function dig(direction)
             end
         end
     end
-end
-
-function emptyInventory()
-    --[[for i=1,pos.z do
-        down()
-    end
-    if pos.x>0 then
-        turn(-1)
-    elseif pos.x<0 then
-        turn(1)
-    end
-    ]]
-end
-
-function checkInventory()
-    turtle.select(16)
-    if turtle.getItemCount() > 0 then
-        emptyInventory()
-    end
-    turtle.select(2)
 end
 
 function digForward(blocks)
@@ -232,3 +351,4 @@ end
 left()
 left()
 currentPosition = 1
+plane()
