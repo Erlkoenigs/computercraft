@@ -230,17 +230,6 @@ function emptyInventory()
             slot=slot+1
         end
     end
-    --fill fuel
-    turtle.select(1)
-    full = false
-    while turtle.getItemCount()<64 do
-        if not turtle.suck(64-turtle.getItemCount()) then
-            if not full then
-                print("no fuel in chest")
-                full = true
-            end
-        end
-    end
     --return back to where it left off
     if pos_snap.x > 0 then
         --go to right border
