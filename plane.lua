@@ -267,9 +267,10 @@ function emptyInventory()
     elseif pos_snap.x + 1 < pos.x then
         turn(-1)
     end
-    while pos.x ~= pos_snap.x + 1 do
+    while pos.x ~= pos_snap.x do
         forward()
     end
+    forward()
     goToY()
     goToX()
     --go to z position
