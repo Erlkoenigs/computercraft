@@ -1,4 +1,3 @@
---not finished
 --This program is meant for the computercraft turtle
 --It will create a plane of a configurable radius around the starting position
 --by digging everything in the defined area down to a given depth
@@ -12,22 +11,25 @@ local r = tonumber(read())
 print("Depth:")
 local depth = tonumber(read())
 
+--states
+--current position
 local pos={}
 pos["x"]=0 --right(+)-left(-)
 pos["y"]=0 --front(+)-back(-)
 pos["z"]=0 --up(+)-down(-)
 --starting point is (0/0/0)
 --chest is at (0/0/1)
-local pos_snap = {} --snapshot of the current postition
+
+--snapshot of the current postition
+local pos_snap = {}
 pos_snap["x"]=0
 pos_snap["y"]=0
 pos_snap["z"]=0
 
 --track current position
-local currentHeight = 0
-local currentPosition = 0
 local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
 
+--functions
 --refuel from slot 1
 function refuel(level)
     turtle.select(1)
@@ -188,8 +190,8 @@ function goToXZero()
     end
 end
 
-function emptyInventory()
-    --return home
+--get back to chest
+function returnHome()
     pos_snap.x = pos.x
     pos_snap.y = pos.y
     pos_snap.z = pos.z
@@ -211,6 +213,10 @@ function emptyInventory()
         goToXZero()
         goToYZero()
     end
+end
+
+--dump inventory into chest above
+function dumpInventory()
     --Empty inventory. If chest is full, try again till it isn't
     local full = false --to only print errors once
     local slot=2 --keep fuel
@@ -230,6 +236,12 @@ function emptyInventory()
             slot=slot+1
         end
     end
+end
+
+--go back to the chest, dum+p inventory, get back to current position
+function emptyInventory()
+    returnHome()
+    dumpInventory()
     --return back to where it left off
     if pos_snap.x > 0 then
         --go to right border
@@ -237,16 +249,13 @@ function emptyInventory()
         while pos.x < r do
             forward()
         end
-        goToYZero()
-        --go to x = 0
-        goToXZero()
-        --reached home
+        goToY()
+        goToX()
     elseif pos_snap.x == 0 then
-        goToYZero()
-        --reached home
+        goToY()
     elseif pos_snap.x < 0 then
-        goToXZero()
-        goToYZero()
+        goToX()
+        goToY()
     end
     --go to z position
     while pos.z < pos_snap.z do
@@ -254,6 +263,7 @@ function emptyInventory()
     end
 end
 
+--check if last inventory slot is full
 function checkInventory()
     turtle.select(16)
     if turtle.getItemCount() > 0 then
@@ -284,27 +294,12 @@ function dig(direction)
     end
 end
 
-function digForward(blocks)
-    for i=0, blocks do
-        while not forward() do
-            if turtle.dig() then
-                checkInventory()
-            end            
-        end
-        if turtle.getFuelLevel()<80 then
-            Refuel()
-        end
-    end
-end
-
 --dig an area defined by a given radius down to a given depth
 function plane()
-    print("beginning of plane")
     local dug = 1
     while true do
         dig()
         dug = dug + 1
-        print(dug)
         if dug == (2*r+1)^2 then
             break
         end
@@ -337,7 +332,6 @@ function plane()
             end
         end
     end
-    print("end of plane")
 end
 
 --action
@@ -354,7 +348,6 @@ for i=1, r do
 end
 left()
 left()
-currentPosition = 1
 while pos.z > 0-depth do
     plane()
     dig("down")
@@ -362,3 +355,5 @@ while pos.z > 0-depth do
     left()
 end
 plane()
+returnHome()
+dumpInventory()
