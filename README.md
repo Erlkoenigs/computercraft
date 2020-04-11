@@ -8,6 +8,12 @@ Can be used to download programs from this repository onto a turtle. The name of
 
 downloads the _strip_ program.
 
+With
+
+`wget https://raw.githubusercontent.com/Erlkoenigs/computercraft/master/getGithub.lua getGithub.lua`
+
+this script can be loaded onto the turtle initially.
+
 ## strip
 Creates parallel 1x2 tunnels (or "strips"). On it's way back down the strip the turtle will scan for and mine ore veins.
 If, at any point, the turtles inventory is full, it will return to an item chest, dump its contents and return back to where it left off.
