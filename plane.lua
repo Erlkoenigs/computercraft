@@ -266,17 +266,9 @@ function emptyInventory()
     dumpInventory()
     --return back to where it left off
     --go to current x position + 1
-    if pos_snap.x + 1 > pos.x then
-        turn(1)
-    elseif pos_snap.x + 1 < pos.x then
-        turn(-1)
-    end
-    while pos.x ~= pos_snap.x do
-        if forward() then
-            printPosition("x")
-        end
-    end
-    forward()
+    pos_snap.x = pos_snap.x + 1 
+    goToX()
+    pos_snap.x = pos_snap.x - 1
     goToY()
     goToX()
     --go to z position
