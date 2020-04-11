@@ -259,7 +259,8 @@ function emptyInventory()
     returnHome()
     dumpInventory()
     --return back to where it left off
-    --one step in positive x direction
+    --go to current x position + 1
+    goToX()
     turn(1)
     forward()
     goToY()
