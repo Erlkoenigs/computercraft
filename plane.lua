@@ -142,6 +142,7 @@ end
 
 --go to snapshot Y position
 function goToY()
+    print("toY")
     if pos_snap.y > pos.y then
         turn(0)
     elseif pos_snap.y < pos.y then
@@ -154,6 +155,7 @@ end
 
 --go to snapshot X position
 function goToX()
+    print("toX")
     if pos_snap.x > pos.x then
         turn(1)
     elseif pos_snap.x < pos.x then
@@ -195,6 +197,9 @@ function returnHome()
     pos_snap.x = pos.x
     pos_snap.y = pos.y
     pos_snap.z = pos.z
+    print(pos_snap.x)
+    print(pos_snap.y)
+    print(pos_snap.z)
     --go to z = 0
     while pos.z > 0 do
         up()
