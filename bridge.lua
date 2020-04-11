@@ -8,16 +8,15 @@ local pos = 0
 --give length as command line argument
 tArgs={...}
 if #tArgs > 0 and type(tonumber(tArgs[1])) == "number" then
-    length = tonumber(tArgs[1])
+    length = tArgs[1]
 else
     print("Input length of the bridge:")
     local length = read()
 end
-print("type of length: " .. type(tonumber(length)))
 
 --refuel
 turtle.select(1)
-while turtle.getFuelLevel()<length do
+while turtle.getFuelLevel()<length*5 do
     turtle.refuel(1)
 end
 turtle.select(2)
