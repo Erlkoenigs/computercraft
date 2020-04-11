@@ -201,7 +201,7 @@ function goToXZero()
     --go to x = 0
     if pos.x > 0 then
         turn(-1)
-    elseif pos.x > 0 then
+    elseif pos.x < 0 then
         turn(1)
     end
     while pos.x ~= 0 do
