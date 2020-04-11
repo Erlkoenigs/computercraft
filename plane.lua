@@ -35,7 +35,7 @@ local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
 function refuel(level)
     turtle.select(1)
     if level == nil then
-        while turtle.getFuelLevel()<(((r+1)^2)*depth) do --random value
+        while turtle.getFuelLevel()<(((r+1)^2) + 5) do
             turtle.refuel(1)
         end
     else
