@@ -5,9 +5,11 @@
 
 --radius excludes starting position: radius = 2 planes a 5x5 area
 
---parameters
-local r = 0
-local depth = 0
+print("Radius:")
+local r = tonumber(read())
+
+print("Depth:")
+local depth = tonumber(read())
 
 --states
 --current position
@@ -27,22 +29,6 @@ pos_snap["o"]=0 --orientation
 
 --track current position
 local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
-
---get parameters
-tArgs = {...}
-if #tArgs > 0 then
-    r = tArgs[1]
-    depth = tArgs[2]
-    print("radius: " .. r)
-    print("depth: " .. depth)
-    print("ok? Any button to continue.")
-    os.pullEvent("key")
-else
-    print("Radius:")
-    local r = tonumber(read())
-    print("Depth:")
-    local depth = tonumber(read())
-end
 
 --functions
 --refuel from slot 1
