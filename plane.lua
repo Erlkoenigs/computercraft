@@ -267,6 +267,18 @@ end
 function emptyInventory()
     returnHome()
     dumpInventory()
+    --pick up fuel
+    refuel()
+    turtle.select(1)
+    f = false
+    while turtle.getItemCount()<64 do
+        if not turtle.suck(64-turtle.getItemCount()) then
+            if not f then
+                print("no fuel in chest")
+                f = true
+            end
+        end
+    end
     --return back to where it left off
     if pos_snap.x < r then
         --go to current x position + 1
