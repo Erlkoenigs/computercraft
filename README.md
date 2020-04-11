@@ -40,20 +40,15 @@ The entrance of a finished strip can be marked by a torch. The turtle will do th
 Spacing between strips is 3 by default. This can be changed by modifying the _stripSpacing_ variable. The turtle will place torches every 12 blocks. This can be changed by modifying the _torchDistance_ variable.
 
 ## quarry
-Places Buildcraft Land Marks in a horizontal rectangular area with a variable width and depth. This is needed to start a Buildcraft Quarry.
+Mimics a buildcraft quarry with a variable radius und depth.
 
-Usage:
-* the turtle has to be set on one of the corners of the area you want to mark
-* it will always turn left, thus it will create the square of Land Marks to the front left of its starting position
-* in the first slot it needs fuel
-* in the second slot it needs 4 Land Marks
-* in the third slot it needs a dummy material like dirt or cobblestone. If one of the quarrys corners would be in the air, the dummy material is placed as a base to place the Land Mark on
+The starting position is the middle of the area it will mine.
 
-Problems:
-* This script wont detect liquids. It will place a Land Mark even when it's under water/lava, which will wash away and drop the Land Mark immediately.
-* It only turns left
-* Materials have to be put in manually and into specific slots
-* The turtle doesn't check for Land Marks and dummy material
+The center block is excluded from the radius, the diameter is 2xr+1: r = 2 will mine a 5x5 area.
+
+Can be used to level an area to a certain depth.
+
+Needs fuel in the first slot.
 
 ## lavaTunnel
 This program will create a 1x2 tunnel of variable length by placing a dummy material above, below and to the sides of it. This can be used to clear a path of a lava flow.
