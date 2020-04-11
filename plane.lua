@@ -244,7 +244,7 @@ function dumpInventory()
     --Empty inventory. If chest is full, try again till it isn't
     local full = false --to only print errors once
     local slot=2 --keep fuel
-    while slot<16 do
+    while slot<17 do
         turtle.select(slot)
         if turtle.getItemCount(slot)>0 then
             if turtle.dropUp() then
