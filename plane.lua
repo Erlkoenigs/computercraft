@@ -290,6 +290,7 @@ function checkInventory()
         emptyInventory()
     end
     turtle.select(2)
+    print("end of check inventory")
 end
 
 function dig(direction)
@@ -355,6 +356,7 @@ left()
 left()
 while pos.z > 0-depth do
     plane()
+    print("level done")
     dig("down")
     left()
     left()
@@ -362,6 +364,7 @@ while pos.z > 0-depth do
     pos.x = r
     pos.y = -r
     orientation = 0
+    print("start of next level")
 end
 plane()
 returnHome()
