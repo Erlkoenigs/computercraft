@@ -163,8 +163,9 @@ function goToY()
         turn(2)
     end
     while pos.y ~= pos_snap.y do
-        forward()
-        printPosition("y")
+        if forward() then
+            printPosition("y")
+        end
     end
 end
 
@@ -177,8 +178,9 @@ function goToX()
         turn(-1)
     end
     while pos.x ~= pos_snap.x do
-        forward()
-        printPosition("x")
+        if forward() then
+            printPosition("x")
+        end
     end
 end
 
@@ -191,8 +193,9 @@ function goToYZero()
         turn(0)
     end
     while pos.y ~= 0 do 
-        forward()
-        printPosition("y")
+        if forward() then
+            printPosition("y")
+        end
     end
 end
 
@@ -205,8 +208,9 @@ function goToXZero()
         turn(1)
     end
     while pos.x ~= 0 do
-        forward()
-        printPosition("x")
+        if forward() then
+            printPosition("x")
+        end
     end
 end
 
@@ -268,8 +272,9 @@ function emptyInventory()
         turn(-1)
     end
     while pos.x ~= pos_snap.x do
-        forward()
-        printPosition("x")
+        if forward() then
+            printPosition("x")
+        end
     end
     forward()
     goToY()
