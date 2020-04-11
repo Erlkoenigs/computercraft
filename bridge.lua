@@ -11,8 +11,9 @@ if #tArgs > 0 and type(tonumber(tArgs[1])) == "number" then
     length = tonumber(tArgs[1])
 else
     print("Input length of the bridge:")
-    local length = tonumber(read())
+    local length = read()
 end
+print("type of length: " .. type(tonumber(length)))
 
 --refuel
 turtle.select(1)
