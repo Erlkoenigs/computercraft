@@ -1,6 +1,3 @@
-# computercraft
-Programs for Computercraft turtles
-
 ## getGithub
 Downloads programs from this repository onto a turtle. The name of the program can be a command line argument:
 
@@ -62,10 +59,8 @@ Problems:
 This program will create a 1x2 tunnel of variable length by placing a dummy material above, below and to the sides of it. This can be used to clear a path of a lava flow.
 
 Usage:
-* place turtle in front of a lava flow you want to pass
-* input fuel in the first slot
-* input dummy material in the second slot
-* start the program and input the desired length of the tunnel
+* fuel in the first slot
+* dummy material in the second slot
 
 ## bridge
 Builds a simple bridge with a width of one block. 
