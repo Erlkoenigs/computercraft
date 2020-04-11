@@ -265,12 +265,17 @@ function emptyInventory()
     returnHome()
     dumpInventory()
     --return back to where it left off
-    --go to current x position + 1
-    pos_snap.x = pos_snap.x + 1 
-    goToX()
-    pos_snap.x = pos_snap.x - 1
-    goToY()
-    goToX()
+    if pos_snap.x < r then
+        --go to current x position + 1
+        pos_snap.x = pos_snap.x + 1
+        goToX()
+        pos_snap.x = pos_snap.x - 1
+        goToY()
+        goToX()
+    else
+        goToX()
+        goToY()
+    end
     --go to z position
     while pos.z > pos_snap.z do
         down()
