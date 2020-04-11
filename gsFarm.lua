@@ -6,9 +6,11 @@
 
 local up = 0
 local fw = 0
+local orientation = 0
+local path = {}
 local target = {} --will search for these strings at the end of the block information
 target[1] = "lowstone"
-target[2] = ""
+target[2] = "dirt"
 
 --refuel from slot 1
 function refuel(level)
@@ -204,7 +206,6 @@ function mineVein()
             stepBackOnPath(1)
         end        
     end
-    checkInventory()
 end
 
 --1.
@@ -222,4 +223,13 @@ if check() then --start of a vein
     digVein() --go one block into the vein
     mineVein() --follow it
     turn(2)
+else
+    print("nope")
+end
+--4.
+for i=0,fw do
+    turtle.forward()
+end
+for i=0,up do
+    turtle.down()
 end
