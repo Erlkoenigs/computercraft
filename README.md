@@ -1,5 +1,5 @@
 # computercraft
-Lua scripts for Minecrafts Computercraft Mod
+Programs for Computercraft turtles
 
 ## getGithub
 Can be used to download programs from this repository onto a turtle. The name of the program can be a command line argument
