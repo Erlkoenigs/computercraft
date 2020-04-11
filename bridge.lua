@@ -8,10 +8,10 @@ local length = 0
 --give length as command line argument
 tArgs={...}
 if #tArgs > 0 and type(tonumber(tArgs[1])) == "number" then
-    length = tArgs[1]
+    length = tonumber(tArgs[1])
 else
     print("Input length of the bridge:")
-    length = read()
+    length = tonumber(read())
 end
 
 --refuel
