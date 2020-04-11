@@ -74,7 +74,7 @@ The length is variable and can be input through command line arguments.
 
 The turtle will not return after it is finished. 
 
-If it is out of material, it will until it isn't.
+If it is out of material, it will wait until it isn't.
 
 Usage:
 * fuel in first slot
