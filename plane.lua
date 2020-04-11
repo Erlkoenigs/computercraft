@@ -5,11 +5,20 @@
 
 --radius excludes starting position: radius = 2 planes a 5x5 area
 
-print("Radius:")
-local r = tonumber(read())
-
-print("Depth:")
-local depth = tonumber(read())
+tArgs = {...}
+if #tArgs > 0 then
+    r = tArgs[1]
+    depth = tArgs[2]
+    print("radius: " .. r)
+    print("depth: " .. depth)
+    print("ok? Any button to continue.")
+    os.pullEvent("key")
+else
+    print("Radius:")
+    local r = tonumber(read())
+    print("Depth:")
+    local depth = tonumber(read())
+end
 
 --states
 --current position
