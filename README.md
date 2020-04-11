@@ -12,7 +12,7 @@ With
 this script can be loaded onto the turtle initially.
 
 ## strip
-Creates parallel 1x2 tunnels (or "strips"). On it's way back down each strip the turtle will scan for and mine ore veins.
+Creates parallel 1x2 tunnels (or "strips"). On it's way back down each strip it will scan for and mine ore veins.
 If, at any point, the turtles inventory is full, it will return to an item chest, dump its contents and return back to where it left off.
 
 Variable parameters:
