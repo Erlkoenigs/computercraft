@@ -4,19 +4,19 @@
 --dummy material in slot 2
 
 local pos = 0
-
+local length = 0
 --give length as command line argument
 tArgs={...}
 if #tArgs > 0 and type(tonumber(tArgs[1])) == "number" then
     length = tArgs[1]
 else
     print("Input length of the bridge:")
-    local length = read()
+    length = read()
 end
 
 --refuel
 turtle.select(1)
-while turtle.getFuelLevel()<length*5 do
+while turtle.getFuelLevel()<length*1 do
     turtle.refuel(1)
 end
 turtle.select(2)
