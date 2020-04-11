@@ -105,6 +105,7 @@ end
 function forward()
     if turtle.forward() then
         newPosition()
+        refuel()
         return true
     end
     return false
@@ -114,6 +115,7 @@ end
 function up()
     if turtle.up() then
         newPosition("up")
+        refuel()
         return true
     end
     return false
@@ -123,6 +125,7 @@ end
 function down()
     if turtle.down() then
         newPosition("down")
+        refuel()
         return true
     end
     return false
