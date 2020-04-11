@@ -29,11 +29,9 @@ while pos < length do
     else
         pos = pos + 1
     end
-    local f = false
-    if not turtle.placeDown() and f = false then
-        print("no material")
-        f = true
+    while turtle.getItemCount() == 0 do
         os.sleep(5)
     end
+    turtle.placeDown()
 end
 print("ended")
