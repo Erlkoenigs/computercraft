@@ -142,9 +142,9 @@ end
 
 --go to snapshot Y position
 function goToY()
-    if pos_snap.y > 0 then
+    if pos_snap.y > pos.y then
         turn(0)
-    elseif pos_snap.y < 0 then
+    elseif pos_snap.y < pos.y then
         turn(2)
     end
     while pos.y ~= pos_snap.y do
@@ -154,9 +154,9 @@ end
 
 --go to snapshot X position
 function goToX()
-    if pos_snap.x > 0 then
+    if pos_snap.x > pos.x then
         turn(1)
-    elseif pos_snap.x < 0 then
+    elseif pos_snap.x < pos.x then
         turn(-1)
     end
     while pos.x ~= pos_snap.y do
