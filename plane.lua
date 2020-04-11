@@ -140,6 +140,19 @@ function turn(newOrientation)
     end
 end
 
+function printPosition(ax)
+    if ax == "x" then
+        print("x: " .. pos.x .. " - " .. pos_snap.x)
+    elseif ax == "y" then
+        print("y: " .. pos.y .. " - " .. pos_snap.y)
+    elseif ax == "z" then
+        print("z: " .. pos.z .. " - " .. pos_snap.z)
+    elseif ax == nil then
+        print("x: " .. pos.x .. " - " .. pos_snap.x)
+        print("y: " .. pos.y .. " - " .. pos_snap.y)
+        print("z: " .. pos.z .. " - " .. pos_snap.z)
+    end
+end
 --go to snapshot Y position
 function goToY()
     print("toY")
@@ -150,6 +163,7 @@ function goToY()
     end
     while pos.y ~= pos_snap.y do
         forward()
+        printPosition("y")
     end
 end
 
@@ -163,6 +177,7 @@ function goToX()
     end
     while pos.x ~= pos_snap.y do
         forward()
+        printPosition("x")
     end
 end
 
@@ -241,6 +256,7 @@ function dumpInventory()
             slot=slot+1
         end
     end
+    turtle.select(2)
 end
 
 --go back to the chest, dum+p inventory, get back to current position
@@ -253,6 +269,7 @@ function emptyInventory()
         turn(1)
         while pos.x < r do
             forward()
+            printPosition("x")
         end
         goToY()
         goToX()
