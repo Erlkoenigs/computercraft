@@ -147,7 +147,7 @@ function goToY()
     elseif pos_snap.y < 0 then
         turn(2)
     end
-    while pos.y ~= snap_pos.y do
+    while pos.y ~= pos_snap.y do
         forward()
     end
 end
