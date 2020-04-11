@@ -25,6 +25,7 @@ local pos_snap = {}
 pos_snap["x"]=0
 pos_snap["y"]=0
 pos_snap["z"]=0
+pos_snap["o"]=0 --orientation
 
 --track current position
 local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
@@ -175,7 +176,7 @@ function goToX()
     elseif pos_snap.x < pos.x then
         turn(-1)
     end
-    while pos.x ~= pos_snap.y do
+    while pos.x ~= pos_snap.x do
         forward()
         printPosition("x")
     end
@@ -212,6 +213,7 @@ function returnHome()
     pos_snap.x = pos.x
     pos_snap.y = pos.y
     pos_snap.z = pos.z
+    pos_snap.o = orientation
     print(pos_snap.x)
     print(pos_snap.y)
     print(pos_snap.z)
@@ -219,20 +221,13 @@ function returnHome()
     while pos.z > 0 do
         up()
     end
-    if pos.x > 0 then
-        --go to right border
-        turn(1)
-        while pos.x < r do
-            forward()
-        end
-        goToYZero()
-        goToXZero()
-    elseif pos.x == 0 then
-        goToYZero()
-    elseif pos.x < 0 then
-        goToXZero()
-        goToYZero()
-    end
+    --go one in positive x direction
+    turn(1)
+    forward()
+    --to x axis
+    goToYZero()
+    --to y axis
+    goToXZero()
 end
 
 --dump inventory into chest above
@@ -264,25 +259,16 @@ function emptyInventory()
     returnHome()
     dumpInventory()
     --return back to where it left off
-    if pos_snap.x > 0 then
-        --go to right border
-        turn(1)
-        while pos.x < r do
-            forward()
-            printPosition("x")
-        end
-        goToY()
-        goToX()
-    elseif pos_snap.x == 0 then
-        goToY()
-    elseif pos_snap.x < 0 then
-        goToX()
-        goToY()
-    end
+    --one step in positive x direction
+    turn(1)
+    forward()
+    goToY()
+    goToX()
     --go to z position
     while pos.z < pos_snap.z do
         down()
     end
+    turn(pos_snap.o)
 end
 
 --check if last inventory slot is full
@@ -375,6 +361,10 @@ while pos.z > 0-depth do
     dig("down")
     left()
     left()
+    --reset coordinate system on next level
+    pos.x = r
+    pos.y = -r
+    orientation = 0
 end
 plane()
 returnHome()
