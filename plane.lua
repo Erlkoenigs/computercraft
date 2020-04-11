@@ -220,7 +220,7 @@ function returnHome()
     print(pos_snap.y)
     print(pos_snap.z)
     --go to z = 0
-    while pos.z > 0 do
+    while pos.z < 0 do
         up()
     end
     --go one in positive x direction
