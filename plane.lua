@@ -192,6 +192,7 @@ function goToYZero()
     end
     while pos.y ~= 0 do 
         forward()
+        printPosition("y")
     end
 end
 
@@ -205,6 +206,7 @@ function goToXZero()
     end
     while pos.x ~= 0 do
         forward()
+        printPosition("x")
     end
 end
 
