@@ -1,18 +1,22 @@
 local program = ""
+local branch = "master"
 tArgs={...}
 if #tArgs == 0 then
     print("program to download:")
     program = read()
-else
+elseif #tArgs == 1 then
     program = tArgs[1]
+elseif #tArgs == 2 then
+    branch = tArgs[1]
+    program = tArgs[2]
 end
-local url = "https://raw.githubusercontent.com/Erlkoenigs/computercraft/master/"..program..".lua"    
-local website = http.get(url)
-if website then
+local url = "https://raw.githubusercontent.com/Erlkoenigs/computercraft/"..branch.."/"..program..".lua"    
+local site = http.get(url)
+if site then
     print("received")
-    github_file = website.readAll()
+    github_file = site.readAll()
     local h = fs.open(program..".lua","w")
     h.write(github_file)
     h.close()
 end
-website.close()
+site.close()
