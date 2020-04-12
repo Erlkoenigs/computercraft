@@ -26,6 +26,8 @@ local lateralPosition = 0
 local currentHeight = 0 --only tracked within strips, not within veins. Will only have values 0 and 1
 local torchBlock = false --is there a block to place the finishing torch on
 
+--get user input. Either through command line arguments or by asking them.
+--check if the input is correct, if not, ask again
 --get command line arguments
 tArgs={...}
 local stripDirection = "" --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
@@ -116,6 +118,7 @@ if #tArgs>0 then
 else
     getUserInput()
 end
+--end of user input
 
 --refuel from slot 1
 function refuel(level)
