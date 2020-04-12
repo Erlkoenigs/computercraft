@@ -9,6 +9,10 @@
 --the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips.
 --the entrance of an already finished strip can be marked by a torch. The turtle will do the same and skip, but still count, marked strips
 
+--turtles range is typically limited by the chunk loaded area.
+--it takes three parameters: width, height and depth, which define the area of it's movement
+--it will dig _depth_ blocks forward and 0.5 _width_ to each side
+
 --settings
 local stripSpacing = 4 --dig a strip every x blocks
 local torchDistance = 12 -- place torches every x blocks
@@ -24,115 +28,102 @@ local path = {} --the path the turtle has taken while following a vein. 3 is up,
 local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
 local lateralPosition = 0
 local currentHeight = 0 --only tracked within strips, not within veins. Will only have values 0 and 1
+local pos = {}
+pos["x"] = 0
+pos["y"] = 0
+pos["z"] = 0
 local torchBlock = false --is there a block to place the finishing torch on
 
 --get user input. Either through command line arguments or by asking them.
 --check if the input is correct, if not, ask again
 --get command line arguments
-tArgs={...}
+tArgs={...} --1. width, 2. height
 local stripDirection = "" --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
 local stripAmount = 0
-local stripLength = 0
+local depth = 0
+local width = 0
+local height = 0
 
---inform user about the program setup and wait for acknowledgement
-function informUser()
-    local sDir = ""
-        if stripDirection == "l" then
-            sDir = "left"
-        elseif stripDirection == "r" then
-            sDir = "right"
+--check if value is number and greater than zero
+function checkValue(value)
+    if value == nil then value = 0 end
+    if not (type(value) == "number" and value > 0) then 
+        term.clear()
+        term.setCursorPos(1,1)
+        print("Invalid amount. Please input any number greater than zero.")
+    end
+end
+
+--if command line arguments are ok, use them
+function getParameters()
+    if #tArgs>0 then
+        if type(tonumber(tArgs[1])) ~= "number" then
+            error("1st argument (width) is not a number")
         end
-    print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
+        if type(tonumber(tArgs[2])) ~= "number" then
+            error("2nd argument (height) not a number")
+        end
+        if type(tonumber(tArgs[3])) ~= "number" then
+            error("3rd argument (depth) not a number")
+        end
+        width = tonumber(tArgs[1])
+        height = tonumber(tArgs[2])
+        depth = tonumber(tArgs[3])
+    else
+        --ask for it
+    --width
+    while width == 0 do
+        print("Enter heigth of the mining area:")
+        width = tonumber(read())
+        checkValue(width)
+    end 
+    --height
+    while height == 0 do
+        print("Enter heigth of the mining area:")
+        height = tonumber(read())
+        checkValue(height)
+    end
+    --depth
+    while depth == 0 do
+        print("Enter strip length:")
+        depth = tonumber(read())
+        checkValue(depth)
+    end
+    print("width: "..width)
+    print("height: "..height)
+    print("depth: "..depth)
     print("Make sure there's fuel in slot one and torches in slot two")
     print("press any button to continue")
     os.pullEvent("key")
 end
 
---ask for the information needed, if not properly given in command line arguments
-function getUserInput()
-    stripDirection = ""
-    stripLength = 0
-    stripAmount = 0
-    --direction
-    while not (stripDirection == "r" or stripDirection == "l") do
-        print("Enter strip direction (l/r):")
-        stripDirection = read()
-        if not (stripDirection == "r" or stripDirection == "l") then 
-            term.clear()
-            term.setCursorPos(1,1)
-            print("Invalid direction. Please use 'l' or 'r'")
-        end
-    end    
-    --amount
-    while stripAmount == 0 do
-        print("Enter strip amount:")
-        stripAmount = tonumber(read())
-        if stripAmount == nil then stripAmount = 0 end --make sure it's a number
-        if not (type(stripAmount) == "number" and stripAmount > 0) then 
-            term.clear()
-            term.setCursorPos(1,1)
-            print("Invalid amount. Please input any number greater than zero.")
-        end
-    end
-    --length
-    while stripLength == 0 do
-        print("Enter strip length:")
-        stripLength = tonumber(read())
-        if stripLength == nil then stripLength = 0 end --make sure it's a number
-        if not (type(stripLength) == "number" and stripLength > 0) then
-            term.clear()
-            term.setCursorPos(1,1)
-            print("Invalid length. Please input any number greater than zero.")
-        end
-    end
-    informUser()
-end
-
-function usageHint()
-    term.clear()
-    term.setCursorPos(1,1)
-    print("Invalid command line arguments")
-    print("use: strip <direction> <amount> <length>")
-    print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
-    print()
-end
-
---if command line arguments are ok, use them
-if #tArgs>0 then
-    if type(tonumber(tArgs[2])) == "number" and type(tonumber(tArgs[3])) == "number" then
-        if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
-            stripDirection = tArgs[1]
-            stripAmount = tonumber(tArgs[2])
-            stripLength = tonumber(tArgs[3])
-            term.clear()
-            term.setCursorPos(1,1)
-            informUser()
-        else
-            usageHint()
-            getUserInput()
-        end
-    else
-        usageHint()
-        getUserInput()
-    end
-else
-    getUserInput()
-end
---end of user input
-
 --refuel from slot 1
 function refuel(level)
-    if level == nil then
-        while turtle.getFuelLevel()<stripLength*5 do --random value
-            turtle.select(1)
-            turtle.refuel(1)
-        end
-    else
-        while turtle.getFuelLevel()<level do
-            turtle.select(1)
-            turtle.refuel(1)
-        end
+    if level == nil then level = depth*5 end --random value
+    while turtle.getFuelLevel() < level do
+        turtle.select(1)
+        turtle.refuel(1)
     end
+end
+
+--ud = "up" or "down"
+function updateCoord(ud)
+    if ud == nil then
+        if orientation == 0 then
+            pos.y = pos.y + 1
+        elseif orientation == 2 or orientation == -2 then
+            pos.y = pos.y - 1
+        elseif orientation == 1 then
+            pos.x = pos.x + 1
+        elseif orientation == -1 then
+            pos.x = pos.x -1
+        end
+    elseif ud == "up" then
+        pos.z = pos.z + 1
+    elseif ud = "down" then
+        pos.z = pos.z - 1
+    else
+        error("updateCoord: bad argument. Got " .. ud .. ", expected 'up' or ' down'")
 end
 
 --make sure turtle goes forward. If path is blocked, print it once
@@ -140,17 +131,38 @@ function forward(steps)
     refuel(steps)
     if steps == nil then steps = 1 end
     local blocked = false
-    local blocks = 0
-    while blocks < steps do        
+    local b = 0
+    while b < steps do        
         if turtle.forward() then
-            blocks=blocks+1
+            b=b+1
+            updateCoord()
+            return true
         else
             os.sleep(30)
             if not blocked then
                 blocked = true
-                print("path is blocked") --only print this once
+                print("path is blocked") --only prints this once
+                return false
             end
         end
+    end
+end
+
+function up()
+    if turtle.up() then
+        updateCoord("up")
+        return true
+    else
+        return false
+    end
+end
+
+function down()
+    if turtle.down() then
+        updateCoord("down")
+        return true
+    else
+        return false
     end
 end
 
@@ -296,7 +308,7 @@ function checkInventory()
         --get back to the chest
         turn(2)
         if currentHeight == 1 then --if on upper level, go down
-            while not turtle.down() do end
+            while not down() do end
         end
         forward(currentPosition) --back down the strip
         turnStripDirection(true)
@@ -367,7 +379,7 @@ function checkInventory()
         forward(currentPosition) --back to the position in the strip
         turn(currentOrientation)
         if currentHeight == 1 then --if on upper level, go down
-            while not turtle.up() do end
+            while not up() do end
         end
     end
     turtle.select(3)
@@ -450,13 +462,12 @@ function stripForward(blocks)
     local i=0
     while i<blocks do
         if turtle.dig() then checkInventory() end
-        if turtle.forward() then
+        if forward() then
             if orientation == 0 then --count currentPosition up when going down the strip
                 currentPosition = currentPosition+1
             elseif orientation == -1 or orientation == 1 then -- count lateralPosition up when repositioning
                 lateralPosition = lateralPosition + 1
             end
-            refuel()
             if turtle.detectUp() then
                 while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
                     turtle.digUp()
@@ -469,7 +480,8 @@ function stripForward(blocks)
     end
 end
 
---dig a strip and return to starting position of the strip. Uses StripForward, but returns to the starting position afterwards
+--dig a strip and return to starting position of the strip.
+--Uses StripForward, then returns to the starting position while scanning for ores
 function strip(length)
     print("strip")
     stripForward(length)    
@@ -494,7 +506,7 @@ function strip(length)
             mineVein() --follow it
             turn(2)
         end
-        while not turtle.up() do end
+        while not up() do end
         currentHeight=currentHeight+1
         turn(-1) --left
         if check() then --start of a vein
@@ -514,7 +526,7 @@ function strip(length)
             turn(2)
         end
         turn(2)            
-        while not turtle.down() do end
+        while not down() do end
         currentHeight=currentHeight-1
         if currentPosition % torchDistance == 0 then
             turtle.select(2)
@@ -536,7 +548,7 @@ function strip(length)
             end
         end
         --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
-        while not turtle.forward() do
+        while not forward() do
             local s,d = turtle.inspect()
             if s then
                 if d.name == "minecraft:gravel" then
@@ -575,16 +587,16 @@ function strip(length)
             local i=0
             while turtle.getItemCount()<1 do --dig up until there's a block in the 16th slot
                 turtle.digUp()
-                if turtle.up() then
+                if up() then
                     i=i+1
                 end
             end
             local j=0
             while j<i do --go back down
-                if turtle.down() then j=j+1 end
+                if down() then j=j+1 end
             end
         end
-        while not turtle.forward() do end
+        while not forward() do end
         while not turtle.placeDown() do end
         while not turtle.back() do end
         turtle.select(2)
@@ -595,17 +607,20 @@ end
 --Shift over to the next strip in the given direction. 
 function reposition()
     print("reposition")
-    turnStripDirection(true)
+    if stripDirection == "l" or stripDirection == "r" then
+        turnStripDirection(true)
         stripForward(stripSpacing)
-    turnStripDirection(false)
+        turnStripDirection(false)
+    elseif stripDirection == "c"
 end
 
 --action
+getParameters()
 while lateralPosition<=(stripAmount-1)*stripSpacing do
     refuel()
     turtle.select(2)
     if not turtle.compare() then 
-        strip(stripLength)
+        strip(depth)
     end
     if lateralPosition==(stripAmount-1)*stripSpacing then 
         break
