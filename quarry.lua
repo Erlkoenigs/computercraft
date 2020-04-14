@@ -317,22 +317,34 @@ function checkInventory()
     clog("end of check inventory")
 end
 
+function endProgram()
+    returnHome()
+    dumpInventory()
+    error("hit bedrock. program finished") --not nice
+end
+
 function dig(direction)
     if direction == nil or direction == "forward" then
         while not forward() do
-            if turtle.dig() then
+            if not turtle.dig() and turtle.detect() then
+            endProgram()
+            else
                 checkInventory()
             end
         end
     elseif direction == "up" then
         while not up() do
-            if turtle.digUp() then
+            if not turtle.digUp() and turtle.detectUp() then
+                endProgram()
+            else
                 checkInventory()
             end
         end
     elseif direction == "down" then
         while not down() do
-            if turtle.digDown() then
+            if not turtle.digDown() and turtle.detectDown() then
+                endProgram()
+            else
                 checkInventory()
             end
         end
@@ -345,9 +357,7 @@ function plane()
     while true do
         dig()
         dug = dug + 1
-        if dug == (2*r+1)^2 then
-            break
-        end
+        if dug == (2*r+1)^2 then return true end
         --turn at the top
         if pos.y == r then
             left()
@@ -379,7 +389,7 @@ end
 left()
 left()
 while pos.z > 0-depth do
-    plane()
+    if not plane() break end
     clog("level done")
     dig("down")
     left()
