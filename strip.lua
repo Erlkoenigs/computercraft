@@ -177,17 +177,18 @@ function updateCoord(ud)
 end
 
 --make sure turtle goes forward. If path is blocked, print it once
-function forward(steps)    
+function forward(steps)
     if steps == nil then steps = 1 end
+    --clog("forward: "..steps)
     steps = math.abs(steps)
     refuel(steps)
     local blocked = false
     local b = 0
-    while b < steps do        
+    while b < steps do     
         if turtle.forward() then
+            --clog("1 step")
             b=b+1
             updateCoord()
-            return true
         else
             os.sleep(30)
             if not blocked then
@@ -197,6 +198,7 @@ function forward(steps)
             end
         end
     end
+    return true
 end
 
 function up(steps)
