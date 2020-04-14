@@ -31,6 +31,7 @@ target[1] = "ore"
 target[2] = "resources" --forestry ores
 target[3] = "obsidian"
 target[4] = "yellorite" --big reactors
+debug = true
 
 --states
 local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
@@ -52,6 +53,10 @@ local height = 0
 local depth = 0
 local even = true --is the amount of strips on the first level odd or even?
 local maxX = 0 --maximum x value on both sides (left side negative)
+
+function clog(logstr)
+    if debug then print(logstr) end
+end
 
 --check if value is number and greater than zero
 function checkValue(value)
@@ -165,9 +170,9 @@ function updateCoord(ud)
     else
         error("updateCoord: bad argument")
     end
-    print(pos.x)
-    print(pos.y)
-    print(pos.z)
+    clog(pos.x)
+    clog(pos.y)
+    clog(pos.z)
     --print("("..pos.x.."/"..pos.y.."/"..pos.z..")")
 end
 
@@ -338,7 +343,7 @@ function stepBackOnPath(s)
     if s == nil then s = 1 end
     for i=1,s do
         local dir=table.remove(path) --get and remove last entry
-        --print("reversing "..dir)
+        --clog("reversing "..dir)
         if dir == 3 then
             while not turtle.down() do
                 turtle.digDown()
@@ -348,7 +353,7 @@ function stepBackOnPath(s)
                 turtle.digUp()
             end
         else
-            --print("opposite of "..dir.." is "..oppo)
+            --clog("opposite of "..dir.." is "..oppo)
             turn(getOppositeOrientation(dir))
             while not turtle.forward() do
                 turtle.dig()
@@ -369,8 +374,8 @@ function checkInventory()
         pos_snap.y = pos.y
         pos_snap.z = pos.z
         refuel(pos.x+pos.z+pos.y+4)
-        print("checkInventory:down the strip")
-        print("x: "..pos.x)
+        clog("checkInventory:down the strip")
+        clog("x: "..pos.x)
         --get back to the chest
         turn(2)
         if pos.z % 2 ~= 0 then --if on upper level within a strip, go down
@@ -378,8 +383,8 @@ function checkInventory()
         end
         forward(pos.x) --back down the strip
         turnTowardHome(true)
-        print("checkInventory:back to chest")
-        print("y: "..pos.y)
+        clog("checkInventory:back to chest")
+        clog("y: "..pos.y)
         forward(pos.y) --back to the chest
         turn(2) --turn toward chest
         --Empty inventory. If chest is full, try again till it isn't
@@ -433,19 +438,19 @@ function checkInventory()
             end
         end
         --to pos_snap.x
-        print("checkInventory:back to x")
+        clog("checkInventory:back to x")
         turnTowardHome(false)
         while pos.x ~= pos_snap.x do
             forward()
         end
         turn(0)
         --to pos_snap.z
-        print("checkInventory:back to z")
+        clog("checkInventory:back to z")
         while pos.z ~= pos_snap.z do
             up()
         end
         --back down the strip
-        print("checkInventory:back down y")
+        clog("checkInventory:back down y")
         while pos.y ~= pos.y do
             forward()
         end
@@ -554,10 +559,10 @@ end
 --dig a strip and return to starting position of the strip.
 --Uses StripForward, then returns to the starting position while scanning for ores
 function strip(length)
-    print("strip")
-    stripForward(length)    
-    left() --turn around
-    left()
+    clog("strip")
+    stripForward(length)
+    clog("strip: reached end on strip. heading back")   
+    turn(2)
     --Forward(length) --walk back out of the strip
     while pos.x > 0 do
         if check("down") then --start of a vein
@@ -589,7 +594,7 @@ function strip(length)
             digVein() --go one block into the vein
             mineVein() --follow it
         end
-        turn(2)            
+        turn(2)         
         while not down() do end
         if pos.x % torchDistance == 0 then
             turtle.select(2)
@@ -664,6 +669,7 @@ function strip(length)
         turtle.select(2)
         turtle.place()
     end
+    clog("end of strip")
 end
 
 --elevate to the next level of strips
