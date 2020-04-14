@@ -721,6 +721,7 @@ function reposition()
             clog("-maxX")
             right()
             if even then
+                clog("even, "..maxX)
                 local st = maxX + 2
                 forward(st)
             else
