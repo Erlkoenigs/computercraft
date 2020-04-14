@@ -564,8 +564,7 @@ end
 function strip(length)
     clog("strip")
     stripForward(length)
-    clog("strip: reached end on strip")   
-    turn(2)
+    clog("strip: reached end of strip")
     --Forward(length) --walk back out of the strip
     while pos.y > 0 do
         if check("down") then --start of a vein
@@ -722,9 +721,11 @@ function reposition()
             clog("-maxX")
             right()
             if even then
-                forward(maxX + 2)
+                local st = maxX + 2
+                forward(st)
             else
-                forward(maxX + 4)
+                local st = maxX + 4
+                forward(st)
             end
             left()
         elseif pos.x == maxX then
