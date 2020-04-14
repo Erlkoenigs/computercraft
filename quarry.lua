@@ -326,15 +326,15 @@ end
 function dig(direction)
     if direction == nil or direction == "forward" then
         while not forward() do
-            if not turtle.dig() and turtle.detect() then
-            endProgram()
+            if turtle.detect() and not turtle.dig() then
+                endProgram()
             else
                 checkInventory()
             end
         end
     elseif direction == "up" then
         while not up() do
-            if not turtle.digUp() and turtle.detectUp() then
+            if turtle.detect() and not turtle.dig() then
                 endProgram()
             else
                 checkInventory()
@@ -342,7 +342,7 @@ function dig(direction)
         end
     elseif direction == "down" then
         while not down() do
-            if not turtle.digDown() and turtle.detectDown() then
+            if turtle.detect() and not turtle.dig() then
                 endProgram()
             else
                 checkInventory()
