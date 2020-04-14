@@ -718,25 +718,26 @@ function reposition()
                 right()
             end
         elseif pos.x == -maxX then --last strip on he left on first level => go to first strip on the right side of starting position
-            clog("-maxX")
+            clog("z0 -maxX")
             right()
             if even then
                 clog("even, "..maxX)
                 local st = maxX + 2
                 forward(st)
             else
+                clog("odd, "..maxX)
                 local st = maxX + 4
                 forward(st)
             end
             left()
         elseif pos.x == maxX then
-            clog("maxX")
+            clog("z0 maxX")
             elevate()
         elseif pos.x < 0 then
-            clog("pos.x < 0")
+            clog("z0 pos.x < 0")
             shiftLeft()
         elseif pos.x > 0 then
-            clog("pos.x > 0")
+            clog("z0 pos.x > 0")
             shiftRight()
         end
     elseif pos.x == maxX or pos.x == -maxX + 2 then --last strip on the right
