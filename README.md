@@ -5,6 +5,12 @@ Downloads programs from this repository onto a turtle. The name of the program c
 
 downloads the _strip_ program.
 
+When two command line arguments are given, the first one represents the name of the branch in this repository:
+
+`getGithub test strip`
+
+downloads the _strip_ program from the _test_ branch.
+
 With
 
 `wget https://raw.githubusercontent.com/Erlkoenigs/computercraft/master/getGithub.lua getGithub.lua`
