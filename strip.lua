@@ -344,6 +344,26 @@ function stepBackOnPath(s)
     end 
 end
 
+function returnHome()
+    refuel(pos.x + pos.z + pos.y + 4)
+    if pos.z % 2 ~= 0 then --if on upper level within a strip, go down
+        while not down() do end
+    end
+    clog("return home: y: " .. pos.y)
+    if pos.y > 0 then
+        turn(2)
+        forward(pos.y) --back down the strip
+    end
+    clog("return home: x: " .. pos.x)
+    if pos.x ~= 0 then
+        turnTowardHome(true)
+        forward(pos.x) --back to the chest
+    end
+    clog("return home: z: " .. pos.z)
+    while pos.z > 0 do
+        down()
+    end
+end
 --check if last item slot contains items. if true,
 --return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
 --also picks up fuel and torches from the chests next to the item chest
@@ -354,19 +374,7 @@ function checkInventory()
         pos_snap.x = pos.x
         pos_snap.y = pos.y
         pos_snap.z = pos.z
-        refuel(pos.x+pos.z+pos.y+4)
-        clog("checkInventory:down the strip")
-        clog("x: "..pos.x)
-        --get back to the chest
-        turn(2)
-        if pos.z % 2 ~= 0 then --if on upper level within a strip, go down
-            while not down() do end
-        end
-        forward(pos.x) --back down the strip
-        turnTowardHome(true)
-        clog("checkInventory:back to chest")
-        clog("y: "..pos.y)
-        forward(pos.y) --back to the chest
+        returnHome()
         turn(2) --turn toward chest
         --Empty inventory. If chest is full, try again till it isn't
         local full = false --to only print errors once
@@ -742,12 +750,8 @@ while not (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2)) do
     strip(depth)
 end
 --return home
-turnTowardHome(true)
-forward(pos.x)
-while pos.x ~= 0 do
-    down()
-end
-turn(-1)
+returnHome()
+turn(2)
 --empty inventory into chest
 local full = false
 local slot=3 --keep torch and fuel
