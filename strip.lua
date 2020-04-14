@@ -602,7 +602,7 @@ function strip(length)
             turtle.placeUp()
         end
         --check if there's a block underneath the first block of the strip
-        if pos.x == 1 then
+        if pos.y == 1 then
             local s,d=turtle.inspectDown()
             if s then
                 if d == "minecraft:gravel" then
