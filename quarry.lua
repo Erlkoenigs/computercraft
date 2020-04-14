@@ -1,15 +1,29 @@
---This program is meant for the computercraft turtle
---It will create a plane of a configurable radius around the starting position
---by digging everything in the defined area down to a given depth
---A chest has to be placed above the turtle
+--pull fuel from item chest?
+--for the computercraft turtle
+--mimics the buildcraft quarry. can be used to level an area
+--takes 2 arguments: radius and depth
+--radius excludes starting position: radius = 2 mines a 5x5 area
+--when turtles inventory is full, it will try to drop items into
+--a chest above it's starting position
 
---radius excludes starting position: radius = 2 planes a 5x5 area
+debug = false
+local r = 0
+local depth = 0
+tArgs = {...}
+if #tArgs > 0 then
+    r = tonumber(tArgs[1])
+    depth = tonumber(tArgs[2])
+    print("radius: "..r)
+    print("depth: "..depth)
+    print("ok? any key to continue")
+    os.pullEvent("key")
+else
+    print("Radius?")
+    r = tonumber(read())
 
-print("Radius:")
-local r = tonumber(read())
-
-print("Depth:")
-local depth = tonumber(read())
+    print("Depth?")
+    depth = tonumber(read())
+end
 
 --states
 --current position
@@ -31,6 +45,26 @@ pos_snap["o"]=0 --orientation
 local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
 
 --functions
+function printPosition(ax)
+    if debug then
+        if ax == "x" then
+            print("x: " .. pos.x .. " - " .. pos_snap.x)
+        elseif ax == "y" then
+            print("y: " .. pos.y .. " - " .. pos_snap.y)
+        elseif ax == "z" then
+            print("z: " .. pos.z .. " - " .. pos_snap.z)
+        elseif ax == nil then
+            print("x: " .. pos.x .. " - " .. pos_snap.x)
+            print("y: " .. pos.y .. " - " .. pos_snap.y)
+            print("z: " .. pos.z .. " - " .. pos_snap.z)
+        end
+    end
+end
+
+function clog(logstr)
+    if debug then print(logstr) end
+end
+
 --refuel from slot 1
 function refuel(level)
     turtle.select(1)
@@ -144,22 +178,9 @@ function turn(newOrientation)
     end
 end
 
-function printPosition(ax)
-    if ax == "x" then
-        print("x: " .. pos.x .. " - " .. pos_snap.x)
-    elseif ax == "y" then
-        print("y: " .. pos.y .. " - " .. pos_snap.y)
-    elseif ax == "z" then
-        print("z: " .. pos.z .. " - " .. pos_snap.z)
-    elseif ax == nil then
-        print("x: " .. pos.x .. " - " .. pos_snap.x)
-        print("y: " .. pos.y .. " - " .. pos_snap.y)
-        print("z: " .. pos.z .. " - " .. pos_snap.z)
-    end
-end
 --go to snapshot Y position
 function goToY()
-    print("toY")
+    clog("toY")
     if pos_snap.y > pos.y then
         turn(0)
     elseif pos_snap.y < pos.y then
@@ -174,7 +195,7 @@ end
 
 --go to snapshot X position
 function goToX()
-    print("toX")
+    clog("toX")
     if pos_snap.x > pos.x then
         turn(1)
     elseif pos_snap.x < pos.x then
@@ -223,9 +244,9 @@ function returnHome()
     pos_snap.y = pos.y
     pos_snap.z = pos.z
     pos_snap.o = orientation
-    print(pos_snap.x)
-    print(pos_snap.y)
-    print(pos_snap.z)
+    clog(pos_snap.x)
+    clog(pos_snap.y)
+    clog(pos_snap.z)
     --go to z = 0
     while pos.z < 0 do
         up()
@@ -263,7 +284,7 @@ function dumpInventory()
     turtle.select(2)
 end
 
---go back to the chest, dum+p inventory, get back to current position
+--go back to the chest, dump inventory, get back to current position
 function emptyInventory()
     returnHome()
     dumpInventory()
@@ -293,7 +314,7 @@ function checkInventory()
         emptyInventory()
     end
     turtle.select(2)
-    print("end of check inventory")
+    clog("end of check inventory")
 end
 
 function dig(direction)
@@ -359,7 +380,7 @@ left()
 left()
 while pos.z > 0-depth do
     plane()
-    print("level done")
+    clog("level done")
     dig("down")
     left()
     left()
@@ -367,7 +388,6 @@ while pos.z > 0-depth do
     pos.x = r
     pos.y = -r
     orientation = 0
-    print("start of next level")
 end
 plane()
 returnHome()
