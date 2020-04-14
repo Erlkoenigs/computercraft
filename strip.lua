@@ -170,10 +170,10 @@ function updateCoord(ud)
     else
         error("updateCoord: bad argument")
     end
-    clog(pos.x)
-    clog(pos.y)
-    clog(pos.z)
-    --print("("..pos.x.."/"..pos.y.."/"..pos.z..")")
+    --clog(pos.x)
+    --clog(pos.y)
+    --clog(pos.z)
+    clog("("..pos.x.."/"..pos.y.."/"..pos.z..")")
 end
 
 --make sure turtle goes forward. If path is blocked, print it once
@@ -248,7 +248,7 @@ function newOrientation(turn)
     elseif orientation == -3 then --3 left turns are one right turn
         orientation = 1
     end
-    clog("orientation :" .. orientation)
+    --clog("orientation :" .. orientation)
 end
 
 --returns the opposite of a given orientation
@@ -368,8 +368,7 @@ end
 --also picks up fuel and torches from the chests next to the item chest
 --only call when on "main road" (=within strip or lateral path)
 function checkInventory()
-    turtle.select(16)
-    if turtle.getItemCount() > 0 then
+    if turtle.getItemCount(16) > 0 then
         local orientation_snap = orientation --snapshot of the current orientation
         pos_snap.x = pos.x
         pos_snap.y = pos.y
