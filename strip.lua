@@ -163,9 +163,12 @@ function updateCoord(ud)
     elseif ud == "down" then
         pos.z = pos.z - 1
     else
-        error("updateCoord: bad argument. Got " .. ud .. ", expected 'up' or 'down'")
+        error("updateCoord: bad argument")
     end
-    print("("..x.."/"..y.."/"..z")")
+    print(pos.x)
+    print(pos.y)
+    print(pos.z)
+    --print("("..pos.x.."/"..pos.y.."/"..pos.z..")")
 end
 
 --make sure turtle goes forward. If path is blocked, print it once
