@@ -201,47 +201,23 @@ function forward(steps)
     return true
 end
 
-function up(steps)
-    if steps == nil then steps = 1 end
-    steps = math.abs(steps)
-    refuel(steps)
-    local blocked = false
-    local b = 0
-    while b < steps do        
-        if turtle.up() then
-            b=b+1
-            updateCoord("up")
-            return true
-        else
-            os.sleep(30)
-            if not blocked then
-                blocked = true
-                print("path is blocked (up)") --only prints this once
-                return false
-            end
-        end
+function up()
+    refuel(1)
+    if turtle.up() then
+        updateCoord("up")
+        return true
+    else
+        return false
     end
 end
 
-function down(steps)
-    if steps == nil then steps = 1 end
-    steps = math.abs(steps)
-    refuel(steps)
-    local blocked = false
-    local b = 0
-    while b < steps do        
-        if turtle.down() then
-            b=b+1
-            updateCoord("down")
-            return true
-        else
-            os.sleep(30)
-            if not blocked then
-                blocked = true
-                print("path is blocked (down)") --only prints this once
-                return false
-            end
-        end
+function down()
+    refuel(1)
+    if turtle.down() then
+        updateCoord("down")
+        return true
+    else
+        return false
     end
 end
 
@@ -600,7 +576,7 @@ function strip(length)
         end
         turn(2)         
         while not down() do end
-        if pos.x % torchDistance == 0 then
+        if pos.y % torchDistance == 0 then
             turtle.select(2)
             turtle.placeUp()
         end
@@ -678,15 +654,18 @@ end
 
 --elevate to the next level of strips
 function elevate()
-    digUp()
-    digUp()
-    while turtle.detectUp() do --in case of gravel above
-        turtle.digUp()
-        checkInventory()
-    end
+    --two left
     left()
     stripForward(2)
     right()
+    --two up
+    digUp()
+    digUp()
+    --wait for gravel
+    while turtle.detectUp() do
+        turtle.digUp()
+        checkInventory()
+    end
 end
 
 --go to the next strip on the left
@@ -765,7 +744,9 @@ end
 --return home
 turnTowardHome(true)
 forward(pos.x)
-down(pos.z)
+while pos.x ~= 0 do
+    down()
+end
 turn(-1)
 --empty inventory into chest
 local full = false
