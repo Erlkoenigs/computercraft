@@ -178,6 +178,7 @@ end
 
 --make sure turtle goes forward. If path is blocked, print it once
 function forward(steps)
+    steps = math.abs(steps)
     refuel(steps)
     if steps == nil then steps = 1 end
     local blocked = false
@@ -199,6 +200,7 @@ function forward(steps)
 end
 
 function up(steps)
+    steps = math.abs(steps)
     refuel(steps)
     if steps == nil then steps = 1 end
     local blocked = false
@@ -220,6 +222,7 @@ function up(steps)
 end
 
 function down(steps)
+    steps = math.abs(steps)
     refuel(steps)
     if steps == nil then steps = 1 end
     local blocked = false
@@ -742,7 +745,7 @@ end
 
 --action
 getParameters()
-while pos.z < height - 2 and (pos.x == maxX or pos.x == -maxX + 2) do
+while not (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2)) do
     reposition()
     strip(depth)
 end
