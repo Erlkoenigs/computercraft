@@ -177,10 +177,10 @@ function updateCoord(ud)
 end
 
 --make sure turtle goes forward. If path is blocked, print it once
-function forward(steps)
+function forward(steps)    
+    if steps == nil then steps = 1 end
     steps = math.abs(steps)
     refuel(steps)
-    if steps == nil then steps = 1 end
     local blocked = false
     local b = 0
     while b < steps do        
@@ -200,9 +200,9 @@ function forward(steps)
 end
 
 function up(steps)
+    if steps == nil then steps = 1 end
     steps = math.abs(steps)
     refuel(steps)
-    if steps == nil then steps = 1 end
     local blocked = false
     local b = 0
     while b < steps do        
@@ -222,9 +222,9 @@ function up(steps)
 end
 
 function down(steps)
+    if steps == nil then steps = 1 end
     steps = math.abs(steps)
     refuel(steps)
-    if steps == nil then steps = 1 end
     local blocked = false
     local b = 0
     while b < steps do        
