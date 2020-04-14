@@ -248,6 +248,7 @@ function newOrientation(turn)
     elseif orientation == -3 then --3 left turns are one right turn
         orientation = 1
     end
+    clog("orientation :" .. orientation)
 end
 
 --returns the opposite of a given orientation
@@ -561,10 +562,10 @@ end
 function strip(length)
     clog("strip")
     stripForward(length)
-    clog("strip: reached end on strip. heading back")   
+    clog("strip: reached end on strip")   
     turn(2)
     --Forward(length) --walk back out of the strip
-    while pos.x > 0 do
+    while pos.y > 0 do
         if check("down") then --start of a vein
             digVein("down") --go one block into the vein
             mineVein() --follow it
