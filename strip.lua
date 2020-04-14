@@ -712,12 +712,14 @@ function reposition()
     --but it yields resources earlier
     if pos.z == 0 then --first level is special
         if pos.x == 0 then --starting postition
+            clog("center")
             if even then
                 left()
                 stripForward(2)
                 right()
             end
         elseif pos.x == -maxX then --last strip on he left on first level => go to first strip on the right side of starting position
+            clog("-maxX")
             right()
             if even then
                 forward(maxX + 2)
@@ -726,17 +728,23 @@ function reposition()
             end
             left()
         elseif pos.x == maxX then
+            clog("maxX")
             elevate()
         elseif pos.x < 0 then
+            clog("pos.x < 0")
             shiftLeft()
         elseif pos.x > 0 then
+            clog("pos.x > 0")
             shiftRight()
         end
     elseif pos.x == maxX or pos.x == -maxX + 2 then --last strip on the right
+        clog("maxX or maxX+2")
         elevate()
     elseif pos.z % 4 == 0 then
+        clog("pos.z%4==0")
         shiftRight()
     elseif pos.z % 4 ~= 0 then
+        clog("pos.z%4~=0")
         shiftRight()
     else
         error("reposition: something's wrong")
