@@ -3,6 +3,8 @@
 --mimics the buildcraft quarry. can be used to level an area
 --takes 2 arguments: radius and depth
 --radius excludes starting position: radius = 2 mines a 5x5 area
+--turtle will always mine the level it is on and then
+--_depth_ levels underneath it
 --when turtles inventory is full, it will try to drop items into
 --a chest above it's starting position
 
@@ -309,11 +311,9 @@ end
 
 --check if last inventory slot is full
 function checkInventory()
-    turtle.select(16)
-    if turtle.getItemCount() > 0 then
+    if turtle.getItemCount(16) > 0 then
         emptyInventory()
     end
-    turtle.select(2)
     clog("end of check inventory")
 end
 
@@ -323,52 +323,62 @@ function endProgram()
     error("hit bedrock. program finished") --not nice
 end
 
+--native dig()-function with check for full inventory and bedrock
 function dig(direction)
     if direction == nil or direction == "forward" then
-        while not forward() do
-            if turtle.detect() and not turtle.dig() then
-                endProgram()
-            else
-                checkInventory()
-            end
+        if turtle.detect() and not turtle.dig() then
+            endProgram()
+        else
+            checkInventory()
         end
     elseif direction == "up" then
-        while not up() do
-            if turtle.detect() and not turtle.dig() then
-                endProgram()
-            else
-                checkInventory()
-            end
+        if turtle.detect() and not turtle.digUp() then
+            endProgram()
+        else
+            checkInventory()
         end
     elseif direction == "down" then
-        while not down() do
-            if turtle.detect() and not turtle.dig() then
-                endProgram()
-            else
-                checkInventory()
-            end
+        if turtle.detect() and not turtle.digDown() then
+            endProgram()
+        else
+            checkInventory()
         end
     end
 end
 
---dig an area defined by a given radius down to a given depth
+function digAndGo(direction)
+    if direction == nil or direction == "forward" then
+        while not forward() do dig() end
+    elseif direction == "up" then
+        while not up() do dig(direction) end
+    elseif direction == "down" then
+        while not down() do dig(direction) end
+    end
+end
+
+--dig an area defined by a given radius
 function plane()
     local dug = 1
-    while true do
-        dig()
+    local below = false --mine level below or not
+    local above = false -- mine level above or not
+    local function digStep()
+        if above then dig("up") end
+        if below then dig("down") end
+        digAndGo()
         dug = dug + 1
-        if dug == (2*r+1)^2 then return true end
+    end
+    while true do
+        digStep()
+        if dug == (2*r+1)^2 then break end
         --turn at the top
         if pos.y == r then
             left()
-            dig()
-            dug = dug +1
+            digStep()
             left()
         --turn at the bottom
-        elseif pos.y == 0-r then
+        elseif pos.y == -r then
             right()
-            dig()
-            dug = dug +1
+            digStep()
             right()
         end
     end
@@ -388,8 +398,8 @@ for i=1, r do
 end
 left()
 left()
-while pos.z > 0-depth do
-    if not plane() break end
+while pos.z > -depth do
+    plane()
     clog("level done")
     dig("down")
     left()
