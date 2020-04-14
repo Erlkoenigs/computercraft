@@ -721,12 +721,12 @@ function reposition()
             clog("z0 -maxX")
             right()
             if even then
-                clog("even, "..maxX)
                 local st = maxX + 2
+                clog("even, "..st)
                 forward(st)
             else
-                clog("odd, "..maxX)
                 local st = maxX + 4
+                clog("even, "..st)
                 forward(st)
             end
             left()
