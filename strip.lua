@@ -92,24 +92,25 @@ function getParameters()
         height = tonumber(tArgs[2])
         depth = tonumber(tArgs[3])
     else
-    --ask for it
-    --width
-    while width == 0 do
-        print("Enter heigth of the mining area:")
-        width = tonumber(read())
-        checkValue(width)
-    end 
-    --height
-    while height == 0 do
-        print("Enter heigth of the mining area:")
-        height = tonumber(read())
-        checkValue(height)
-    end
-    --depth
-    while depth == 0 do
-        print("Enter strip length:")
-        depth = tonumber(read())
-        checkValue(depth)
+        --ask for it
+        --width
+        while width == 0 do
+            print("Enter width of mining area:")
+            width = tonumber(read())
+            checkValue(width)
+        end 
+        --height
+        while height == 0 do
+            print("Enter heigth of mining area:")
+            height = tonumber(read())
+            checkValue(height)
+        end
+        --depth
+        while depth == 0 do
+            print("Enter depth of mining area:")
+            depth = tonumber(read())
+            checkValue(depth)
+        end
     end
 
     --calculate "even"
@@ -159,10 +160,12 @@ function updateCoord(ud)
         end
     elseif ud == "up" then
         pos.z = pos.z + 1
-    elseif ud = "down" then
+    elseif ud == "down" then
         pos.z = pos.z - 1
     else
         error("updateCoord: bad argument. Got " .. ud .. ", expected 'up' or 'down'")
+    end
+    print("("..x.."/"..y.."/"..z")")
 end
 
 --make sure turtle goes forward. If path is blocked, print it once
@@ -286,7 +289,7 @@ function turnTowardHome(notInverted)
             return true
         elseif pos.x < 0 then
             turn(1)
-            #return true
+            return true
         else
             return false
         end
