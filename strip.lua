@@ -34,7 +34,9 @@ target[3] = "obsidian"
 target[4] = "yellorite" --big reactors
 local dummy = {} --materials that can be used to place as a base for the finishing torch
 dummy[1] = "dirt"
-dummy[2] = "stone" --includes cobblestone, andesite, marble, diorite etc.
+dummy[2] = "stone"
+dummy[3] = "marble2"
+dummy[4] = "limestone2"
 
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
