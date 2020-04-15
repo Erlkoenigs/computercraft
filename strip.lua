@@ -757,15 +757,14 @@ end --reposition
 
 --action
 getParameters()
-while true do
+repeat
     reposition()
-    if pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2) then break end
     turtle.select(2)
     --if beginning of strip is marked, skip it
     if not turtle.compare() then
         strip(depth)
     end
-end
+until (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2))
 --return home
 returnHome()
 turn(2)
