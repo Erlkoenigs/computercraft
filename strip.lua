@@ -520,7 +520,7 @@ function strip(length)
     --follow and mine a vein
     --only called after the vein has already been entered by "digVein()" initially
     local function mineVein()
-        while #path>0 down
+        while #path > 0 do
             --scan up, down and all sides. return "up" or "down" when ore found in those directions return true or false when ore found on a side
             --will leave the turtle in the direction of the found ore
             local function scan()
