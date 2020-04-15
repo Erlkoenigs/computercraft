@@ -463,7 +463,9 @@ function strip(length)
         local function isItWanted()
             if success then
                 for i,v in ipairs(target) do 
+                    clog(data.." - "..v)
                     if string.sub(data.name,-#v) == v then --if end of name == ore-string
+                        clog("is wanted")
                         return true
                     end
                 end
@@ -754,7 +756,7 @@ function reposition()
         shiftRight()
     elseif pos.z % 4 ~= 0 then
         clog("pos.z%4~=0")
-        shiftRight()
+        shiftLeft()
     else
         error("reposition: something's wrong")
     end
