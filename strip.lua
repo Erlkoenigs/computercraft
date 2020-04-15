@@ -660,7 +660,10 @@ end --strip
 --positions the turtle in front of the next strip
 --this function defines the sequence in which strips are made
 function reposition()
-    print("reposition")
+    clog("reposition")
+    clog("pos.x: "..pos.x)
+    clog("maxX: "..maxX)
+    
     --elevate to the next level of strips
     local function elevate()
         --two left
@@ -740,9 +743,12 @@ function reposition()
             clog("z0 pos.x > 0")
             shiftRight()
         end
-    elseif pos.x == maxX or pos.x == -maxX + 2 then --last strip on the right
-        clog("maxX or maxX+2")
+    --pos.z ~= 0
+    elseif pos.x == maxX or pos.x == -maxX + 2 then --last strip on the right or left
+        clog("maxX or -maxX+2")
         elevate()
+    elseif pos.x > maxX or pos.x < -maxX then --just in case
+        error("reposition: went too far")
     elseif pos.z % 4 == 0 then
         clog("pos.z%4==0")
         shiftRight()
