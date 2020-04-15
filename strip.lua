@@ -705,6 +705,8 @@ function reposition()
                 left()
                 stripForward(2)
                 right()
+            else
+                shiftLeft()
             end
         elseif pos.x == -maxX then --last strip on he left on first level => go to first strip on the right side of starting position
             clog("z0 -maxX")
@@ -712,11 +714,11 @@ function reposition()
             if even then
                 local st = maxX + 2
                 clog("even, "..st)
-                forward(st)
+                stripForward(st)
             else
                 local st = maxX + 4
                 clog("even, "..st)
-                forward(st)
+                stripForward(st)
             end
             left()
         elseif pos.x == maxX then
@@ -747,7 +749,11 @@ end
 getParameters()
 while not (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2)) do
     reposition()
-    strip(depth)
+    turtle.select(2)
+    --if beginning of strip is marked, skip it
+    if not turtle.compare() then 
+        strip(depth)
+    end
 end
 --return home
 returnHome()
