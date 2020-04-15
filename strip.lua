@@ -673,6 +673,8 @@ function reposition()
             if not up() then
                 turtle.digUp()
                 checkInventory()
+            else
+                i = i + 1
             end
         end
         --in case of gravel
