@@ -474,6 +474,7 @@ function strip(length)
         else
             n = ""
         end
+        return n
     end --inspect
 
     --check block in front, up or down. true if block is wanted
