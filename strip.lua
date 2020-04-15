@@ -289,7 +289,7 @@ function turnTowardHome(notInverted)
             return false
         end
     elseif not notInverted then
-        if pos.x > pos_snap then
+        if pos.x > pos_snap.x then
             turn(-1)
             return true
         elseif pos.x < pos_snap.x then
