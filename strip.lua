@@ -458,43 +458,36 @@ function strip(length)
         return false
     end --placeTorchBlock
 
+    --just take .name from turtle.inspect. returns "" when no block there
+    local function inspect(dir)
+        local s,d
+        local n
+        if dir == nil then
+            s,d = turtle.inspect()
+        elseif dir == "up" then
+            s,d = turtle.inspectUp()
+        elseif dir == "down" then
+            s,d =turtle.inspectDown()
+        end
+        if s then
+            n = d.name
+        else
+            n = ""
+        end
+    end --inspect
+
     --check block in front, up or down. true if block is wanted
     local function check(direction)
         clog("check")
-        local function isItWanted()
-            clog("isItWanted")
-            if success then
-                clog("success")
-                for i,v in ipairs(target) do
-                    clog(data.." - "..v)
-                    if string.sub(data.name,-#v) == v then --if end of name == ore-string
-                        clog("is wanted")
-                        return true
-                    end
+        local name = inspect(direction)
+        if name ~= "" then
+            for index,targetName in ipairs(target) do
+                clog(name.." - "..targetName)
+                if string.sub(name,-#targetName) == targetName then --if end of name == ore-string
+                    clog("is wanted")
+                    return true
                 end
             end
-            return false
-        end --isWanted
-
-        local success,data
-        if direction == nil then
-            local success,data=turtle.inspect()
-            if isItWanted() then
-                clog("I reached this part")
-                return true
-            end      
-        elseif direction=="up" then
-            success,data=turtle.inspectUp()
-            if isItWanted() then
-                clog("I reached this part")
-                return true
-            end
-        elseif direction=="down" then
-            success,data=turtle.inspectDown()
-            if isItWanted() then
-                clog("I reached this part")
-                return true
-            end       
         end
         return false
     end --check
@@ -634,13 +627,10 @@ function strip(length)
         end
         --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
         while not forward() do
-            local s,d = turtle.inspect()
-            if s then
-                if d.name == "minecraft:gravel" then
-                    turtle.dig()
-                else
-                    os.sleep(30)
-                end
+            if inspect() == "minecraft:gravel" then
+                turtle.dig()
+            else
+                os.sleep(30) --wait for help, then try again
             end
         end
         refuel()
@@ -767,8 +757,9 @@ end --reposition
 
 --action
 getParameters()
-while not (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2)) do
+while true do
     reposition()
+    if pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2) then break end
     turtle.select(2)
     --if beginning of strip is marked, skip it
     if not turtle.compare() then
