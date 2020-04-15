@@ -445,7 +445,8 @@ function strip(length)
                 for j,v in ipairs(dummy) do
                     clog(string.sub(data.name,-#v).." - "..v)
                     if string.sub(data.name,-#v) == v then --if end of name == dummy-string
-                        turtle.select(j)
+                        clog("place")
+                        turtle.select(i)
                         turtle.placeDown() --place dummy
                         turtle.select(2)
                         return true
