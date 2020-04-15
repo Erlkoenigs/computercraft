@@ -460,9 +460,12 @@ function strip(length)
 
     --check block in front, up or down. true if block is wanted
     local function check(direction)
+        clog("check")
         local function isItWanted()
+            clog("isItWanted")
             if success then
-                for i,v in ipairs(target) do 
+                clog("success")
+                for i,v in ipairs(target) do
                     clog(data.." - "..v)
                     if string.sub(data.name,-#v) == v then --if end of name == ore-string
                         clog("is wanted")
