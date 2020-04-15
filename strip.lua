@@ -434,14 +434,16 @@ function strip(length)
     --functions
     --searches inventory for dummy-material. if it finds some, places it down
     local function placeTorchBlock()
+        clog("placeTorchBlock")
         local o_snap = orientation --snapshot of orientation
         --search for dummy
         for i=3, 16 do
             if turtle.getItemCount(i) > 0 then
                 data = turtle.getItemDetail(i)
-                for i,v in ipairs(dummy) do
+                for j,v in ipairs(dummy) do
+                    clog(string.sub(data.name,-#v).." - "..v)
                     if string.sub(data.name,-#v) == v then --if end of name == dummy-string
-                        turtle.select(i)
+                        turtle.select(j)
                         turtle.placeDown() --place dummy
                         turtle.select(2)
                         return true
