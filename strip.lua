@@ -181,8 +181,18 @@ function updateCoord(ud)
     clog("("..pos.x.."/"..pos.y.."/"..pos.z..")")
 end --updateCoord
 
+function forward()
+    refuel(1)
+    if turtle.forward() then
+        updateCoord()
+        return true
+    else
+        return false
+    end
+end
+
 --make sure turtle goes forward. If path is blocked, print it once
-function forward(steps)
+function goForward(steps)
     if steps == nil then steps = 1 end
     --clog("forward: "..steps)
     steps = math.abs(steps)
@@ -310,12 +320,12 @@ function returnHome()
     clog("return home: y: " .. pos.y)
     if pos.y > 0 then
         turn(2)
-        forward(pos.y) --back down the strip
+        goForward(pos.y) --back down the strip
     end
     clog("return home: x: " .. pos.x)
     if pos.x ~= 0 then
         turnTowardHome(true)
-        forward(pos.x) --back to the chest
+        goForward(pos.x) --back to the chest
     end
     clog("return home: z: " .. pos.z)
     while pos.z > 0 do
@@ -358,7 +368,7 @@ function checkInventory()
         --pick up fuel and torches
         --fuel
         right()
-        forward()
+        goForward()
         left()
         refuel()
         turtle.select(1)
@@ -373,7 +383,7 @@ function checkInventory()
         end
         --torches
         right()
-        forward()
+        goForward()
         left()
         turtle.select(2)
         full = false
@@ -388,9 +398,7 @@ function checkInventory()
         --to pos_snap.x
         clog("checkInventory:back to x")
         turnTowardHome(false)
-        while pos.x ~= pos_snap.x do
-            forward()
-        end
+        goForward(pos.x - pos_snap.x)
         turn(0)
         --to pos_snap.z
         clog("checkInventory:back to z")
@@ -399,9 +407,7 @@ function checkInventory()
         end
         --back down the strip
         clog("checkInventory:back down y")
-        while pos.y ~= pos.y do
-            forward()
-        end
+        goForward(pos.y - pos_snap.y)
         turn(orientation_snap)
     end
     turtle.select(3)
