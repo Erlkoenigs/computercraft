@@ -37,6 +37,7 @@ dummy[1] = "dirt"
 dummy[2] = "stone"
 dummy[3] = "marble2"
 dummy[4] = "limestone2"
+local webhookUrl = "https://discordapp.com/api/webhooks/698516901181259826/VHmS95kHyjjTRgaTckWqpMbDZ2AnYzDCiyoQ3-Bmmn0Elk6xH_zZP_ogKR7zYee2DX-h"
 
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
@@ -61,6 +62,15 @@ local maxX = 0 --absolute of maximum x value on both sides. calculated from widt
 
 function clog(logstr)
     if debug then print(logstr) end
+end
+
+function discordMsg(msg)
+    http.post(webhookUrl, "{  \"content\": \""..msg.."\" }", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
+end
+
+function printError(msg)
+    dirscordMsg(msg)
+    print(msg)
 end
 
 --get user input. either through command line arguments or by asking
@@ -345,7 +355,7 @@ function checkInventory()
                     slot=slot+1
                 else
                     if not full then
-                        print("chest is full") --only print this once
+                        printError("chest is full") --only print this once
                         full = true
                     end
                     os.sleep(30) --wait for 30 seconds
@@ -366,7 +376,7 @@ function checkInventory()
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
-                    print("no fuel in chest")
+                    printError("no fuel in chest")
                     full = true
                 end
             end
@@ -380,7 +390,7 @@ function checkInventory()
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
-                    print("no torches in chest")
+                    printError("no torches in chest")
                     full = true
                 end
             end
@@ -784,7 +794,7 @@ while slot<17 do
             slot=slot+1
         else
             if not full then
-                print("chest is full") --only print this once
+                printError("chest is full") --only print this once
                 full = true
             end
             os.sleep(30) --wait for 30 seconds
@@ -795,4 +805,4 @@ while slot<17 do
 end
 turtle.select(3)
 turn(0)
-print("finished")
+printError("finished")
