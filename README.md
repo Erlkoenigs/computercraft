@@ -22,16 +22,23 @@ Creates parallel 1x2 tunnels (or "strips"). On it's way back down each strip it 
 If, at any point, the turtles inventory is full, it will return to an item chest, dump its contents and return back to where it left off.
 
 Variable parameters:
-* direction in which new strips will be created
-* amount of strips that will be created
-* length of strips
+* width
+* depth and
+* height
+
+..of the mining area.
+
+The spacing between strips is 4. The input width will be reduced until width + 3 is a multitude of 4. The turtle will then go a maximum of (width - 1) / 2 steps to either side of its starting position and will dig as many strips as can fit into that length.
+
+The depth determines the length of the strips. 
+
+Once one row of strips is finished, the turtle will go up two blocks and start another row, but shift the position of strips so that the strips of the new row are in the middle of the strips of the first row and will do the same with the following rows. The turtle will fit as many rows of strips into the input height as possible.
 
 Parameters can be input via command line arguments:
 
-`strip r 5 50`
+`strip 190 20 80`
 
-creates 5 strips to the right of the starting position with a length of 50.
-Alternatively the turtle will ask for these parameters one by one.
+sets the width to 190, height to 20 and depth to 80.
 
 Setup:
 * chest to dump items into behind the starting position
@@ -43,7 +50,12 @@ If there's not enough fuel or torches in the chests, it will wait until there is
 
 The entrance of a finished strip can be marked by a torch. The turtle will do the same and skip, but still count, marked strips.
 
-Spacing between strips is 3 by default. This can be changed by modifying the _stripSpacing_ variable. The turtle will place torches every 12 blocks. This can be changed by modifying the _torchDistance_ variable.
+The turtle will place torches every 12 blocks. This can be changed by modifying the _torchDistance_ variable.
+
+To make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to. Because of this it is possible that the turtle gets stuck when lava and water create cobblestone in the turtles path.
+
+Before it starts the turtle will ask for a discord webhook url. If supplied, it can send messages about events to a discord channel. These events are: program start, program end, item chest full, fuel or torch chest empty, blocked path (with coordinates from starting position).
+
 
 ## quarry
 Mimics a buildcraft quarry with a variable radius und depth.
@@ -62,6 +74,8 @@ This program will create a 1x2 tunnel of variable length by placing a dummy mate
 Usage:
 * fuel in the first slot
 * dummy material in the second slot
+
+The turtle will return to its starting position at the end of the program.
 
 ## bridge
 Builds a simple bridge with a width of one block. 

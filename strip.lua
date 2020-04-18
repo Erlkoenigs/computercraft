@@ -1,158 +1,288 @@
---This program is meant for the computercraft turtle
---It creates 1x2 mining strips with a variable spacing
---On the way back it will mine ore veins it finds
---The turtle needs fuel in slot 1, torches in slot 2, a chest that is regularly emptied,
+--for the computercraft turtle
+--creates 1x2 mining strips with a spacing of 3 blocks in between
+--on it's way back it will search for and mine ore veins it finds
+--it needs fuel in slot 1, torches in slot 2, a stationary chest that is regularly emptied,
 --a chest that contains fuel and a chest that contains torches
---The turtle will start digging the first strip forward from its starting position
 --the chest for the mined items has to be placed directly behind the starting position,
---the chest with the fuel has to be placed to the left of the item chest, when looking down the strips,
---the chest with the torches has to be placed to the left of the fuel chest, when looking down the strips.
---the entrance of an already finished strip can be marked by a torch. The turtle will do the same and skip, but still count, marked strips
+--the chest with the fuel has to be placed to the left of the item chest,
+--the chest with the torches has to be placed to the left of the fuel chest.
+--the entrance of a finished strip can be marked by a torch. The turtle will do the same and skip, but still count, marked strips
+
+--turtles range is typically limited by the chunk loaded area.
+--it takes three parameters: width, height and depth, which define the area of its mining
+--it will dig _depth_ blocks forward, 0.5 _width_ blocks to each side
+--and max _height_ blocks up
+
+--it asks for a discord webhook url where it sends events like start, finish, empty chests and if it gets stuck.
+--that question can be skipped. in that case it will just log to its console
+
+--example: ("0" is mined, "x" is not mined)
+-- 0xxx0xxx0xxx0xxx0
+-- 0xxx0xxx0xxx0xxx0 level 3 (odd level)
+-- xx0xxx0xxx0xxx0xx
+-- xx0xxx0xxx0xxx0xx level 2 (even level)
+-- 0xxx0xxx0xxx0xxx0
+-- 0xxx0xxx0xxx0xxx0 level 1 (odd level)
+--levels = amount of levels => actual height of mined area = levels * 2
+--first row of strips is the first level (= level 1 = an odd level)
+--the row above the first row is the second level (= level 2 = an even level)
+
+--to make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to.
+--because of this it is possible that lava and water create cobblestone in the turtles path, that will cause it to get stuck.
+--also it is theoretically possible that it gets stuck in an endless loop for mining cobblestone when digging through an area with water and lava
 
 --settings
-local stripSpacing = 4 --dig a strip every x blocks
+debug = true
 local torchDistance = 12 -- place torches every x blocks
-local target = {} --will search for these strings at the end of the block information
+local target = {} --scans for blocks, whose block info names end with one of these strings (!= ore dict name!!!)
 target[1] = "ore"
 target[2] = "resources" --forestry ores
 target[3] = "obsidian"
 target[4] = "yellorite" --big reactors
+local dummy = {} --materials that can be used to place as a base for the finishing torch
+dummy[1] = "dirt"
+dummy[2] = "stone"
+dummy[3] = "marble2"
+dummy[4] = "limestone2"
+local webhookUrl = ""
+
+local label = os.getComputerLabel() --turtles label used as name in discord message
 
 --states
-local orientation = 0 --left is negative, right is positive. 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
-local path = {} --the path the turtle has taken while following a vein. 3 is up, -3 is down
-local currentPosition = 0 --holds the current position within a strip. Is reset to zero at the beginning of a new strip
-local lateralPosition = 0
-local currentHeight = 0 --only tracked within strips, not within veins. Will only have values 0 and 1
-local torchBlock = false --is there a block to place the finishing torch on
+local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
+local path = {} --the path the turtle has taken while following an ore vein. 3 is up, -3 is down
+local pos = {} --current position in coordinate system (not tracked while following an ore vein)
+pos["x"] = 0
+pos["y"] = 0
+pos["z"] = 0
+local pos_snap = {} --snapshot of current position to return to later
+pos_snap["x"] = 0
+pos_snap["y"] = 0
+pos_snap["z"] = 0
 
---get command line arguments
-tArgs={...}
-local stripDirection = "" --New strips will be created to the "stripDirection" of the Startingpoint of the turtle
-local stripAmount = 0
-local stripLength = 0
+--parameters
+tArgs={...} --1. width, 2. height, 3. depth
+local width = 0
+local height = 0
+local depth = 0
+local even = true --is the amount of strips on the first level (= every odd level) odd or even?
+--if not even, there's a strip in the center
+local maxX = 0 --absolute of maximum x value on both sides. calculated from width
 
---inform user about the program setup and wait for acknowledgement
-function informUser()
-    local sDir = ""
-        if stripDirection == "l" then
-            sDir = "left"
-        elseif stripDirection == "r" then
-            sDir = "right"
-        end
-    print(stripAmount.." strips with a length of "..stripLength.." will be created to the "..sDir.." of the current position.")
-    print("Make sure there's fuel in slot one and torches in slot two")
-    print("press any button to continue")
-    os.pullEvent("key")
+function clog(logstr)
+    if debug then print(logstr) end
 end
 
---ask for the information needed, if not properly given in command line arguments
-function getUserInput()
-    stripDirection = ""
-    stripLength = 0
-    stripAmount = 0
-    --direction
-    while not (stripDirection == "r" or stripDirection == "l") do
-        print("Enter strip direction (l/r):")
-        stripDirection = read()
-        if not (stripDirection == "r" or stripDirection == "l") then 
-            term.clear()
-            term.setCursorPos(1,1)
-            print("Invalid direction. Please use 'l' or 'r'")
-        end
-    end    
-    --amount
-    while stripAmount == 0 do
-        print("Enter strip amount:")
-        stripAmount = tonumber(read())
-        if stripAmount == nil then stripAmount = 0 end --make sure it's a number
-        if not (type(stripAmount) == "number" and stripAmount > 0) then 
+function discordMsg(msg)
+    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..label.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
+end
+
+function printEvent(msg)
+    if webhookUrl ~= "" then
+        discordMsg(msg)
+    end
+        print(msg)
+end
+
+--get user input. either through command line arguments or by asking
+function getParameters()
+    --check if value is number and greater than zero
+    local function checkValue(value)
+        if value == nil then value = 0 end
+        if not (type(value) == "number" and value > 0) then 
             term.clear()
             term.setCursorPos(1,1)
             print("Invalid amount. Please input any number greater than zero.")
         end
     end
-    --length
-    while stripLength == 0 do
-        print("Enter strip length:")
-        stripLength = tonumber(read())
-        if stripLength == nil then stripLength = 0 end --make sure it's a number
-        if not (type(stripLength) == "number" and stripLength > 0) then
-            term.clear()
-            term.setCursorPos(1,1)
-            print("Invalid length. Please input any number greater than zero.")
-        end
-    end
-    informUser()
-end
 
-function usageHint()
-    term.clear()
-    term.setCursorPos(1,1)
-    print("Invalid command line arguments")
-    print("use: strip <direction> <amount> <length>")
-    print("with direction as 'l' or 'r' and amount and length as numbers greater than zero")
-    print()
-end
-
---if command line arguments are ok, use them
-if #tArgs>0 then
-    if type(tonumber(tArgs[2])) == "number" and type(tonumber(tArgs[3])) == "number" then
-        if (tArgs[1] == "l" or tArgs[1] == "r") and tonumber(tArgs[2])>0 and tonumber(tArgs[3])>0 then
-            stripDirection = tArgs[1]
-            stripAmount = tonumber(tArgs[2])
-            stripLength = tonumber(tArgs[3])
-            term.clear()
-            term.setCursorPos(1,1)
-            informUser()
-        else
-            usageHint()
-            getUserInput()
+    if #tArgs == 3 then
+        local err = ""
+        local errEnd = " argument is not a number"
+        if type(tonumber(tArgs[1])) ~= "number" then
+            err = "1st"
         end
+        if type(tonumber(tArgs[2])) ~= "number" then
+            if err ~= "" then
+                err = err..", 2nd"
+            else
+                err = "2nd"
+            end
+        end
+        if type(tonumber(tArgs[3])) ~= "number" then
+            if err ~= "" then
+                err = err..", 3rd"
+            else
+                err = "3rd"
+            end
+        end
+        if err ~= "" then
+            error(err..errEnd)
+        end
+        width = tonumber(tArgs[1])
+        height = tonumber(tArgs[2])
+        depth = tonumber(tArgs[3])
+
+        print("width: "..width)
+        print("height: "..height)
+        print("depth: "..depth)
+        print("Make sure there's fuel in slot one and torches in slot two")
+        print("press any button to continue")
+        os.pullEvent("key")
     else
-        usageHint()
-        getUserInput()
+        --ask for it
+        --width
+        while width == 0 do
+            print("Enter width of mining area:")
+            width = tonumber(read())
+            checkValue(width)
+        end 
+        --height
+        while height == 0 do
+            print("Enter heigth of mining area:")
+            height = tonumber(read())
+            checkValue(height)
+        end
+        --depth
+        while depth == 0 do
+            print("Enter depth of mining area:")
+            depth = tonumber(read())
+            checkValue(depth)
+        end
     end
-else
-    getUserInput()
-end
+    print("webhook url?")
+    webhookUrl = read()
+
+    --calculate "even"
+    --make width fit (could prob use math.floor() for this)
+    while (width + 3) % 4 ~= 0 do
+        width = width - 1
+    end
+    --max amount of strips on level
+    local stripAmount = (width + 3) / 4
+    --is it even or odd
+    if stripAmount % 2 == 0 then
+        even = true
+    else
+        even = false
+    end
+
+    maxX = (width - 1) / 2
+end --getParameters
 
 --refuel from slot 1
-function refuel(level)
-    if level == nil then
-        while turtle.getFuelLevel()<stripLength*5 do --random value
-            turtle.select(1)
-            turtle.refuel(1)
+function refuel(amount)
+    if amount == nil then amount = depth*5 end --random value
+    while turtle.getFuelLevel() < amount do
+        turtle.select(1)
+        turtle.refuel(1)
+    end
+end --refuel
+
+--ud = "up" or "down"
+function updateCoord(ud)
+    if ud == nil then
+        if orientation == 0 then
+            pos.y = pos.y + 1
+        elseif orientation == 2 or orientation == -2 then
+            pos.y = pos.y - 1
+        elseif orientation == 1 then
+            pos.x = pos.x + 1
+        elseif orientation == - 1 then
+            pos.x = pos.x - 1
         end
+    elseif ud == "up" then
+        pos.z = pos.z + 1
+    elseif ud == "down" then
+        pos.z = pos.z - 1
     else
-        while turtle.getFuelLevel()<level do
-            turtle.select(1)
-            turtle.refuel(1)
-        end
+        error("updateCoord: bad argument")
+    end
+    --clog(pos.x)
+    --clog(pos.y)
+    --clog(pos.z)
+    clog("("..pos.x.."/"..pos.y.."/"..pos.z..")")
+end --updateCoord
+
+function forward()
+    refuel(1)
+    if turtle.forward() then
+        updateCoord()
+        return true
+    else
+        return false
     end
 end
 
---make sure turtle goes forward. If path is blocked, print it once
-function forward(steps)
-    refuel(steps)
+function up()
+    refuel(1)
+    if turtle.up() then
+        updateCoord("up")
+        return true
+    else
+        return false
+    end
+end
+
+function down()
+    refuel(1)
+    if turtle.down() then
+        updateCoord("down")
+        return true
+    else
+        return false
+    end
+end
+
+--make sure turtle steps goes in direction. If path is blocked, print it once
+--dir can be "forward", "up" or "down"
+function go(dir, steps)
     if steps == nil then steps = 1 end
+    steps = math.abs(steps)
+    refuel(steps)
     local blocked = false
-    local blocks = 0
-    while blocks < steps do        
-        if turtle.forward() then
-            blocks=blocks+1
-        else
-            os.sleep(30)
-            if not blocked then
-                blocked = true
-                print("path is blocked") --only print this once
+    local b = 0
+    if dir == "forward" then
+        while b < steps do
+            if forward() then
+                b=b+1
+            else
+                os.sleep(30)
+                if not blocked then
+                    blocked = true
+                    printEvent("path is blocked (forward) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                end
+            end
+        end
+    elseif dir == "up" then
+        while b < steps do
+            if up() then
+                b=b+1
+            else
+                os.sleep(30)
+                if not blocked then
+                    blocked = true
+                    printEvent("path is blocked (up) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                end
+            end
+        end
+    elseif dir == "down" then
+        while b < steps do
+            if down() then
+                b=b+1
+            else
+                os.sleep(30)
+                if not blocked then
+                    blocked = true
+                    printEvent("path is blocked (down) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                end
             end
         end
     end
-end
+end --go
 
 --track orientation when turning. Left turn is -1, right turn is +1
-function newOrientation(turn)
+function updateOrientation(turn)
     orientation = orientation + turn
     if orientation == 3 then --3 right turns are one left turn
         orientation = -1
@@ -175,13 +305,13 @@ end
 --turn left and set new orientation
 function left()
     turtle.turnLeft()
-    newOrientation(-1)
+    updateOrientation(-1)
 end
 
 --turn right and set new orientation
 function right()
     turtle.turnRight()
-    newOrientation(1)
+    updateOrientation(1)
 end
 
 --turn turtle in new direction
@@ -197,113 +327,71 @@ function turn(newOrientation)
     end
 end
 
---turn depending on stripDirection, true for turn in stripDirection false for turn in opposite direction
-function turnStripDirection(notInverted)
+--if notInverted == true or nil, turns toward (0/0/0) on x axis, 
+--if notInverted == false, turns toward pos_snap on x axis (= away from (0/0/0))
+-- => results in a a turn toward 1 or -1, depending on where pos_snap.x is from pos.x
+function turnTowardHome(notInverted)
+    if notInverted == nil then notInverted = true end
     if notInverted then
-        if stripDirection == "r" then
-            right()
-        elseif stripDirection == "l" then
-            left()
+        if pos.x > 0 then
+            turn(-1)
+            return true
+        elseif pos.x < 0 then
+            turn(1)
+            return true
         else
-            error("Invalid direction. Use l or r")
+            return false
         end
     elseif not notInverted then
-        if stripDirection == "r" then
-            left()
-        elseif stripDirection == "l" then
-            right()
+        if pos.x > pos_snap.x then
+            turn(-1)
+            return true
+        elseif pos.x < pos_snap.x then
+            turn(1)
+            return true
         else
-            error("Invalid direction. Use l or r")
+            return false
         end
     end
 end
 
---dig block in front, up or down, then move in that direction. Update path
-function digVein(direction) --ore true when called to mine an ore
-    if direction == nil then --if no direction given
-        while not turtle.forward() do
-            turtle.dig()          
-        end
-        table.insert(path,orientation)
-        refuel()
-    elseif direction == "up" then
-        while not turtle.up() do
-            turtle.digUp()          
-        end
-        table.insert(path,3)
-        refuel()
-    elseif direction == "down" then
-        while not turtle.down() do
-            turtle.digDown()
-        end
-        table.insert(path,-3)
-        refuel()
+--return to chest
+function returnHome()
+    refuel(pos.x + pos.z + pos.y + 4)
+    if pos.z % 2 ~= 0 then --if on upper level within a strip, go down
+        while not down() do end
     end
-end
-
---go a variable amount of steps back on the path you went in
-function stepBackOnPath(s)
-    --action
-    if s == nil then s = 1 end
-    for i=1,s do
-        local dir=table.remove(path) --get and remove last entry
-        --print("reversing "..dir)
-        if dir == 3 then
-            while not turtle.down() do
-                turtle.digDown()
-            end
-        elseif dir == -3 then
-            while not turtle.up() do
-                turtle.digUp()
-            end
-        else
-            --print("opposite of "..dir.." is "..oppo)
-            turn(getOppositeOrientation(dir))
-            while not turtle.forward() do
-                turtle.dig()
-            end
-        end
-    end 
-end
-
---follow a given path. Not used
-function followPath(newPath)
-    for i=1,#newPath do
-        if newPath[i] == 3 then
-            digVein("up")
-        elseif newPath[i] == -3 then
-            digVein("down")
-        else
-            turn(newPath[i])
-            digVein()
-        end
-    end
-end
-
---check if last item slot contains items. if true,
---return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
---also picks up fuel and torches from the chests next to the item chest
-function checkInventory()
-    turtle.select(16)
-    if turtle.getItemCount() > 0 then
-        local currentOrientation = orientation
-        refuel(currentPosition+currentHeight+lateralPosition+4)
-        print("checkInventory:down the strip")
-        print("currentPosition: "..currentPosition)
-        --get back to the chest
+    clog("return home: y: " .. pos.y)
+    if pos.y > 0 then
         turn(2)
-        if currentHeight == 1 then --if on upper level, go down
-            while not turtle.down() do end
-        end
-        forward(currentPosition) --back down the strip
-        turnStripDirection(true)
-        print("checkInventory:back to chest")
-        print("lateralPosition: "..lateralPosition)
-        forward(lateralPosition) --back to the chest
-        turnStripDirection(false)
+        go("forward", pos.y) --back down the strip
+    end
+    clog("return home: x: " .. pos.x)
+    if pos.x ~= 0 then
+        turnTowardHome(true)
+        go("forward", pos.x) --back to the chest
+    end
+    clog("return home: z: " .. pos.z)
+    while pos.z > 0 do
+        down()
+    end
+end
+
+--check if last item slot contains items. if true, return to chest and empty inventory into chest. if chest full, wait. 
+--when finished, return to previous position
+--also picks up fuel and torches from the chests next to the item chest
+--only call when on "main road" (=within strip or lateral path). coordinates are not tracked within ore veins
+function checkInventory()
+    if turtle.getItemCount(16) > 0 then
+        local orientation_snap = orientation --snapshot of the current orientation
+        pos_snap.x = pos.x
+        pos_snap.y = pos.y
+        pos_snap.z = pos.z
+        returnHome()
+        turn(2) --turn toward chest
         --Empty inventory. If chest is full, try again till it isn't
         local full = false --to only print errors once
-        local slot=3 --keep torch and fuel
+        local slot = 3 --keep torch and fuel
         while slot<17 do
             turtle.select(slot)
             if turtle.getItemCount(slot)>0 then
@@ -311,7 +399,7 @@ function checkInventory()
                     slot=slot+1
                 else
                     if not full then
-                        print("chest is full") --only print this once
+                        printEvent("chest is full") --only print this once
                         full = true
                     end
                     os.sleep(30) --wait for 30 seconds
@@ -324,7 +412,7 @@ function checkInventory()
         --pick up fuel and torches
         --fuel
         right()
-        forward()
+        go("forward")
         left()
         refuel()
         turtle.select(1)
@@ -332,132 +420,52 @@ function checkInventory()
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
-                    print("no fuel in chest")
+                    printEvent("no fuel in chest")
                     full = true
                 end
             end
         end
         --torches
         right()
-        forward()
+        go("forward")
         left()
         turtle.select(2)
         full = false
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
-                    print("no torches in chest")
+                    printEvent("no torches in chest")
                     full = true
                 end
             end
         end
-        --back to starting position
-        left()
-        forward(2)
-        left()
-        --return to current strip
-        print("checkInventory:back to strip")
-        turnStripDirection(true)
-        forward(lateralPosition) --back to the strip
-        turnStripDirection(false)
-        print("checkInventory:back to current position")
-        forward(currentPosition) --back to the position in the strip
-        turn(currentOrientation)
-        if currentHeight == 1 then --if on upper level, go down
-            while not turtle.up() do end
-        end
+        --to pos_snap.x
+        clog("checkInventory:back to x")
+        turnTowardHome(false)
+        go("forward", pos.x - pos_snap.x)
+        turn(0)
+        --to pos_snap.z
+        clog("checkInventory:back to z")
+        go("up", pos.z-pos_snap.z)
+        --back down the strip
+        clog("checkInventory:back down y")
+        go("forward", pos.y - pos_snap.y)
+        turn(orientation_snap)
     end
     turtle.select(3)
-end
+end --checkInventory
 
---check block in front, up or down. true if block is wanted
-function check(direction)
-    local success,data
-    if direction == nil then
-        success,data=turtle.inspect()
-        if success then
-            for i=1,#target do 
-                if string.sub(data.name,-#target[i])==target[i] then
-                    return true
-                end
-            end
-        end        
-    elseif direction=="up" then
-        success,data=turtle.inspectUp()
-        if success then
-            for i=1,#target do 
-                if string.sub(data.name,-#target[i])==target[i] then
-                    return true
-                end
-            end
-        end
-    elseif direction=="down" then
-        success,data=turtle.inspectDown()
-        if success then
-            for i=1,#target do 
-                if string.sub(data.name,-#target[i])==target[i] then
-                    return true
-                end
-            end
-        end        
-    end
-    return false
-end
-
---scan up, down and all sides. return "up" or "down" when ore found in those directions return true or false when ore found on a side
---will leave the turtle in the direction of the found ore
-function scan()
-    if check("up") then
-        return "up"
-    end
-    if check("down") then
-        return "down"
-    end
-    --turn left until block in front is wanted
-    local i = 0
-    while not check() and i<4 do
-        left()
-        i=i+1
-    end
-    if i == 4 then --if full turn, no block was wanted
-        return false
-    end
-    return true
-end
-
---follow and mine a vein
-function mineVein()
-    while #path>0 do    
-        local s = scan()
-        if s == "up" then
-            digVein("up")
-        elseif s == "down" then
-            digVein("down")
-        elseif s == true then
-            digVein()
-        else
-            stepBackOnPath(1)
-        end        
-    end
-    checkInventory()
-end
-
---Digs a 1x2 strip of a given length in the forward direction. Picks up mined items
-function stripForward(blocks)
+--Digs a 1x2 strip of a given length in the forward direction. Picks up mined items. checks inventory
+--used to mine the path to the strips (x-direction) and the strips themselves (y-direction)
+function tunnelForward(blocks)
     local i=0
     while i<blocks do
         if turtle.dig() then checkInventory() end
-        if turtle.forward() then
-            if orientation == 0 then --count currentPosition up when going down the strip
-                currentPosition = currentPosition+1
-            elseif orientation == -1 or orientation == 1 then -- count lateralPosition up when repositioning
-                lateralPosition = lateralPosition + 1
-            end
-            refuel()
+        if forward() then
             if turtle.detectUp() then
                 while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
                     turtle.digUp()
-                    os.sleep(0.75)
+                    os.sleep(0.75) --this slows down! alternative?
                 end
                 checkInventory()
             end
@@ -466,154 +474,354 @@ function stripForward(blocks)
     end
 end
 
---dig a strip and return to starting position of the strip. Uses StripForward, but returns to the starting position afterwards
+--dig a strip and return to starting position of the strip.
+--Uses StripForward, then returns to the starting position while scanning for ores
 function strip(length)
-    print("strip")
-    stripForward(length)    
-    left()
-    left()
+    clog("strip")
+    local torchBlock = false --is a block present to place the finishing torch on?
+    local torchBlockAlt = false --alternative torch block (sides)
+
+    --functions
+    --searches inventory for dummy-material. if it finds some, places it down
+    local function placeTorchBlock()
+        clog("placeTorchBlock")
+        local o_snap = orientation --snapshot of orientation
+        --search for dummy
+        for i=3, 16 do
+            if turtle.getItemCount(i) > 0 then
+                data = turtle.getItemDetail(i)
+                for j,v in ipairs(dummy) do
+                    clog(string.sub(data.name,-#v).." - "..v)
+                    if string.sub(data.name,-#v) == v then --if end of name == dummy-string
+                        clog("place")
+                        turtle.select(i)
+                        turtle.placeDown() --place dummy
+                        turtle.select(2)
+                        return true
+                    end
+                end
+            end
+        end
+        --check if there's blocks on the sides. works too, but isn't as nice
+        turn(1)
+        if turtle.detect() then torchBlockAlt = true end
+        turn(-1)
+        if turtle.detect() then torchBlockAlt = true end
+        turn(o_snap)
+        return false
+    end --placeTorchBlock
+
+    --just take .name from turtle.inspect. returns "" when no block there
+    local function inspect(dir)
+        local s,d
+        local n
+        if dir == nil then
+            s,d = turtle.inspect()
+        elseif dir == "up" then
+            s,d = turtle.inspectUp()
+        elseif dir == "down" then
+            s,d =turtle.inspectDown()
+        end
+        if s then
+            n = d.name
+        else
+            n = ""
+        end
+        return n
+    end --inspect
+
+    --check block in front, up or down. true if block is wanted
+    local function check(direction)
+        clog("check")
+        local name = inspect(direction)
+        if name ~= "" then
+            for index,targetName in ipairs(target) do
+                clog(name.." - "..targetName)
+                if string.sub(name,-#targetName) == targetName then --if end of name == ore-string
+                    clog("is wanted")
+                    return true
+                end
+            end
+        end
+        return false
+    end --check
+
+    --dig block in front, up or down, then move in that direction. Update path
+    local function digVein(direction) --ore true when called to mine an ore
+        if direction == nil then --if no direction given
+            while not turtle.forward() do
+                turtle.dig()          
+            end
+            table.insert(path,orientation)
+            refuel()
+        elseif direction == "up" then
+            while not turtle.up() do --coordinates not tracked
+                turtle.digUp()          
+            end
+            table.insert(path,3)
+            refuel()
+        elseif direction == "down" then
+            while not turtle.down() do
+                turtle.digDown()
+            end
+            table.insert(path,-3)
+            refuel()
+        end
+    end --digVein
+
+    --follow and mine a vein
+    --only called after the vein has already been entered by "digVein()" initially
+    local function mineVein()
+        while #path > 0 do
+            --scan up, down and all sides. return "up" or "down" when ore found in those directions return true or false when ore found on a side
+            --will leave the turtle in the direction of the found ore
+            local function scan()
+                if check("up") then
+                    return "up"
+                end
+                if check("down") then
+                    return "down"
+                end
+                --turn left until block in front is wanted
+                local i = 0
+                while not check() and i<4 do
+                    left()
+                    i=i+1
+                end
+                if i == 4 then --if full turn, no block was wanted
+                    return false
+                end
+                return true
+            end --scan
+
+            local s = scan()
+            if s == "up" then
+                digVein("up")
+            elseif s == "down" then
+                digVein("down")
+            elseif s == true then
+                digVein()
+            else
+                --take one step back on path
+                local dir = table.remove(path) --get and remove last entry
+                --clog("reversing "..dir)
+                if dir == 3 then
+                    while not turtle.down() do
+                        turtle.digDown()
+                    end
+                elseif dir == -3 then
+                    while not turtle.up() do --coordinates not tracked
+                        turtle.digUp()
+                    end
+                else
+                    turn(getOppositeOrientation(dir))
+                    while not turtle.forward() do --coordinates not tracked
+                        turtle.dig()
+                    end
+                end
+            end        
+        end
+        checkInventory()
+    end --mineVein
+
+    --action
+    tunnelForward(length)
+    clog("strip: reached end of strip")
     --Forward(length) --walk back out of the strip
-    while currentPosition>0 do
+    while pos.y > 0 do
         if check("down") then --start of a vein
             digVein("down") --go one block into the vein
             mineVein() --follow it
-            turn(2)
         end
         turn(1) --right
         if check() then --start of a vein
             digVein() --go one block into the vein
             mineVein() --follow it
-            turn(2)
         end            
         turn(-1) --left
         if check() then --start of a vein
             digVein() --go one block into the vein
             mineVein() --follow it
-            turn(2)
         end
-        while not turtle.up() do end
-        currentHeight=currentHeight+1
+        go("up")
         turn(-1) --left
         if check() then --start of a vein
             digVein() --go one block into the vein
             mineVein() --follow it
-            turn(2)
         end
         if check("up") then --start of a vein
             digVein("up") --go one block into the vein
             mineVein() --follow it
-            turn(2)
         end
         turn(1) --right
         if check() then --start of a vein
             digVein() --go one block into the vein
             mineVein() --follow it
-            turn(2)
         end
-        turn(2)            
-        while not turtle.down() do end
-        currentHeight=currentHeight-1
-        if currentPosition % torchDistance == 0 then
+        turn(2)         
+        while not down() do end
+        if pos.y % torchDistance == 0 then
             turtle.select(2)
             turtle.placeUp()
         end
-        --check if there's a block underneath the first block of the strip
-        if currentPosition == 1 then
+        --check if there's a block underneath the first block of the strip (= base to place the torch on = torch block)
+        if pos.y == 1 then
             local s,d=turtle.inspectDown()
             if s then
-                if d == "minecraft:gravel" then
-                    torchBlock = false
-                    turtle.digDown() --get rid of the gravel
+                if d == "minecraft:gravel" or d == "minecraft:sand" then --can't place torch on these
+                    turtle.digDown() --get rid of the gravel or sand
                     checkInventory()
+                    torchBlock = placeTorchBlock()
                 else
                     torchBlock = true
                 end
             else
-                torchBlock = false
+                torchBlock = placeTorchBlock()
             end
         end
         --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
-        while not turtle.forward() do
-            local s,d = turtle.inspect()
-            if s then
-                if d.name == "minecraft:gravel" then
-                    turtle.dig()
-                else
-                    os.sleep(30)
-                end
+        while not forward() do
+            if inspect() == "minecraft:gravel" then
+                turtle.dig()
+            else
+                os.sleep(30) --wait for help, then try again
             end
         end
-        currentPosition=currentPosition-1
         refuel()
     end
-    left() --turn around
-    left()
+    turn(0)
     --place torch to mark the strip as finished
     if torchBlock then
         turtle.select(2)
         turtle.place()
-    else
-        --need a block to place the torch on
-        --find cobblestone in the inventory
-        local i=1
-        local cobb = false
-        while i<16 and cobb == false do
-            turtle.select(i)
-            if turtle.getItemCount()>0 then
-                d=turtle.getItemDetail()
-                if string.sub(d.name,-11)=="cobblestone" then cobb=true end
-            end
-            i=i+1
-        end
-        --if no cobblestone found in inventory
-        if not cobb then
-            --get a block from above
-            turtle.select(16) --16 should be free
-            local i=0
-            while turtle.getItemCount()<1 do --dig up until there's a block in the 16th slot
+    elseif torchBlockAlt then
+        go("up")
+        while not turtle.forward() do end --coordinates not tracked
+        turtle.select(2)
+        while not turtle.placeDown() do end
+        while not turtle.back() do end --coordinates not tracked
+        go("down")
+    end
+    clog("end of strip")
+end --strip
+
+--positions the turtle in front of the next strip
+--this function defines the sequence in which strips are made
+function reposition()
+    clog("reposition")
+    clog("pos.x: "..pos.x)
+    clog("maxX: "..maxX)
+    
+    --elevate to the next level of strips
+    local function elevate()
+        --two left
+        left()
+        tunnelForward(2)
+        right()
+        --two up
+        local i = 0
+        while i < 2 do
+            if not up() then
                 turtle.digUp()
-                if turtle.up() then
-                    i=i+1
+                checkInventory()
+            else
+                i = i + 1
+            end
+        end
+        --in case of gravel
+        while turtle.detectUp() do
+            turtle.digUp()
+            checkInventory()
+        end
+    end
+
+    --go to the next strip on the left
+    local function shiftLeft()
+        left()
+        tunnelForward(4)
+        right()
+    end
+
+    --go to the next strip on the right
+    local function shiftRight()
+        right()
+        tunnelForward(4)
+        left()
+    end
+
+    --first create strips from the starting position to the left,
+    --then create strips from the starting position to the right
+    --this is a little more complicated than simply starting on the far left,
+    --but it yields resources earlier
+    turn(0) --just in case
+    if pos.z == 0 then --first level is special. starts in center, then goes left, then right
+        if pos.x == 0 then --starting postition
+            clog("center")
+            if even then --start two blocks to the left of center
+                left()
+                tunnelForward(2)
+                right()
+            else --start here, except if you've been here before
+                turtle.select(2)
+                --if beginning of strip is marked, skip it
+                if turtle.compare() then
+                    shiftLeft()
                 end
             end
-            local j=0
-            while j<i do --go back down
-                if turtle.down() then j=j+1 end
+        elseif pos.x == -maxX then --last strip on he left on first level => go to first strip on the right side of starting position
+            clog("z0 -maxX")
+            right()
+            if even then
+                local st = maxX + 2
+                clog("even, "..st)
+                tunnelForward(st)
+            else
+                local st = maxX + 4
+                clog("even, "..st)
+                tunnelForward(st)
             end
+            left()
+        elseif pos.x == maxX then
+            clog("z0 maxX")
+            elevate()
+        elseif pos.x < 0 then
+            clog("z0 pos.x < 0")
+            shiftLeft()
+        elseif pos.x > 0 then
+            clog("z0 pos.x > 0")
+            shiftRight()
         end
-        while not turtle.forward() do end
-        while not turtle.placeDown() do end
-        while not turtle.back() do end
-        turtle.select(2)
-        turtle.place()
+    --pos.z ~= 0
+    elseif pos.x == maxX or pos.x == -maxX + 2 then --last strip on the right or left
+        clog("maxX or -maxX+2")
+        elevate()
+    elseif pos.x > maxX or pos.x < -maxX then --just in case
+        error("reposition: went too far")
+    elseif pos.z % 4 == 0 then
+        clog("pos.z%4==0")
+        shiftRight()
+    elseif pos.z % 4 ~= 0 then
+        clog("pos.z%4~=0")
+        shiftLeft()
+    else
+        error("reposition: something's wrong")
     end
-end
-
---Shift over to the next strip in the given direction. 
-function reposition()
-    print("reposition")
-    turnStripDirection(true)
-        stripForward(stripSpacing)
-    turnStripDirection(false)
-end
+end --reposition
 
 --action
-while lateralPosition<=(stripAmount-1)*stripSpacing do
-    refuel()
+getParameters()
+printEvent("starting")
+repeat
+    reposition()
     turtle.select(2)
-    if not turtle.compare() then 
-        strip(stripLength)
+    --if beginning of strip is marked, skip it
+    if not turtle.compare() then
+        strip(depth)
     end
-    if lateralPosition==(stripAmount-1)*stripSpacing then 
-        break
-    else
-        reposition()
-    end
-end
+until (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2))
 --return home
-turnStripDirection(false)
-forward(lateralPosition)
-turnStripDirection(false)
+returnHome()
+turn(2)
 --empty inventory into chest
 local full = false
 local slot=3 --keep torch and fuel
@@ -624,7 +832,7 @@ while slot<17 do
             slot=slot+1
         else
             if not full then
-                print("chest is full") --only print this once
+                printEvent("chest is full") --only print this once
                 full = true
             end
             os.sleep(30) --wait for 30 seconds
@@ -634,6 +842,5 @@ while slot<17 do
     end
 end
 turtle.select(3)
-turnStripDirection(true)
-turnStripDirection(true)
-print("finished")
+turn(0)
+printEvent("finished")
