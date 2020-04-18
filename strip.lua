@@ -46,6 +46,8 @@ dummy[3] = "marble2"
 dummy[4] = "limestone2"
 local webhookUrl = ""
 
+local label = os.getComputerLabel()
+
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
 local path = {} --the path the turtle has taken while following an ore vein. 3 is up, -3 is down
@@ -72,7 +74,7 @@ function clog(logstr)
 end
 
 function discordMsg(msg)
-    http.post(webhookUrl, "{  \"content\": \""..msg.."\" }", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
+    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..label.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
 end
 
 function printEvent(msg)
