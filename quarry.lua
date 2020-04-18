@@ -12,7 +12,7 @@ debug = false
 local r = 0
 local depth = 0
 tArgs = {...}
-if #tArgs > 0 then
+if #tArgs == 2 then
     r = tonumber(tArgs[1])
     depth = tonumber(tArgs[2])
     print("radius: "..r)
@@ -29,22 +29,20 @@ end
 
 --states
 --current position
-local pos={}
-pos["x"]=0 --right(+)-left(-)
-pos["y"]=0 --front(+)-back(-)
-pos["z"]=0 --up(+)-down(-)
+local pos = {}
+pos["x"] = 0 --right(+)-left(-)
+pos["y"] = 0 --front(+)-back(-)
+pos["z"] = 0 --up(+)-down(-)
+local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
 --starting point is (0/0/0)
 --chest is at (0/0/1)
 
 --snapshot of the current postition
 local pos_snap = {}
-pos_snap["x"]=0
-pos_snap["y"]=0
-pos_snap["z"]=0
-pos_snap["o"]=0 --orientation
-
---track current position
-local orientation = 0 --0 - straight, 1 - right , -1 - left, 2/-2 - back
+pos_snap["x"] = 0
+pos_snap["y"] = 0
+pos_snap["z"] = 0
+pos_snap["o"] = 0 --orientation
 
 --functions
 function printPosition(ax)
@@ -139,9 +137,9 @@ end
 
 --move forward and set new position
 function forward()
+    refuel()
     if turtle.forward() then
         newPosition()
-        refuel()
         return true
     end
     return false
@@ -149,9 +147,9 @@ end
 
 --move up and set new position
 function up()
+    refuel()
     if turtle.up() then
         newPosition("up")
-        refuel()
         return true
     end
     return false
@@ -159,9 +157,9 @@ end
 
 --move down and set new position
 function down()
+    refuel()
     if turtle.down() then
         newPosition("down")
-        refuel()
         return true
     end
     return false
