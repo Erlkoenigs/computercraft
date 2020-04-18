@@ -75,7 +75,7 @@ Usage:
 * fuel in the first slot
 * dummy material in the second slot
 
-The turtle will return to its starting position at the end of the program.
+The turtle will come back 4 blocks towards the starting position after it is finished.
 
 ## bridge
 Builds a simple bridge with a width of one block. 
