@@ -142,10 +142,10 @@ function getParameters()
         end
     end
     print("webhook url?")
-    webhookUrl = tonumber(read())
+    webhookUrl = read()
 
     --calculate "even"
-    --make width fit (could prob use math.round() for this)
+    --make width fit (could prob use math.floor() for this)
     while (width + 3) % 4 ~= 0 do
         width = width - 1
     end
