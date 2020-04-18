@@ -13,6 +13,9 @@
 --it will dig _depth_ blocks forward, 0.5 _width_ blocks to each side
 --and max _height_ blocks up
 
+--it asks for a discord webhook url where it sends events like start, finish, empty chests and if it gets stuck.
+--that question can be skipped. in that case it will just log to its console
+
 --example: ("0" is mined, "x" is not mined)
 -- 0xxx0xxx0xxx0xxx0
 -- 0xxx0xxx0xxx0xxx0 level 3 (odd level)
@@ -23,6 +26,10 @@
 --levels = amount of levels => actual height of mined area = levels * 2
 --first row of strips is the first level (= level 1 = an odd level)
 --the row above the first row is the second level (= level 2 = an even level)
+
+--to make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to.
+--because of this it is possible that lava and water create cobblestone in the turtles path, that will cause it to get stuck.
+--also it is theoretically possible that it gets stuck in an endless loop for mining cobblestone when digging through an area with water and lava
 
 --settings
 debug = true
@@ -205,31 +212,6 @@ function forward()
     end
 end
 
---make sure turtle goes forward. If path is blocked, print it once
-function goForward(steps)
-    if steps == nil then steps = 1 end
-    --clog("forward: "..steps)
-    steps = math.abs(steps)
-    refuel(steps)
-    local blocked = false
-    local b = 0
-    while b < steps do     
-        if turtle.forward() then
-            --clog("1 step")
-            b=b+1
-            updateCoord()
-        else
-            os.sleep(30)
-            if not blocked then
-                blocked = true
-                printEvent("path is blocked (forward) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
-                return false
-            end
-        end
-    end
-    return true
-end --forward
-
 function up()
     refuel(1)
     if turtle.up() then
@@ -250,15 +232,61 @@ function down()
     end
 end
 
+--make sure turtle steps goes in direction. If path is blocked, print it once
+--dir can be "forward", "up" or "down"
+function go(dir, steps)
+    if steps == nil then steps = 1 end
+    steps = math.abs(steps)
+    refuel(steps)
+    local blocked = false
+    local b = 0
+    if dir == "forward" then
+        while b < steps do
+            if forward() then
+                b=b+1
+            else
+                os.sleep(30)
+                if not blocked then
+                    blocked = true
+                    printEvent("path is blocked (forward) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                end
+            end
+        end
+    elseif dir == "up" then
+        while b < steps do
+            if up() then
+                b=b+1
+            else
+                os.sleep(30)
+                if not blocked then
+                    blocked = true
+                    printEvent("path is blocked (up) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                end
+            end
+        end
+    elseif dir == "down" then
+        while b < steps do
+            if down() then
+                b=b+1
+            else
+                os.sleep(30)
+                if not blocked then
+                    blocked = true
+                    printEvent("path is blocked (down) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                end
+            end
+        end
+    end
+end --go
+
 --track orientation when turning. Left turn is -1, right turn is +1
-function newOrientation(turn)
+function updateOrientation(turn)
     orientation = orientation + turn
     if orientation == 3 then --3 right turns are one left turn
         orientation = -1
     elseif orientation == -3 then --3 left turns are one right turn
         orientation = 1
     end
-    --clog("orientation :" .. orientation)
 end
 
 --returns the opposite of a given orientation
@@ -275,13 +303,13 @@ end
 --turn left and set new orientation
 function left()
     turtle.turnLeft()
-    newOrientation(-1)
+    updateOrientation(-1)
 end
 
 --turn right and set new orientation
 function right()
     turtle.turnRight()
-    newOrientation(1)
+    updateOrientation(1)
 end
 
 --turn turtle in new direction
@@ -334,12 +362,12 @@ function returnHome()
     clog("return home: y: " .. pos.y)
     if pos.y > 0 then
         turn(2)
-        goForward(pos.y) --back down the strip
+        go("forward", pos.y) --back down the strip
     end
     clog("return home: x: " .. pos.x)
     if pos.x ~= 0 then
         turnTowardHome(true)
-        goForward(pos.x) --back to the chest
+        go("forward", pos.x) --back to the chest
     end
     clog("return home: z: " .. pos.z)
     while pos.z > 0 do
@@ -347,10 +375,10 @@ function returnHome()
     end
 end
 
---check if last item slot contains items. if true,
---return to chest and empty inventory into chest. If chest full, wait. When finished, return to previous position
+--check if last item slot contains items. if true, return to chest and empty inventory into chest. if chest full, wait. 
+--when finished, return to previous position
 --also picks up fuel and torches from the chests next to the item chest
---only call when on "main road" (=within strip or lateral path)
+--only call when on "main road" (=within strip or lateral path). coordinates are not tracked within ore veins
 function checkInventory()
     if turtle.getItemCount(16) > 0 then
         local orientation_snap = orientation --snapshot of the current orientation
@@ -382,7 +410,7 @@ function checkInventory()
         --pick up fuel and torches
         --fuel
         right()
-        goForward()
+        go("forward")
         left()
         refuel()
         turtle.select(1)
@@ -397,7 +425,7 @@ function checkInventory()
         end
         --torches
         right()
-        goForward()
+        go("forward")
         left()
         turtle.select(2)
         full = false
@@ -412,16 +440,14 @@ function checkInventory()
         --to pos_snap.x
         clog("checkInventory:back to x")
         turnTowardHome(false)
-        goForward(pos.x - pos_snap.x)
+        go("forward", pos.x - pos_snap.x)
         turn(0)
         --to pos_snap.z
         clog("checkInventory:back to z")
-        while pos.z ~= pos_snap.z do
-            up()
-        end
+        go("up", pos.z-pos_snap.z)
         --back down the strip
         clog("checkInventory:back down y")
-        goForward(pos.y - pos_snap.y)
+        go("forward", pos.y - pos_snap.y)
         turn(orientation_snap)
     end
     turtle.select(3)
@@ -429,7 +455,7 @@ end --checkInventory
 
 --Digs a 1x2 strip of a given length in the forward direction. Picks up mined items. checks inventory
 --used to mine the path to the strips (x-direction) and the strips themselves (y-direction)
-function digForward(blocks)
+function tunnelForward(blocks)
     local i=0
     while i<blocks do
         if turtle.dig() then checkInventory() end
@@ -527,7 +553,7 @@ function strip(length)
             table.insert(path,orientation)
             refuel()
         elseif direction == "up" then
-            while not turtle.up() do
+            while not turtle.up() do --coordinates not tracked
                 turtle.digUp()          
             end
             table.insert(path,3)
@@ -582,12 +608,12 @@ function strip(length)
                         turtle.digDown()
                     end
                 elseif dir == -3 then
-                    while not turtle.up() do
+                    while not turtle.up() do --coordinates not tracked
                         turtle.digUp()
                     end
                 else
                     turn(getOppositeOrientation(dir))
-                    while not turtle.forward() do
+                    while not turtle.forward() do --coordinates not tracked
                         turtle.dig()
                     end
                 end
@@ -597,7 +623,7 @@ function strip(length)
     end --mineVein
 
     --action
-    digForward(length)
+    tunnelForward(length)
     clog("strip: reached end of strip")
     --Forward(length) --walk back out of the strip
     while pos.y > 0 do
@@ -615,7 +641,7 @@ function strip(length)
             digVein() --go one block into the vein
             mineVein() --follow it
         end
-        while not up() do end
+        go("up")
         turn(-1) --left
         if check() then --start of a vein
             digVein() --go one block into the vein
@@ -667,13 +693,12 @@ function strip(length)
         turtle.select(2)
         turtle.place()
     elseif torchBlockAlt then
-        --not tracked by coordinates
-        while not turtle.up() do end
-        while not turtle.forward() do end
+        go("up")
+        while not turtle.forward() do end --coordinates not tracked
         turtle.select(2)
         while not turtle.placeDown() do end
-        while not turtle.back() do end
-        while not turtle.down() do end
+        while not turtle.back() do end --coordinates not tracked
+        go("down")
     end
     clog("end of strip")
 end --strip
@@ -689,7 +714,7 @@ function reposition()
     local function elevate()
         --two left
         left()
-        digForward(2)
+        tunnelForward(2)
         right()
         --two up
         local i = 0
@@ -711,14 +736,14 @@ function reposition()
     --go to the next strip on the left
     local function shiftLeft()
         left()
-        digForward(4)
+        tunnelForward(4)
         right()
     end
 
     --go to the next strip on the right
     local function shiftRight()
         right()
-        digForward(4)
+        tunnelForward(4)
         left()
     end
 
@@ -732,7 +757,7 @@ function reposition()
             clog("center")
             if even then --start two blocks to the left of center
                 left()
-                digForward(2)
+                tunnelForward(2)
                 right()
             else --start here, except if you've been here before
                 turtle.select(2)
@@ -747,11 +772,11 @@ function reposition()
             if even then
                 local st = maxX + 2
                 clog("even, "..st)
-                digForward(st)
+                tunnelForward(st)
             else
                 local st = maxX + 4
                 clog("even, "..st)
-                digForward(st)
+                tunnelForward(st)
             end
             left()
         elseif pos.x == maxX then
