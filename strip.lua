@@ -46,7 +46,7 @@ dummy[3] = "marble2"
 dummy[4] = "limestone2"
 local webhookUrl = ""
 
-local label = os.getComputerLabel()
+local label = os.getComputerLabel() --turtles label used as name in discord message
 
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
