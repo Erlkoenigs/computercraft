@@ -37,7 +37,7 @@ dummy[1] = "dirt"
 dummy[2] = "stone"
 dummy[3] = "marble2"
 dummy[4] = "limestone2"
-local webhookUrl = "https://discordapp.com/api/webhooks/698516901181259826/VHmS95kHyjjTRgaTckWqpMbDZ2AnYzDCiyoQ3-Bmmn0Elk6xH_zZP_ogKR7zYee2DX-h"
+local webhookUrl = ""
 
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
@@ -68,9 +68,11 @@ function discordMsg(msg)
     http.post(webhookUrl, "{  \"content\": \""..msg.."\" }", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
 end
 
-function printError(msg)
-    dirscordMsg(msg)
-    print(msg)
+function printEvent(msg)
+    if webhookUrl ~= "" then
+        discordMsg(msg)
+    end
+        print(msg)
 end
 
 --get user input. either through command line arguments or by asking
@@ -139,6 +141,8 @@ function getParameters()
             checkValue(depth)
         end
     end
+    print("webhook url?")
+    webhookUrl = tonumber(read())
 
     --calculate "even"
     --make width fit (could prob use math.round() for this)
@@ -218,7 +222,7 @@ function goForward(steps)
             os.sleep(30)
             if not blocked then
                 blocked = true
-                print("path is blocked (forward)") --only prints this once
+                printEvent("path is blocked (forward) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
                 return false
             end
         end
@@ -365,7 +369,7 @@ function checkInventory()
                     slot=slot+1
                 else
                     if not full then
-                        printError("chest is full") --only print this once
+                        printEvent("chest is full") --only print this once
                         full = true
                     end
                     os.sleep(30) --wait for 30 seconds
@@ -386,7 +390,7 @@ function checkInventory()
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
-                    printError("no fuel in chest")
+                    printEvent("no fuel in chest")
                     full = true
                 end
             end
@@ -400,7 +404,7 @@ function checkInventory()
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
-                    printError("no torches in chest")
+                    printEvent("no torches in chest")
                     full = true
                 end
             end
@@ -779,6 +783,7 @@ end --reposition
 
 --action
 getParameters()
+printEvent("starting")
 repeat
     reposition()
     turtle.select(2)
@@ -800,7 +805,7 @@ while slot<17 do
             slot=slot+1
         else
             if not full then
-                printError("chest is full") --only print this once
+                printEvent("chest is full") --only print this once
                 full = true
             end
             os.sleep(30) --wait for 30 seconds
@@ -811,4 +816,4 @@ while slot<17 do
 end
 turtle.select(3)
 turn(0)
-printError("finished")
+printEvent("finished")
