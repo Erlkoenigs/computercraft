@@ -23,16 +23,16 @@ If, at any point, the turtles inventory is full, it will return to an item chest
 
 Variable parameters:
 * width
-* depth and
-* height
+* height and
+* depth
 
 ..of the mining area.
 
 The spacing between strips is 4. The input width will be reduced until width + 3 is a multitude of 4. The turtle will then go a maximum of (width - 1) / 2 steps to either side of its starting position and will dig as many strips as can fit into that length.
 
-The depth determines the length of the strips. 
+Once one row of strips is finished, the turtle will go up two blocks and start another row, but shift the position of strips so that the strips of the new row are in the middle of the strips of the first row and will do the same on the following rows. The turtle will fit as many rows of strips into the input height as possible.
 
-Once one row of strips is finished, the turtle will go up two blocks and start another row, but shift the position of strips so that the strips of the new row are in the middle of the strips of the first row and will do the same with the following rows. The turtle will fit as many rows of strips into the input height as possible.
+The depth determines the length of the strips. 
 
 Parameters can be input via command line arguments:
 
