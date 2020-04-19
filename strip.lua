@@ -50,7 +50,7 @@ dummy[4] = "limestone2"
 local webhookUrl = ""
 
 local label = os.getComputerLabel() --turtles label used as name in discord message
-local img = "https://i.ytimg.com/vi/DSsx4VSe-Uk/hqdefault.jpg"
+local img = "https://turtleappstore.com/static/images/turtle_pickaxe.png"
 
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
