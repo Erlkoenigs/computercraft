@@ -31,6 +31,9 @@
 --because of this it is possible that lava and water create cobblestone in the turtles path, that will cause it to get stuck.
 --also it is theoretically possible that it gets stuck in an endless loop for mining cobblestone when digging through an area with water and lava
 
+--bugs
+--can move outside of specified area when following an ore vein
+
 --settings
 debug = true
 local torchDistance = 12 -- place torches every x blocks
@@ -47,6 +50,7 @@ dummy[4] = "limestone2"
 local webhookUrl = ""
 
 local label = os.getComputerLabel() --turtles label used as name in discord message
+local img = "https://i.ytimg.com/vi/DSsx4VSe-Uk/hqdefault.jpg"
 
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
@@ -74,7 +78,7 @@ function clog(logstr)
 end
 
 function discordMsg(msg)
-    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..label.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
+    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..label.."\", \"avatar_url\": \""..img.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
 end
 
 function printEvent(msg)
