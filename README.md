@@ -40,7 +40,7 @@ Parameters can be input via command line arguments:
 
 sets the width to 190, height to 20 and depth to 80.
 
-Setup:
+Setup when viewed from behind the turtle:
 * chest to dump items into behind the starting position
 * chest with fuel to the left of the item chest
 * chest with torches to the left of the fuel chest
@@ -53,6 +53,8 @@ The entrance of a finished strip can be marked by a torch. The turtle will do th
 The turtle will place torches every 12 blocks. This can be changed by modifying the _torchDistance_ variable.
 
 To make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to. Because of this it is possible that the turtle gets stuck when lava and water create cobblestone in the turtles path.
+
+Lava and water wash away or destroy torches. That way finished strips can't be marked and the turtle will work them again if it comes across them after a restart. The [lavaTunnel](https://github.com/Erlkoenigs/computercraft/blob/master/README.md#lavatunnel) program can help get rid of the lava.
 
 Before it starts the turtle will ask for a discord webhook url. If supplied, it can send messages about events to a discord channel. These events are: program start, program end, item chest full, fuel or torch chest empty, blocked path (with coordinates from starting position).
 
