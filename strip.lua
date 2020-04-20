@@ -370,14 +370,14 @@ function returnHome()
         turn(2)
         go("forward", pos.y) --back down the strip
     end
+    clog("return home: z: " .. pos.z)
+    while pos.z > 0 do
+        down()
+    end
     clog("return home: x: " .. pos.x)
     if pos.x ~= 0 then
         turnTowardHome(true)
         go("forward", pos.x) --back to the chest
-    end
-    clog("return home: z: " .. pos.z)
-    while pos.z > 0 do
-        down()
     end
 end
 
