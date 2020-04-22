@@ -264,22 +264,24 @@ end
 function go(dir, steps)
     local function step(direction)
         if direction == "forward" then
-            return forward()
+            res = forward()
         elseif diretion == "up" then
-            return up()
+            res = up()
         elseif direction == "down" then
-            return down()
+            res = down()
         end
+        return res
     end
 
     local function dig(direction)
         if direction == "forward" then
-            return turtle.dig()
+            res = turtle.dig()
         elseif diretion == "up" then
-            return turtle.digUp()
+            res = turtle.digUp()
         elseif direction == "down" then
-            return turtle.digDown()
+            res = turtle.digDown()
         end
+        return res
     end
 
     if dir == nil then dir = "forward" end
@@ -292,9 +294,7 @@ function go(dir, steps)
     while stepped < steps do
         if step(dir) then
             b=b+1
-            if blocked then --in case path has been blocked before
-                blocked = false
-            end
+            blocked = false --in case path has been blocked before
         else --if it couldn't step
             --if it's sand or gravel, dig it and go
             local block = inspect(dir)
@@ -525,9 +525,8 @@ function tunnelForward(blocks)
         if turtle.dig() then checkInventory() end
         if forward() then
             if turtle.detectUp() then
-                while turtle.detectUp() do --break upper block of the strip and wait for potential gravity-affected blocks that fall down (like gravel and sand)
+                while turtle.detectUp() do --break upper block of the strip and wait for gravity-affected blocks to fall down
                     turtle.digUp()
-                    os.sleep(0.75) --this slows down! alternative?
                 end
                 checkInventory()
             end
@@ -550,9 +549,9 @@ function strip(length)
         local name = inspect(direction)
         if name ~= "" then
             for index,targetName in ipairs(target) do
-                clog(name.." - "..targetName)
+                --clog(name.." - "..targetName)
                 if string.sub(name,-#targetName) == targetName then --if end of name == ore-string
-                    clog("is wanted")
+                    --clog("is wanted")
                     return true
                 end
             end
