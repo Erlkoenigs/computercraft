@@ -265,7 +265,7 @@ function go(dir, steps)
     local function step(direction)
         if direction == "forward" then
             res = forward()
-        elseif diretion == "up" then
+        elseif direction == "up" then
             res = up()
         elseif direction == "down" then
             res = down()
@@ -276,7 +276,7 @@ function go(dir, steps)
     local function dig(direction)
         if direction == "forward" then
             res = turtle.dig()
-        elseif diretion == "up" then
+        elseif direction == "up" then
             res = turtle.digUp()
         elseif direction == "down" then
             res = turtle.digDown()
@@ -545,7 +545,7 @@ function strip(length)
     --functions
     --check block in front, up or down. true if block is wanted
     local function check(direction)
-        clog("check")
+        --clog("check")
         local name = inspect(direction)
         if name ~= "" then
             for index,targetName in ipairs(target) do
