@@ -438,7 +438,7 @@ function checkInventory()
         local torchIn = {}
         for slot=3,16 do --keep torch and fuel
             if turtle.getItemCount(slot) > 0 then --should always be the case
-                local itemName = turtle.getItemDetail().name
+                local itemName = turtle.getItemDetail(slot).name
                 if itemName == fuelType then
                     table.insert(fuelIn, slot)
                 elseif itemName == "minecraft:torch" then
@@ -718,14 +718,7 @@ function strip(length)
                 torchBlock = true
             end
         end
-        --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
-        while not forward() do
-            if inspect() == "minecraft:gravel" then
-                turtle.dig()
-            else
-                os.sleep(30) --wait for help, then try again
-            end
-        end
+        go("forward")
         refuel()
     end
     turn(0)
