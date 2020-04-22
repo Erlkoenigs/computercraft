@@ -293,7 +293,7 @@ function go(dir, steps)
 
     while stepped < steps do
         if step(dir) then
-            b=b+1
+            stepped = stepped + 1
             blocked = false --in case path has been blocked before
         else --if it couldn't step
             --if it's sand or gravel, dig it and go
