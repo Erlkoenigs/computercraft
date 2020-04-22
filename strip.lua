@@ -33,6 +33,7 @@
 
 --bugs
 --can move outside of specified area when following an ore vein
+--can run out of torches. Compare to finishing torch fails
 
 --settings
 debug = true
@@ -238,7 +239,7 @@ function down()
     end
 end
 
---make sure turtle steps goes in direction. If path is blocked, print it once
+--make sure turtle goes steps in direction. If path is blocked, print it once
 --dir can be "forward", "up" or "down"
 function go(dir, steps)
     if steps == nil then steps = 1 end
@@ -362,18 +363,22 @@ end
 --return to chest
 function returnHome()
     refuel(pos.x + pos.z + pos.y + 4)
+    --z within strip
     if pos.z % 2 ~= 0 then --if on upper level within a strip, go down
-        while not down() do end
+        go("down")
     end
+    --y
     clog("return home: y: " .. pos.y)
     if pos.y > 0 then
         turn(2)
         go("forward", pos.y) --back down the strip
     end
+    --z
     clog("return home: z: " .. pos.z)
-    while pos.z > 0 do
-        down()
+    if pos.z > 0 then
+        go("down", pos.z)
     end
+    --x
     clog("return home: x: " .. pos.x)
     if pos.x ~= 0 then
         turnTowardHome(true)
@@ -663,7 +668,7 @@ function strip(length)
             mineVein() --follow it
         end
         turn(2)         
-        while not down() do end
+        go("down")
         if pos.y % torchDistance == 0 then
             turtle.select(2)
             turtle.placeUp()
