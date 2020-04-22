@@ -184,6 +184,25 @@ function refuel(amount)
     end
 end --refuel
 
+--just take .name from turtle.inspect. returns "" when no block there
+function inspect(dir)
+    local s,d
+    local n
+    if dir == nil or dir == "forward" then
+        s,d = turtle.inspect()
+    elseif dir == "up" then
+        s,d = turtle.inspectUp()
+    elseif dir == "down" then
+        s,d =turtle.inspectDown()
+    end
+    if s then
+        n = d.name
+    else
+        n = ""
+    end
+    return n
+end --inspect
+
 --ud = "up" or "down"
 function updateCoord(ud)
     if ud == nil then
@@ -242,45 +261,51 @@ end
 --make sure turtle goes steps in direction. If path is blocked, print it once
 --dir can be "forward", "up" or "down"
 function go(dir, steps)
+    local function step(direction)
+        if direction == "forward" then
+            return forward()
+        elseif diretion == "up" then
+            return up()
+        elseif direction == "down" then
+            return down()
+        end
+    end
+
+    local function dig(direction)
+        if direction == "forward" then
+            return turtle.dig()
+        elseif diretion == "up" then
+            return turtle.digUp()
+        elseif direction == "down" then
+            return turtle.digDown()
+        end
+    end
+
+    if dir == nil then dir = "forward" end
     if steps == nil then steps = 1 end
     steps = math.abs(steps)
     refuel(steps)
     local blocked = false
-    local b = 0
-    if dir == "forward" then
-        while b < steps do
-            if forward() then
-                b=b+1
-            else
-                os.sleep(30)
-                if not blocked then
-                    blocked = true
-                    printEvent("path is blocked (forward) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
-                end
+    local stepped = 0
+
+    while stepped < steps do
+        if step(dir) then
+            b=b+1
+            if blocked then --in case path has been blocked before
+                blocked = false
             end
-        end
-    elseif dir == "up" then
-        while b < steps do
-            if up() then
-                b=b+1
+        else --if it couldn't step
+            --if it's sand or gravel, dig it and go
+            local block = inspect(dir)
+            if block == "minecraft:gravel" or block == "minecraft:sand" or block == "minecraft:cobblestone" then
+                dig(dir)
+                checkInventory()
             else
-                os.sleep(30)
                 if not blocked then
                     blocked = true
-                    printEvent("path is blocked (up) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                    printEvent("path is blocked ("..dir..") ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
                 end
-            end
-        end
-    elseif dir == "down" then
-        while b < steps do
-            if down() then
-                b=b+1
-            else
                 os.sleep(30)
-                if not blocked then
-                    blocked = true
-                    printEvent("path is blocked (down) ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
-                end
             end
         end
     end
@@ -491,25 +516,6 @@ function strip(length)
     local torchBlockAlt = false --alternative blocks for the torch on the sides?
 
     --functions
-    --just take .name from turtle.inspect. returns "" when no block there
-    local function inspect(dir)
-        local s,d
-        local n
-        if dir == nil then
-            s,d = turtle.inspect()
-        elseif dir == "up" then
-            s,d = turtle.inspectUp()
-        elseif dir == "down" then
-            s,d =turtle.inspectDown()
-        end
-        if s then
-            n = d.name
-        else
-            n = ""
-        end
-        return n
-    end --inspect
-
     --check block in front, up or down. true if block is wanted
     local function check(direction)
         clog("check")
