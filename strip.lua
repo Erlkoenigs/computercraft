@@ -488,38 +488,9 @@ end
 function strip(length)
     clog("strip")
     local torchBlock = false --is a block present to place the finishing torch on?
-    local torchBlockAlt = false --alternative torch block (sides)
+    local torchBlockAlt = false --alternative blocks for the torch on the sides?
 
     --functions
-    --searches inventory for dummy-material. if it finds some, places it down
-    local function placeTorchBlock()
-        clog("placeTorchBlock")
-        local o_snap = orientation --snapshot of orientation
-        --search for dummy
-        for i=3, 16 do
-            if turtle.getItemCount(i) > 0 then
-                data = turtle.getItemDetail(i)
-                for j,v in ipairs(dummy) do
-                    clog(string.sub(data.name,-#v).." - "..v)
-                    if string.sub(data.name,-#v) == v then --if end of name == dummy-string
-                        clog("place")
-                        turtle.select(i)
-                        turtle.placeDown() --place dummy
-                        turtle.select(2)
-                        return true
-                    end
-                end
-            end
-        end
-        --check if there's blocks on the sides. works too, but isn't as nice
-        turn(1)
-        if turtle.detect() then torchBlockAlt = true end
-        turn(-1)
-        if turtle.detect() then torchBlockAlt = true end
-        turn(o_snap)
-        return false
-    end --placeTorchBlock
-
     --just take .name from turtle.inspect. returns "" when no block there
     local function inspect(dir)
         local s,d
@@ -674,18 +645,43 @@ function strip(length)
             turtle.placeUp()
         end
         --check if there's a block underneath the first block of the strip (= base to place the torch on = torch block)
-        if pos.y == 1 then
-            local s,d=turtle.inspectDown()
-            if s then
-                if d == "minecraft:gravel" or d == "minecraft:sand" then --can't place torch on these
+        if pos.y == 1 and ((pos.z + 2) % 2 == 0) then
+            local block = inspect("down")
+            if block == "" or block == "minecraft:gravel" or block == "minecraft:sand" then
+                torchBlock = false
+                if block == "minecraft:gravel" or block == "minecraft:sand" then --can't place torch on these
                     turtle.digDown() --get rid of the gravel or sand
                     checkInventory()
-                    torchBlock = placeTorchBlock()
-                else
-                    torchBlock = true
+                end
+
+                clog("placeTorchBlock")
+                --search for dummy material in inventory
+                for i=3, 16 do
+                    if turtle.getItemCount(i) > 0 then
+                        data = turtle.getItemDetail(i)
+                        for j,v in ipairs(dummy) do
+                            clog(string.sub(data.name,-#v).." - "..v)
+                            if string.sub(data.name,-#v) == v then --if end of name == dummy-string
+                                clog("place")
+                                turtle.select(i)
+                                turtle.placeDown() --place dummy
+                                turtle.select(2)
+                                torchBlock = true
+                            end
+                        end
+                    end
+                end
+                if trochBlock == false then
+                    local o_snap = orientation --snapshot of orientation
+                    --check if there's blocks on the sides. works too, but isn't as nice
+                    turn(1)
+                    if turtle.detect() then torchBlockAlt = true end
+                    turn(-1)
+                    if turtle.detect() then torchBlockAlt = true end
+                    turn(o_snap)
                 end
             else
-                torchBlock = placeTorchBlock()
+                torchBlock = true
             end
         end
         --go forward. If the path is blocked and it is gravel, dig it. If it's not gravel, something is wrong
@@ -700,10 +696,10 @@ function strip(length)
     end
     turn(0)
     --place torch to mark the strip as finished
-    if torchBlock then
+    if torchBlock then --just place it
         turtle.select(2)
         turtle.place()
-    elseif torchBlockAlt then
+    elseif torchBlockAlt then --place it from above
         go("up")
         while not turtle.forward() do end --coordinates not tracked
         turtle.select(2)
