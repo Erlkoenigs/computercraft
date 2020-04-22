@@ -405,14 +405,28 @@ function returnHome()
         turn(2)
         go("forward", pos.y) --back down the strip
     end
-    --z
-    if pos.z > 0 then
-        go("down", pos.z)
-    end
-    --x
-    if pos.x ~= 0 then
-        turnTowardHome(true)
-        go("forward", pos.x) --back to the chest
+    if pos.z % 4 == 0 and x > 0 then --right facing level and already crossed starting position
+        --first x then z
+        --z
+        if pos.z > 0 then
+            go("down", pos.z)
+        end
+        --x
+        if pos.x ~= 0 then
+            turnTowardHome(true)
+            go("forward", pos.x) --back to the chest
+        end
+    else 
+        --first z then x
+        --z
+        if pos.z > 0 then
+            go("down", pos.z)
+        end
+        --x
+        if pos.x ~= 0 then
+            turnTowardHome(true)
+            go("forward", pos.x) --back to the chest
+        end
     end
 end
 
@@ -842,7 +856,6 @@ repeat
         strip(depth)
     end
 until (pos.z >= height - 2 and (pos.x == maxX or pos.x == -maxX + 2))
---return home
 returnHome()
 turn(2)
 --empty inventory into chest
