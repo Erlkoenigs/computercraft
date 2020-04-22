@@ -707,14 +707,13 @@ function strip(length)
         end
         go("forward")
     end
+    turn(0)
     --place torch to mark the strip as finished
     if torchBlock then --just place it
-        turn(0)
         turtle.select(2)
         turtle.place()
         checkInventory()
     elseif torchBlockAlt then --place it from above
-        turn(0)
         go("up")
         while not turtle.forward() do end --coordinates not tracked
         turtle.select(2)
