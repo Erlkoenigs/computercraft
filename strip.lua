@@ -73,6 +73,7 @@ local depth = 0
 local even = true --is the amount of strips on the first level (= every odd level) odd or even?
 --if not even, there's a strip in the center
 local maxX = 0 --absolute of maximum x value on both sides. calculated from width
+local fuelType = ""
 
 function clog(logstr)
     if debug then print(logstr) end
@@ -298,8 +299,17 @@ function go(dir, steps)
             --if it's sand or gravel, dig it and go
             local block = inspect(dir)
             if block == "minecraft:gravel" or block == "minecraft:sand" or block == "minecraft:cobblestone" then
-                dig(dir)
-                checkInventory()
+                --block should be mined, but checkInventory function is not defined yet
+                --make sure this doesn't fill up the inventory
+                if turtle.getItemCount(16) > 0 then --inventory already full (maximum possible types)
+                    dig(dir)
+                else --not full. make sure this block doesn't fill it up
+                    dig(dir)
+                    if turtle.getItemCount(16) > 0 then
+                        turtle.select(16)
+                        turtle.drop()
+                    end
+                end
             else
                 if not blocked then
                     blocked = true
@@ -411,13 +421,12 @@ function returnHome()
     end
 end
 
---check if last item slot contains items. if true, return to chest and empty inventory into chest. if chest full, wait. 
---when finished, return to previous position
---also picks up fuel and torches from the chests next to the item chest
---only call when on "main road" (=within strip or lateral path). coordinates are not tracked within ore veins
+--checks if last item slot contains items or fuel empty or torches empty. if true:
+--returns to chest and empties inventory, picks up fuel and torches
+--then returns to previous position
 function checkInventory()
-    if turtle.getItemCount(16) > 0 then
-        local orientation_snap = orientation --snapshot of the current orientation
+    if turtle.getItemCount(16) > 0 or turtle.getItemCount(1) == 0 or turtle.getItemCount(2) == 0 then
+        local o_snap = orientation --snapshot of the current orientation
         pos_snap.x = pos.x
         pos_snap.y = pos.y
         pos_snap.z = pos.z
@@ -425,30 +434,40 @@ function checkInventory()
         turn(2) --turn toward chest
         --Empty inventory. If chest is full, try again till it isn't
         local full = false --to only print errors once
-        local slot = 3 --keep torch and fuel
-        while slot<17 do
-            turtle.select(slot)
-            if turtle.getItemCount(slot)>0 then
-                if turtle.drop() then
-                    slot=slot+1
+        local fuelIn = {}
+        local torchIn = {}
+        for slot=3,16 do --keep torch and fuel
+            if turtle.getItemCount(slot) > 0 then --should always be the case
+                local itemName = turtle.getItemDetail().name
+                if itemName == fuelType then
+                    table.insert(fuelIn, slot)
+                elseif itemName == "minecraft:torch" then
+                    table.insert(torchIn, slot)
                 else
-                    if not full then
-                        printEvent("chest is full") --only print this once
-                        full = true
+                    turtle.select(slot)
+                    if not turtle.drop() then
+                        if not full then
+                            printEvent("chest is full") --only print this once
+                            full = true
+                        end
+                        os.sleep(30) --wait 30 seconds
+                    else
+                        full = false
                     end
-                    os.sleep(30) --wait for 30 seconds
                 end
-            else
-                slot=slot+1
             end
         end
-        turtle.select(3)
         --pick up fuel and torches
         --fuel
         right()
         go("forward")
         left()
         refuel()
+        --drop fuel, that is not in fuel slot, in chest (happens when coal used as fuel)
+        for index,slot in ipairs(fuelIn) do
+            turtle.select(slot)
+            turtle.drop()
+        end
         turtle.select(1)
         full = false
         while turtle.getItemCount()<64 do
@@ -456,6 +475,8 @@ function checkInventory()
                 if not full then
                     printEvent("no fuel in chest")
                     full = true
+                else
+                    full = false
                 end
             end
         end
@@ -463,6 +484,11 @@ function checkInventory()
         right()
         go("forward")
         left()
+        --drop torches, that are not in torch slot, in chest (were mined on the way)
+        for index,slot in ipairs(torchIn) do
+            turtle.select(slot)
+            turtle.drop()
+        end
         turtle.select(2)
         full = false
         while turtle.getItemCount()<64 do
@@ -470,6 +496,8 @@ function checkInventory()
                 if not full then
                     printEvent("no torches in chest")
                     full = true
+                else
+                    full = false
                 end
             end
         end
@@ -484,7 +512,7 @@ function checkInventory()
         --back down the strip
         clog("checkInventory:back down y")
         go("forward", pos.y - pos_snap.y)
-        turn(orientation_snap)
+        turn(o_snap)
     end
     turtle.select(3)
 end --checkInventory
@@ -649,6 +677,7 @@ function strip(length)
         if pos.y % torchDistance == 0 then
             turtle.select(2)
             turtle.placeUp()
+            checkInventory()
         end
         --check if there's a block underneath the first block of the strip (= base to place the torch on = torch block)
         if pos.y == 1 and ((pos.z + 2) % 2 == 0) then
@@ -705,13 +734,19 @@ function strip(length)
     if torchBlock then --just place it
         turtle.select(2)
         turtle.place()
+        checkInventory()
     elseif torchBlockAlt then --place it from above
         go("up")
         while not turtle.forward() do end --coordinates not tracked
         turtle.select(2)
-        while not turtle.placeDown() do end
+        turtle.placeDown()
+        checkInventory()
         while not turtle.back() do end --coordinates not tracked
         go("down")
+    end
+    --check if it's really there and not washed away
+    if inspect() ~= "minecraft:torch" then
+        printEvent("no torch placed  ("..pos.x.."/"..pos.y.."/"..pos.z..")")
     end
     clog("end of strip")
 end --strip
@@ -821,7 +856,17 @@ end --reposition
 
 --action
 getParameters()
+while turtle.getItemCount(1) == 0 do
+    print("first slot empty. Input fuel.")
+    os.pullEvent("key")
+end
+while turtle.getItemCount(2) == 0 do
+    print("second slot empty. Input torches")
+    os.pullEvent("key")
+end
+fuelType = turtle.getItemDetail(1).name
 printEvent("starting")
+refuel()
 repeat
     reposition()
     turtle.select(2)
