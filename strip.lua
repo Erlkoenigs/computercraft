@@ -223,9 +223,6 @@ function updateCoord(ud)
     else
         error("updateCoord: bad argument")
     end
-    --clog(pos.x)
-    --clog(pos.y)
-    --clog(pos.z)
     clog("("..pos.x.."/"..pos.y.."/"..pos.z..")")
 end --updateCoord
 
@@ -397,24 +394,22 @@ end
 
 --return to chest
 function returnHome()
+    clog("returnHome")
     refuel(pos.x + pos.z + pos.y + 4)
     --z within strip
     if pos.z % 2 ~= 0 then --if on upper level within a strip, go down
         go("down")
     end
     --y
-    clog("return home: y: " .. pos.y)
     if pos.y > 0 then
         turn(2)
         go("forward", pos.y) --back down the strip
     end
     --z
-    clog("return home: z: " .. pos.z)
     if pos.z > 0 then
         go("down", pos.z)
     end
     --x
-    clog("return home: x: " .. pos.x)
     if pos.x ~= 0 then
         turnTowardHome(true)
         go("forward", pos.x) --back to the chest
@@ -469,15 +464,16 @@ function checkInventory()
             turtle.drop()
         end
         turtle.select(1)
-        full = false
+        full = false --not the right word, but variable is free
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
                 if not full then
                     printEvent("no fuel in chest")
                     full = true
-                else
-                    full = false
                 end
+                os.sleep(30) --wait 30 seconds
+            else
+                full = false
             end
         end
         --torches
@@ -496,21 +492,20 @@ function checkInventory()
                 if not full then
                     printEvent("no torches in chest")
                     full = true
-                else
-                    full = false
                 end
+                os.sleep(30) --wait 30 seconds
+            else
+                full = false
             end
         end
         --to pos_snap.x
-        clog("checkInventory:back to x")
+        clog("checkInventory:back to position")
         turnTowardHome(false)
         go("forward", pos.x - pos_snap.x)
         turn(0)
         --to pos_snap.z
-        clog("checkInventory:back to z")
         go("up", pos.z-pos_snap.z)
         --back down the strip
-        clog("checkInventory:back down y")
         go("forward", pos.y - pos_snap.y)
         turn(o_snap)
     end
@@ -545,13 +540,10 @@ function strip(length)
     --functions
     --check block in front, up or down. true if block is wanted
     local function check(direction)
-        --clog("check")
         local name = inspect(direction)
         if name ~= "" then
             for index,targetName in ipairs(target) do
-                --clog(name.." - "..targetName)
                 if string.sub(name,-#targetName) == targetName then --if end of name == ore-string
-                    --clog("is wanted")
                     return true
                 end
             end
@@ -617,7 +609,6 @@ function strip(length)
             else
                 --take one step back on path
                 local dir = table.remove(path) --get and remove last entry
-                --clog("reversing "..dir)
                 if dir == 3 then
                     while not turtle.down() do
                         turtle.digDown()
@@ -687,16 +678,12 @@ function strip(length)
                     turtle.digDown() --get rid of the gravel or sand
                     checkInventory()
                 end
-
-                clog("placeTorchBlock")
                 --search for dummy material in inventory
                 for i=3, 16 do
                     if turtle.getItemCount(i) > 0 then
                         data = turtle.getItemDetail(i)
                         for j,v in ipairs(dummy) do
-                            clog(string.sub(data.name,-#v).." - "..v)
                             if string.sub(data.name,-#v) == v then --if end of name == dummy-string
-                                clog("place")
                                 turtle.select(i)
                                 turtle.placeDown() --place dummy
                                 turtle.select(2)
@@ -719,15 +706,15 @@ function strip(length)
             end
         end
         go("forward")
-        refuel()
     end
-    turn(0)
     --place torch to mark the strip as finished
     if torchBlock then --just place it
+        turn(0)
         turtle.select(2)
         turtle.place()
         checkInventory()
     elseif torchBlockAlt then --place it from above
+        turn(0)
         go("up")
         while not turtle.forward() do end --coordinates not tracked
         turtle.select(2)
@@ -737,8 +724,10 @@ function strip(length)
         go("down")
     end
     --check if it's really there and not washed away
-    if inspect() ~= "minecraft:torch" then
-        printEvent("no torch placed  ("..pos.x.."/"..pos.y.."/"..pos.z..")")
+    local inspected = inspect()
+    print("inspected: "..inspected)
+    if inspected ~= "minecraft:torch" then
+        printEvent("no torch placed ("..pos.x.."/"..pos.y.."/"..pos.z..")")
     end
     clog("end of strip")
 end --strip
@@ -747,9 +736,6 @@ end --strip
 --this function defines the sequence in which strips are made
 function reposition()
     clog("reposition")
-    clog("pos.x: "..pos.x)
-    clog("maxX: "..maxX)
-    
     --elevate to the next level of strips
     local function elevate()
         --two left
@@ -793,8 +779,7 @@ function reposition()
     --but it yields resources earlier
     turn(0) --just in case
     if pos.z == 0 then --first level is special. starts in center, then goes left, then right
-        if pos.x == 0 then --starting postition
-            clog("center")
+        if pos.x == 0 then --starting position
             if even then --start two blocks to the left of center
                 left()
                 tunnelForward(2)
@@ -807,39 +792,30 @@ function reposition()
                 end
             end
         elseif pos.x == -maxX then --last strip on he left on first level => go to first strip on the right side of starting position
-            clog("z0 -maxX")
             right()
             if even then
                 local st = maxX + 2
-                clog("even, "..st)
                 tunnelForward(st)
             else
                 local st = maxX + 4
-                clog("even, "..st)
                 tunnelForward(st)
             end
             left()
         elseif pos.x == maxX then
-            clog("z0 maxX")
             elevate()
         elseif pos.x < 0 then
-            clog("z0 pos.x < 0")
             shiftLeft()
         elseif pos.x > 0 then
-            clog("z0 pos.x > 0")
             shiftRight()
         end
     --pos.z ~= 0
     elseif pos.x == maxX or pos.x == -maxX + 2 then --last strip on the right or left
-        clog("maxX or -maxX+2")
         elevate()
     elseif pos.x > maxX or pos.x < -maxX then --just in case
         error("reposition: went too far")
     elseif pos.z % 4 == 0 then
-        clog("pos.z%4==0")
         shiftRight()
     elseif pos.z % 4 ~= 0 then
-        clog("pos.z%4~=0")
         shiftLeft()
     else
         error("reposition: something's wrong")
