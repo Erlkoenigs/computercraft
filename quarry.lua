@@ -388,6 +388,8 @@ while pos.z > -depth + 1 do
     elseif sink > 4 then
         clog("> 4")
         sink = 4 --max 4 blocks
+    elseif sink == 2 then
+        sink = 1
     end
     for i=1, sink do
         clog(sink)
