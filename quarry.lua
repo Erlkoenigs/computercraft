@@ -341,14 +341,13 @@ end
 --dig an area defined by a given radius
 function plane()
     local dug = 1
-    local below = false --mine level below or not
-    local above = false -- mine level above or not
     local function digStep()
         digAndGo()
         dig("up")
         dig("down")
         dug = dug + 1
     end
+    dig("down")
     while dug < (2*r+1)^2 do
         digStep()
         --turn at the top
@@ -382,12 +381,16 @@ left()
 local sink = 0 --go down this many blocks before the next level
 while pos.z > -depth + 1 do
     sink = pos.z + depth
+    clog(sink)
     if sink > 4 then
+        clog("> 4")
         sink = 4 --max 4 blocks
     elseif pos.z == 0 and sink > 2 then
+        clog("z=0 and sink > 2")
         sink = 2
     end
     for i=0, sink do
+        clog(sink)
         digAndGo("down")
     end
     plane()
@@ -400,5 +403,6 @@ while pos.z > -depth + 1 do
     pos.y = -r
     orientation = 0
 end
-plane()
+clog("all done. returning home")
 returnHome()
+clog("finished")
