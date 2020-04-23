@@ -162,6 +162,18 @@ function down()
     return false
 end
 
+function step(dir)
+    local res
+    if dir == nil or dir == "forward" then
+        res = forward()
+    elseif dir == "up" then
+        res = up()
+    elseif dir == "down" then
+        res = down()
+    end
+    return res
+end
+
 --go to snapshot Y position
 function goToY()
     clog("toY")
@@ -308,13 +320,13 @@ function dig(direction)
             checkInventory()
         end
     elseif direction == "up" then
-        if turtle.detect() and not turtle.digUp() then
+        if turtle.detectUp() and not turtle.digUp() then
             endProgram()
         else
             checkInventory()
         end
     elseif direction == "down" then
-        if turtle.detect() and not turtle.digDown() then
+        if turtle.detectDown() and not turtle.digDown() then
             endProgram()
         else
             checkInventory()
@@ -323,13 +335,7 @@ function dig(direction)
 end
 
 function digAndGo(direction)
-    if direction == nil or direction == "forward" then
-        while not forward() do dig() end
-    elseif direction == "up" then
-        while not up() do dig(direction) end
-    elseif direction == "down" then
-        while not down() do dig(direction) end
-    end
+    while not step(direction) do dig(direction) end
 end
 
 --dig an area defined by a given radius
