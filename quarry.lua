@@ -348,8 +348,9 @@ function plane()
         dug = dug + 1
     end
     dig("down")
-    while dug < (2*r+1)^2 do
+    while true do
         digStep()
+        if dug == (2*r+1)^2 then break end
         --turn at the top
         if pos.y == r then
             left()
