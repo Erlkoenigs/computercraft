@@ -339,6 +339,7 @@ end
 
 --dig an area defined by a given radius
 function plane()
+    clog("plane")
     local dug = 1
     local function digStep()
         digAndGo()
@@ -388,7 +389,7 @@ while pos.z > -depth + 1 do
         clog("> 4")
         sink = 4 --max 4 blocks
     end
-    for i=0, sink do
+    for i=1, sink do
         clog(sink)
         digAndGo("down")
     end
