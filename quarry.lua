@@ -234,7 +234,7 @@ function goToXZero()
     end
 end
 
---get back to chest
+--get back to chest. and empty inventory
 function returnHome()
     pos_snap.x = pos.x
     pos_snap.y = pos.y
@@ -257,20 +257,29 @@ function returnHome()
     --Empty inventory. If chest is full, try again till it isn't
     local full = false --to only print errors once
     local slot=2 --keep fuel
-    while slot<17 do
-        turtle.select(slot)
+    while slot < 17 do
         if turtle.getItemCount(slot)>0 then
+            turtle.select(slot)
             if turtle.dropUp() then
                 slot=slot+1
             else
-                if not full then
-                    print("chest is full") --only print this once
-                    full = true
-                end
-                os.sleep(30) --wait for 30 seconds
+                print("chest is full. Any key to continue")
+                os.pullEvent("key")
             end
         else
             slot=slot+1
+        end
+    end
+    local amountBefore
+    local amountAfter
+    while turtle.getItemCount(1) < 64 do
+        amountBefore = turtle.getItemCount(1)
+        turtle.suckUp(1)
+        amountAfter = turtle.getItemCount(1)
+        if amountBefore == amountAfter then
+            turtle.dropUp(2)
+            print("no fuel in first chest slot. Any key to continue")
+            os.pullEvent("key")
         end
     end
     turtle.select(2)
@@ -300,7 +309,7 @@ end
 
 --check if last inventory slot is full
 function checkInventory()
-    if turtle.getItemCount(16) > 0 then
+    if turtle.getItemCount(16) > 0 or turtle.getItemCount(1) == 0 then
         emptyInventory()
     end
 end
