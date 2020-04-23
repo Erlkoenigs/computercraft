@@ -303,7 +303,6 @@ function checkInventory()
     if turtle.getItemCount(16) > 0 then
         emptyInventory()
     end
-    clog("end of check inventory")
 end
 
 function endProgram()
@@ -382,12 +381,12 @@ local sink = 0 --go down this many blocks before the next level
 while pos.z > -depth + 1 do
     sink = pos.z + depth
     clog(sink)
-    if sink > 4 then
-        clog("> 4")
-        sink = 4 --max 4 blocks
-    elseif pos.z == 0 and sink > 2 then
+    if pos.z == 0 and sink > 2 then
         clog("z=0 and sink > 2")
         sink = 2
+    elseif sink > 4 then
+        clog("> 4")
+        sink = 4 --max 4 blocks
     end
     for i=0, sink do
         clog(sink)
