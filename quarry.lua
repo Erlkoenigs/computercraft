@@ -8,7 +8,7 @@
 --when turtles inventory is full, it will try to drop items into
 --a chest above it's starting position
 
-debug = false
+debug = true
 local r = 0
 local depth = 0
 tArgs = {...}
@@ -66,18 +66,13 @@ function clog(logstr)
 end
 
 --refuel from slot 1
-function refuel(level)
-    turtle.select(1)
-    if level == nil then
-        while turtle.getFuelLevel()<(((r+1)^2) + 5) do
-            turtle.refuel(1)
-        end
-    else
-        while turtle.getFuelLevel()<level do
-            turtle.refuel(1)
-        end
+function refuel(amount)
+    if amount == nil then amount = depth*5 end --random value
+    while turtle.getFuelLevel() < amount do
+        turtle.select(1)
+        turtle.refuel(1)
     end
-end
+end --refuel
 
 --track position. called when moving forward, up or down
 function newPosition(dir)
@@ -112,17 +107,6 @@ function newOrientation(turn)
     end
 end
 
---returns the opposite of a given orientation
-function getOppositeOrientation(o)
-    local newO
-    if o<1 then
-        newO = o+2
-    elseif o>0 then
-        newO = o-2
-    end
-    return newO
-end
-
 --turn left and set new orientation
 function left()
     turtle.turnLeft()
@@ -133,6 +117,19 @@ end
 function right()
     turtle.turnRight()
     newOrientation(1)
+end
+
+--turn turtle in new direction
+function turn(newOrientation)
+    diff=newOrientation-orientation
+    if diff == -1 or diff == 3 then
+        left()    
+    elseif diff == 1 or diff == -3 then
+        right()
+    elseif diff == 2 or diff == -2 then
+        right()
+        right()
+    end
 end
 
 --move forward and set new position
@@ -163,19 +160,6 @@ function down()
         return true
     end
     return false
-end
-
---turn turtle in new direction
-function turn(newOrientation)
-    diff=newOrientation-orientation
-    if diff == -1 or diff == 3 then
-        left()    
-    elseif diff == 1 or diff == -3 then
-        right()
-    elseif diff == 2 or diff == -2 then
-        right()
-        right()
-    end
 end
 
 --go to snapshot Y position
@@ -258,10 +242,6 @@ function returnHome()
     goToYZero()
     --to y axis
     goToXZero()
-end
-
---dump inventory into chest above
-function dumpInventory()
     --Empty inventory. If chest is full, try again till it isn't
     local full = false --to only print errors once
     local slot=2 --keep fuel
@@ -287,7 +267,6 @@ end
 --go back to the chest, dump inventory, get back to current position
 function emptyInventory()
     returnHome()
-    dumpInventory()
     --return back to where it left off
     if pos_snap.x < r then
         --go to current x position + 1
@@ -317,7 +296,6 @@ end
 
 function endProgram()
     returnHome()
-    dumpInventory()
     error("hit bedrock. program finished") --not nice
 end
 
@@ -360,14 +338,13 @@ function plane()
     local below = false --mine level below or not
     local above = false -- mine level above or not
     local function digStep()
-        if above then dig("up") end
-        if below then dig("down") end
         digAndGo()
+        dig("up")
+        dig("down")
         dug = dug + 1
     end
-    while true do
+    while dug < (2*r+1)^2 do
         digStep()
-        if dug == (2*r+1)^2 then break end
         --turn at the top
         if pos.y == r then
             left()
@@ -387,19 +364,29 @@ refuel()
 --go to right edge
 right()
 for i=1, r do
-    dig()
+    digAndGo()
 end
 --go to lower right corner
 right()
 for i=1, r do
-    dig()
+    digAndGo()
 end
 left()
 left()
-while pos.z > -depth do
+local sink = 0 --go down this many blocks before the next level
+while pos.z > -depth + 1 do
+    sink = pos.z + depth
+    if sink > 4 then
+        sink = 4 --max 4 blocks
+    elseif pos.z == 0 and sink > 2 then
+        sink = 2
+    end
+    for i=0, sink do
+        digAndGo("down")
+    end
     plane()
     clog("level done")
-    dig("down")
+    digAndGo("down")
     left()
     left()
     --reset coordinate system on next level
@@ -409,4 +396,3 @@ while pos.z > -depth do
 end
 plane()
 returnHome()
-dumpInventory()
