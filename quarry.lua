@@ -401,10 +401,10 @@ while pos.z > -depth + 1 do
     if pos.z == 0 then
         clog("z=0 and sink > 2")
         sink = 1
-    elseif sink > 4 then
-        clog("> 4")
-        sink = 4 --max 4 blocks
-    elseif sink == 2 then
+    elseif sink > 3 then
+        clog("> 3")
+        sink = 3 --max 4 blocks
+    elseif sink == 2 then --last level
         sink = 1
     end
     for i=1, sink do
