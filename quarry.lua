@@ -409,8 +409,9 @@ while pos.z > -depth + 1 do
         sink = 1
         clog("sink = 1")
     end
-    clog(sink)
+    clog(sink..":")
     for i=1, sink do
+        write(" "..i)
         digAndGo("down")
     end
     plane()
