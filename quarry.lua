@@ -176,36 +176,6 @@ function step(dir)
     return res
 end
 
---go to snapshot Y position
-function goToY()
-    clog("toY")
-    if pos_snap.y > pos.y then
-        turn(0)
-    elseif pos_snap.y < pos.y then
-        turn(2)
-    end
-    while pos.y ~= pos_snap.y do
-        if forward() then
-            printPosition("y")
-        end
-    end
-end
-
---go to snapshot X position
-function goToX()
-    clog("toX")
-    if pos_snap.x > pos.x then
-        turn(1)
-    elseif pos_snap.x < pos.x then
-        turn(-1)
-    end
-    while pos.x ~= pos_snap.x do
-        if forward() then
-            printPosition("x")
-        end
-    end
-end
-
 --get back to chest. and empty inventory
 function returnHome()
     pos_snap.x = pos.x
@@ -289,6 +259,34 @@ end
 
 --go back to the chest, dump inventory, getFuel,  get back to current position
 function emptyInventory()
+    --go to snapshot Y position
+    local function goToY()
+        clog("toY")
+        if pos_snap.y > pos.y then
+            turn(0)
+        elseif pos_snap.y < pos.y then
+            turn(2)
+        end
+        while pos.y ~= pos_snap.y do
+            if forward() then
+                printPosition("y")
+            end
+        end
+    end
+    --go to snapshot X position
+    local function goToX()
+        clog("toX")
+        if pos_snap.x > pos.x then
+            turn(1)
+        elseif pos_snap.x < pos.x then
+            turn(-1)
+        end
+        while pos.x ~= pos_snap.x do
+            if forward() then
+                printPosition("x")
+            end
+        end
+    end
     returnHome()
     dumpInventory()
     getFuel()
