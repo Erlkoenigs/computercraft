@@ -252,7 +252,7 @@ end
 function dumpInventory()
     local full = false --to only print errors once
     local slot=2 --keep fuel
-    while slot < 16 do
+    while slot < 17 do
         if turtle.getItemCount(slot)>0 then
             turtle.select(slot)
             if turtle.dropUp() then
@@ -355,6 +355,7 @@ end
 --dig an area defined by a given radius
 function plane()
     clog("plane")
+    print("("..pos.x.."/"..pos.y.."/"..pos.z..")")
     local dug = 1
     local function digStep()
         digAndGo()
@@ -402,13 +403,14 @@ while pos.z > -depth + 1 do
         clog("z=0 and sink > 2")
         sink = 1
     elseif sink > 3 then
-        clog("> 3")
+        clog("sink > 3")
         sink = 3 --max 4 blocks
     elseif sink == 2 then --last level
         sink = 1
+        clog("sink = 1")
     end
+    clog(sink)
     for i=1, sink do
-        clog(sink)
         digAndGo("down")
     end
     plane()
