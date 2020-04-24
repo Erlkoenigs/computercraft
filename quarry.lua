@@ -409,14 +409,12 @@ while pos.z > -depth + 1 do
         sink = 1
         clog("sink = 1")
     end
-    clog(sink..":")
+    clog("sink = "..sink)
     for i=1, sink do
-        write(" "..i)
         digAndGo("down")
     end
     plane()
     clog("level done")
-    digAndGo("down")
     left()
     left()
     --reset coordinate system on next level
