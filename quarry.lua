@@ -247,7 +247,7 @@ function returnHome()
 end
 
 --Empty inventory. If chest is full, try again till it isn't
-function emptyInventory()
+function dumpInventory()
     local full = false --to only print errors once
     local slot=2 --keep fuel
     while slot < 16 do
@@ -283,10 +283,10 @@ function getFuel()
     turtle.select(2)
 end
 
---go back to the chest, dump inventory, get back to current position
+--go back to the chest, dump inventory, getFuel,  get back to current position
 function emptyInventory()
     returnHome()
-    emptyInventory()
+    dumpInventory()
     getFuel()
     --return back to where it left off
     if pos_snap.x < r then
@@ -316,7 +316,7 @@ end
 
 function endProgram()
     returnHome()
-    emptyInventory()
+    dumpInventory()
     getFuel()
     error("hit bedrock. program finished") --not nice
 end
@@ -419,5 +419,5 @@ while pos.z > -depth + 1 do
 end
 clog("all done. returning home")
 returnHome()
-emptyInventory()
+dumpInventory()
 clog("finished")
