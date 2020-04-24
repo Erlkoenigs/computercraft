@@ -204,36 +204,6 @@ function goToX()
     end
 end
 
---go to x axis
-function goToYZero()
-    --go to y = 0
-    if pos.y > 0 then
-        turn(2)
-    elseif pos.y < 0 then
-        turn(0)
-    end
-    while pos.y ~= 0 do 
-        if forward() then
-            printPosition("y")
-        end
-    end
-end
-
---go to y axis
-function goToXZero()
-    --go to x = 0
-    if pos.x > 0 then
-        turn(-1)
-    elseif pos.x < 0 then
-        turn(1)
-    end
-    while pos.x ~= 0 do
-        if forward() then
-            printPosition("x")
-        end
-    end
-end
-
 --get back to chest. and empty inventory
 function returnHome()
     pos_snap.x = pos.x
@@ -248,13 +218,36 @@ function returnHome()
         up()
     end
     --go one in positive x direction
-    turn(1)
-    forward()
-    --to x axis
-    goToYZero()
-    --to y axis
-    goToXZero()
-    --Empty inventory. If chest is full, try again till it isn't
+    if pos.x < r then
+        turn(1)
+        forward()
+    end
+    --to x axis (y = 0)
+    if pos.y > 0 then
+        turn(2)
+    elseif pos.y < 0 then
+        turn(0)
+    end
+    while pos.y ~= 0 do 
+        if forward() then
+            printPosition("y")
+        end
+    end
+    --to y axis (x = 0)
+    if pos.x > 0 then
+        turn(-1)
+    elseif pos.x < 0 then
+        turn(1)
+    end
+    while pos.x ~= 0 do
+        if forward() then
+            printPosition("x")
+        end
+    end
+end
+
+--Empty inventory. If chest is full, try again till it isn't
+function emptyInventory()
     local full = false --to only print errors once
     local slot=2 --keep fuel
     while slot < 17 do
@@ -270,15 +263,20 @@ function returnHome()
             slot=slot+1
         end
     end
+    turtle.select(2)
+end
+
+function getFuel()
     local amountBefore
     local amountAfter
     while turtle.getItemCount(1) < 64 do
         amountBefore = turtle.getItemCount(1)
-        turtle.suckUp(1)
+        turtle.select(1)
+        turtle.suckUp()
         amountAfter = turtle.getItemCount(1)
         if amountBefore == amountAfter then
             turtle.dropUp(2)
-            print("no fuel in first chest slot. Any key to continue")
+            print("no fuel in first chest slot")
             os.pullEvent("key")
         end
     end
@@ -288,6 +286,8 @@ end
 --go back to the chest, dump inventory, get back to current position
 function emptyInventory()
     returnHome()
+    emptyInventory()
+    getFuel()
     --return back to where it left off
     if pos_snap.x < r then
         --go to current x position + 1
@@ -316,6 +316,8 @@ end
 
 function endProgram()
     returnHome()
+    emptyInventory()
+    getFuel()
     error("hit bedrock. program finished") --not nice
 end
 
@@ -417,4 +419,5 @@ while pos.z > -depth + 1 do
 end
 clog("all done. returning home")
 returnHome()
+emptyInventory()
 clog("finished")
