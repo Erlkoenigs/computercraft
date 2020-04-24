@@ -1,12 +1,14 @@
---pull fuel from item chest?
---for the computercraft turtle
---mimics the buildcraft quarry. can be used to level an area
---takes 2 arguments: radius and depth
---radius excludes starting position: radius = 2 mines a 5x5 area
---turtle will always mine the level it is on and then
---_depth_ levels underneath it
---when turtles inventory is full, it will try to drop items into
---a chest above it's starting position
+--[[
+    for the computercraft turtle.
+    mimics the buildcraft quarry. can be used to level an area.
+    takes 2 arguments: radius and depth.
+    radius excludes starting position: radius = 2 mines a 5x5 area.
+    turtle will always mine the level it is on and then _depth_
+     levels underneath it.
+    when its inventory is full, it will try to drop items into
+     a chest above its starting position and pull fuel from the
+     same chest. Fuel has to be in the fist slots of the chest.
+]]
 
 debug = true
 local r = 0
@@ -275,12 +277,14 @@ function getFuel()
         turtle.suckUp()
         amountAfter = turtle.getItemCount(1)
         if amountBefore == amountAfter then
-            turtle.dropUp(2)
+            turtle.select(2)
+            turtle.dropUp()
             print("no fuel in first chest slot")
             os.pullEvent("key")
         end
     end
     turtle.select(2)
+    turtle.dropUp()
 end
 
 --go back to the chest, dump inventory, getFuel,  get back to current position
