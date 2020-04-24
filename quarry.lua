@@ -250,7 +250,7 @@ end
 function emptyInventory()
     local full = false --to only print errors once
     local slot=2 --keep fuel
-    while slot < 17 do
+    while slot < 16 do
         if turtle.getItemCount(slot)>0 then
             turtle.select(slot)
             if turtle.dropUp() then
@@ -394,9 +394,9 @@ local sink = 0 --go down this many blocks before the next level
 while pos.z > -depth + 1 do
     sink = pos.z + depth
     clog(sink)
-    if pos.z == 0 and sink > 2 then
+    if pos.z == 0 then
         clog("z=0 and sink > 2")
-        sink = 2
+        sink = 1
     elseif sink > 4 then
         clog("> 4")
         sink = 4 --max 4 blocks
