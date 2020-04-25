@@ -308,11 +308,8 @@ function go(dir, steps)
                     end
                 end
             else
-                if not blocked then
-                    blocked = true
-                    printEvent("path is blocked ("..dir..") ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
-                end
-                os.sleep(30)
+                printEvent("path is blocked ("..dir..") ("..pos.x.."/"..pos.y.."/"..pos.z..")") --only prints this once
+                os.pullEvent("key")
             end
         end
     end
@@ -442,7 +439,6 @@ function checkInventory()
         returnHome()
         turn(2) --turn toward chest
         --Empty inventory. If chest is full, try again till it isn't
-        local full = false --to only print errors once
         local fuelIn = {}
         local torchIn = {}
         for slot=3,16 do --keep torch and fuel
@@ -455,13 +451,8 @@ function checkInventory()
                 else
                     turtle.select(slot)
                     if not turtle.drop() then
-                        if not full then
-                            printEvent("chest is full") --only print this once
-                            full = true
-                        end
-                        os.sleep(30) --wait 30 seconds
-                    else
-                        full = false
+                        printEvent("chest is full") --only print this once
+                        os.pullEvent("key")
                     end
                 end
             end
@@ -478,16 +469,10 @@ function checkInventory()
             turtle.drop()
         end
         turtle.select(1)
-        full = false --not the right word, but variable is free
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
-                if not full then
-                    printEvent("no fuel in chest")
-                    full = true
-                end
-                os.sleep(30) --wait 30 seconds
-            else
-                full = false
+                printEvent("no fuel in chest")
+                os.pullEvent("key")
             end
         end
         --torches
@@ -500,16 +485,10 @@ function checkInventory()
             turtle.drop()
         end
         turtle.select(2)
-        full = false
         while turtle.getItemCount()<64 do
             if not turtle.suck(64-turtle.getItemCount()) then
-                if not full then
-                    printEvent("no torches in chest")
-                    full = true
-                end
-                os.sleep(30) --wait 30 seconds
-            else
-                full = false
+                printEvent("no torches in chest")
+                os.pullEvent("key")
             end
         end
         --to pos_snap.x
@@ -867,11 +846,8 @@ while slot<17 do
         if turtle.drop() then
             slot=slot+1
         else
-            if not full then
-                printEvent("chest is full") --only print this once
-                full = true
-            end
-            os.sleep(30) --wait for 30 seconds
+            printEvent("chest is full") --only print this once
+            os.pullEvent("key")
         end
     else
         slot=slot+1
