@@ -402,7 +402,7 @@ function returnHome()
         turn(2)
         go("forward", pos.y) --back down the strip
     end
-    if pos.z % 4 == 0 and x > 0 then --right facing level and already crossed starting position
+    if pos.z % 4 == 0 and pos.x > 0 then --right facing level and already crossed starting position
         --first x then z
         --z
         if pos.z > 0 then
