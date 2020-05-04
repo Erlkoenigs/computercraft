@@ -1,66 +1,60 @@
---for the computercraft turtle
---creates 1x2 mining strips with a spacing of 3 blocks in between
---on it's way back it will search for and mine ore veins it finds
---it needs fuel in slot 1, torches in slot 2, a stationary chest that is regularly emptied,
---a chest that contains fuel and a chest that contains torches
---the chest for the mined items has to be placed directly behind the starting position,
---the chest with the fuel has to be placed to the left of the item chest,
---the chest with the torches has to be placed to the left of the fuel chest.
---the entrance of a finished strip can be marked by a torch. The turtle will do the same and skip, but still count, marked strips
+--[[
+    For the computercraft turtle
+    Creates 1x2 mining strips with a spacing of 3 blocks in between. On its way back it will search for and mine ore veins it finds.
+    It needs fuel in slot 1, torches in slot 2, a stationary chest that is regularly emptied, a chest that contains fuel and 
+    a chest that contains torches.
+    The chest for the mined items has to be placed directly behind the starting position, the chest with the fuel has to be placed 
+    to the left of the item chest and the chest with the torches has to be placed to the left of the fuel chest.
+    The entrance of a finished strip can be marked by a torch. The turtle will do the same and skip marked strips.
+    
+    This program will not restart itself after it has been shut down by a server restart or by moving outside of the loaded area. 
+    The turtles range is limited by the chunk loaded area. The program takes three parameters: width, height and depth, which 
+    define the area of its mining action. It will dig "depth" blocks forward, 0.5 "width" blocks to each side and max "height" 
+    blocks up. It will fit as many strips as possible into the given "height" and "width".
+    It asks for a discord webhook url where it sends events like start, finish, empty chests and if it gets stuck. That question 
+    can be skipped, in which case it will only log to its console. Alternatively this variable can be set below.
 
---turtles range is typically limited by the chunk loaded area.
---it takes three parameters: width, height and depth, which define the area of its mining
---it will dig _depth_ blocks forward, 0.5 _width_ blocks to each side
---and max _height_ blocks up
+    It is theoretically possible that it gets stuck in an endless loop mining cobblestone when digging through an area with water 
+    and lava.
+    The turtle can move outside of the specified area when following an ore vein. Define the mining area a little smaller than the
+    chunk loaded area.
 
---it asks for a discord webhook url where it sends events like start, finish, empty chests and if it gets stuck.
---that question can be skipped. in that case it will just log to its console
-
---example: ("0" is mined, "x" is not mined)
--- 0xxx0xxx0xxx0xxx0
--- 0xxx0xxx0xxx0xxx0 level 3 (odd level)
--- xx0xxx0xxx0xxx0xx
--- xx0xxx0xxx0xxx0xx level 2 (even level)
--- 0xxx0xxx0xxx0xxx0
--- 0xxx0xxx0xxx0xxx0 level 1 (odd level)
---levels = amount of levels => actual height of mined area = levels * 2
---first row of strips is the first level (= level 1 = an odd level)
---the row above the first row is the second level (= level 2 = an even level)
-
---to make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to.
---because of this it is possible that lava and water create cobblestone in the turtles path, that will cause it to get stuck.
---also it is theoretically possible that it gets stuck in an endless loop for mining cobblestone when digging through an area with water and lava
-
---bugs
---can move outside of specified area when following an ore vein
---can run out of torches. Compare to finishing torch fails
+    ideas:
+    -   restart resistant with gps
+        with this feature bigger projects can be started that might (hopefully) run for a long time
+            => add a display to display the current status. maybe gather statistics.
+    -   ability to add more turtles to work on the same project
+        *   calculate all strips beforehand and save which ones have been finished, then assign a strip to a turtle as a task
+            => major change
+]]
 
 --settings
-debug = true
+debug = true --console output
 local torchDistance = 12 -- place torches every x blocks
 local target = {} --scans for blocks, whose block info names end with one of these strings (!= ore dict name!!!)
+--these might differ in different versions or flavours of the game. Check what turtle.inspect() returns
 target[1] = "ore"
 target[2] = "resources" --forestry ores
-target[3] = "obsidian"
+target[3] = "obsidian" --not an ore, but works the same. drop water on a lava lake
 target[4] = "yellorite" --big reactors
 local dummy = {} --materials that can be used to place as a base for the finishing torch
 dummy[1] = "dirt"
 dummy[2] = "stone"
 dummy[3] = "marble2"
 dummy[4] = "limestone2"
-local webhookUrl = ""
-
-local label = os.getComputerLabel() --turtles label used as name in discord message
-local img = "https://turtleappstore.com/static/images/turtle_pickaxe.png"
+local webhookUrl = "" --can be input here. Alternatively the turtle will ask for it
+local webhookLabel = os.getComputerLabel() --turtles label used as name in discord messages
+local webhookImg = "https://turtleappstore.com/static/images/turtle_pickaxe.png" --avatar used in discord messages
 
 --states
-local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction, 1 is to the right of that, -1 is left, 2 and -2 are back
-local path = {} --the path the turtle has taken while following an ore vein. 3 is up, -3 is down
+local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction (y axis), 1 is to the right of that 
+--(x axis), -1 is left (negative x axis), 2 and -2 are back (negative y axis)
+local path = {} --the path the turtle has taken while following an ore vein. 3 is up (z axis), -3 is down (negative z axis)
 local pos = {} --current position in coordinate system (not tracked while following an ore vein)
 pos["x"] = 0
 pos["y"] = 0
 pos["z"] = 0
-local pos_snap = {} --snapshot of current position to return to later
+local pos_snap = {} --snapshot of current position to return to later. saved before returning to chests
 pos_snap["x"] = 0
 pos_snap["y"] = 0
 pos_snap["z"] = 0
@@ -71,23 +65,26 @@ local width = 0
 local height = 0
 local depth = 0
 local even = true --is the amount of strips on the first level (= every odd level) odd or even?
---if not even, there's a strip in the center
-local maxX = 0 --absolute of maximum x value on both sides. calculated from width
-local fuelType = ""
+--if not even, there's a strip in the center of the level
+local maxX = 0 --absolute of maximum x value on both sides. calculated from width. goes this amount of blocks to either side
+local fuelType = "" --if fuel is mined on the way, put it in fuel chest, not in item chest. only really does smth with coal
 
+--for messages that help with debugging
 function clog(logstr)
     if debug then print(logstr) end
 end
 
-function discordMsg(msg)
-    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..label.."\", \"avatar_url\": \""..img.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
+--doesn't need to be its own function atm
+local function discordMsg(msg)
+    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..webhookLabel.."\", \"avatar_url\": \""..webhookImg.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
 end
 
+--for events that are interesting
 function printEvent(msg)
     if webhookUrl ~= "" then
-        discordMsg(msg)
+        discordMsg(msg) --to discord
     end
-        print(msg)
+        print(msg) --to console
 end
 
 --get user input. either through command line arguments or by asking
@@ -156,8 +153,11 @@ function getParameters()
             checkValue(depth)
         end
     end
-    print("webhook url?")
-    webhookUrl = read()
+    
+    if webhookUrl == "" then
+        print("webhook url?")
+        webhookUrl = read()
+    end
 
     --calculate "even"
     --make width fit (could prob use math.floor() for this)
