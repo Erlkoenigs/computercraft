@@ -58,6 +58,8 @@ The turtle will place torches every 12 blocks. This can be changed by modifying 
 
 To make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to. Because of this it is possible that the turtle gets stuck when lava and water create cobblestone in the turtles path.
 
+The turtle can move outside of the specified area when following an ore vein. You might want to define the mining area a little smaller than the chunk loaded area.
+
 Lava and water wash away or destroy torches. That way finished strips can't be marked and the turtle will work them again if it comes across them after a restart. The [lavaTunnel](https://github.com/Erlkoenigs/computercraft/blob/master/README.md#lavatunnel) program can help get rid of the lava.
 
 Before it starts, the turtle will ask for a discord webhook url. If supplied, it can send messages about events to a discord channel. These events are: program start, program end, item chest full, fuel or torch chest empty, blocked path (with relative coordinates from starting position).
@@ -84,7 +86,7 @@ Usage:
 The turtle will come back 4 blocks towards the starting position after it is finished.
 
 ## bridge
-Builds a simple bridge with a width of one block. 
+Builds a simple bridge underneath it with a width of one block. 
 
 The length is variable and can be input through command line arguments.
 
