@@ -56,7 +56,7 @@ The entrance of a finished strip can be marked by a torch. The turtle will do th
 
 The turtle will place torches every 12 blocks. This can be changed by modifying the _torchDistance_ variable.
 
-To make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to. Because of this it is possible that the turtle gets stuck when lava and water create cobblestone in the turtles path.
+To make sure that the turtle won't escape into nowhere due to an undiscovered bug, it doesn't dig when it shouldn't need to. Because of this it is possible that the turtle gets stuck when lava and water create cobblestone in it's path.
 
 The turtle can move outside of the specified area when following an ore vein. You might want to define the mining area a little smaller than the chunk loaded area.
 
