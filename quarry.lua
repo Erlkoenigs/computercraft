@@ -1,14 +1,16 @@
---pull fuel from item chest?
---for the computercraft turtle
---mimics the buildcraft quarry. can be used to level an area
---takes 2 arguments: radius and depth
---radius excludes starting position: radius = 2 mines a 5x5 area
---turtle will always mine the level it is on and then
---_depth_ levels underneath it
---when turtles inventory is full, it will try to drop items into
---a chest above it's starting position
+--[[
+    for the computercraft turtle.
+    mimics the buildcraft quarry. can be used to level an area.
+    takes 2 arguments: radius and depth.
+    radius excludes starting position: radius = 2 mines a 5x5 area.
+    turtle will always mine the level it is on and then _depth_
+     levels underneath it.
+    when its inventory is full, it will try to drop items into
+     a chest above its starting position and pull fuel from the
+     same chest. Fuel has to be in the fist slots of the chest.
+]]
 
-debug = false
+debug = true
 local r = 0
 local depth = 0
 tArgs = {...}
@@ -66,18 +68,13 @@ function clog(logstr)
 end
 
 --refuel from slot 1
-function refuel(level)
-    turtle.select(1)
-    if level == nil then
-        while turtle.getFuelLevel()<(((r+1)^2) + 5) do
-            turtle.refuel(1)
-        end
-    else
-        while turtle.getFuelLevel()<level do
-            turtle.refuel(1)
-        end
+function refuel(amount)
+    if amount == nil then amount = depth*5 end --random value
+    while turtle.getFuelLevel() < amount do
+        turtle.select(1)
+        turtle.refuel(1)
     end
-end
+end --refuel
 
 --track position. called when moving forward, up or down
 function newPosition(dir)
@@ -112,17 +109,6 @@ function newOrientation(turn)
     end
 end
 
---returns the opposite of a given orientation
-function getOppositeOrientation(o)
-    local newO
-    if o<1 then
-        newO = o+2
-    elseif o>0 then
-        newO = o-2
-    end
-    return newO
-end
-
 --turn left and set new orientation
 function left()
     turtle.turnLeft()
@@ -133,6 +119,19 @@ end
 function right()
     turtle.turnRight()
     newOrientation(1)
+end
+
+--turn turtle in new direction
+function turn(newOrientation)
+    diff=newOrientation-orientation
+    if diff == -1 or diff == 3 then
+        left()    
+    elseif diff == 1 or diff == -3 then
+        right()
+    elseif diff == 2 or diff == -2 then
+        right()
+        right()
+    end
 end
 
 --move forward and set new position
@@ -165,80 +164,19 @@ function down()
     return false
 end
 
---turn turtle in new direction
-function turn(newOrientation)
-    diff=newOrientation-orientation
-    if diff == -1 or diff == 3 then
-        left()    
-    elseif diff == 1 or diff == -3 then
-        right()
-    elseif diff == 2 or diff == -2 then
-        right()
-        right()
+function step(dir)
+    local res
+    if dir == nil or dir == "forward" then
+        res = forward()
+    elseif dir == "up" then
+        res = up()
+    elseif dir == "down" then
+        res = down()
     end
+    return res
 end
 
---go to snapshot Y position
-function goToY()
-    clog("toY")
-    if pos_snap.y > pos.y then
-        turn(0)
-    elseif pos_snap.y < pos.y then
-        turn(2)
-    end
-    while pos.y ~= pos_snap.y do
-        if forward() then
-            printPosition("y")
-        end
-    end
-end
-
---go to snapshot X position
-function goToX()
-    clog("toX")
-    if pos_snap.x > pos.x then
-        turn(1)
-    elseif pos_snap.x < pos.x then
-        turn(-1)
-    end
-    while pos.x ~= pos_snap.x do
-        if forward() then
-            printPosition("x")
-        end
-    end
-end
-
---go to x axis
-function goToYZero()
-    --go to y = 0
-    if pos.y > 0 then
-        turn(2)
-    elseif pos.y < 0 then
-        turn(0)
-    end
-    while pos.y ~= 0 do 
-        if forward() then
-            printPosition("y")
-        end
-    end
-end
-
---go to y axis
-function goToXZero()
-    --go to x = 0
-    if pos.x > 0 then
-        turn(-1)
-    elseif pos.x < 0 then
-        turn(1)
-    end
-    while pos.x ~= 0 do
-        if forward() then
-            printPosition("x")
-        end
-    end
-end
-
---get back to chest
+--get back to chest. and empty inventory
 function returnHome()
     pos_snap.x = pos.x
     pos_snap.y = pos.y
@@ -252,30 +190,46 @@ function returnHome()
         up()
     end
     --go one in positive x direction
-    turn(1)
-    forward()
-    --to x axis
-    goToYZero()
-    --to y axis
-    goToXZero()
+    if pos.x < r then
+        turn(1)
+        forward()
+    end
+    --to x axis (y = 0)
+    if pos.y > 0 then
+        turn(2)
+    elseif pos.y < 0 then
+        turn(0)
+    end
+    while pos.y ~= 0 do 
+        if forward() then
+            printPosition("y")
+        end
+    end
+    --to y axis (x = 0)
+    if pos.x > 0 then
+        turn(-1)
+    elseif pos.x < 0 then
+        turn(1)
+    end
+    while pos.x ~= 0 do
+        if forward() then
+            printPosition("x")
+        end
+    end
 end
 
---dump inventory into chest above
+--Empty inventory. If chest is full, try again till it isn't
 function dumpInventory()
-    --Empty inventory. If chest is full, try again till it isn't
     local full = false --to only print errors once
     local slot=2 --keep fuel
-    while slot<17 do
-        turtle.select(slot)
+    while slot < 17 do
         if turtle.getItemCount(slot)>0 then
+            turtle.select(slot)
             if turtle.dropUp() then
                 slot=slot+1
             else
-                if not full then
-                    print("chest is full") --only print this once
-                    full = true
-                end
-                os.sleep(30) --wait for 30 seconds
+                print("chest is full. Any key to continue")
+                os.pullEvent("key")
             end
         else
             slot=slot+1
@@ -284,10 +238,58 @@ function dumpInventory()
     turtle.select(2)
 end
 
---go back to the chest, dump inventory, get back to current position
+function getFuel()
+    local amountBefore
+    local amountAfter
+    while turtle.getItemCount(1) < 64 do
+        amountBefore = turtle.getItemCount(1)
+        turtle.select(1)
+        turtle.suckUp()
+        amountAfter = turtle.getItemCount(1)
+        if amountBefore == amountAfter then
+            turtle.select(2)
+            turtle.dropUp()
+            print("no fuel in first chest slot")
+            os.pullEvent("key")
+        end
+    end
+    turtle.select(2)
+    turtle.dropUp()
+end
+
+--go back to the chest, dump inventory, getFuel,  get back to current position
 function emptyInventory()
+    --go to snapshot Y position
+    local function goToY()
+        clog("toY")
+        if pos_snap.y > pos.y then
+            turn(0)
+        elseif pos_snap.y < pos.y then
+            turn(2)
+        end
+        while pos.y ~= pos_snap.y do
+            if forward() then
+                printPosition("y")
+            end
+        end
+    end
+    --go to snapshot X position
+    local function goToX()
+        clog("toX")
+        if pos_snap.x > pos.x then
+            turn(1)
+        elseif pos_snap.x < pos.x then
+            turn(-1)
+        end
+        while pos.x ~= pos_snap.x do
+            if forward() then
+                printPosition("x")
+            end
+        end
+    end
     returnHome()
     dumpInventory()
+    getFuel()
     --return back to where it left off
     if pos_snap.x < r then
         --go to current x position + 1
@@ -309,15 +311,15 @@ end
 
 --check if last inventory slot is full
 function checkInventory()
-    if turtle.getItemCount(16) > 0 then
+    if turtle.getItemCount(16) > 0 or turtle.getItemCount(1) == 0 then
         emptyInventory()
     end
-    clog("end of check inventory")
 end
 
 function endProgram()
     returnHome()
     dumpInventory()
+    getFuel()
     error("hit bedrock. program finished") --not nice
 end
 
@@ -330,13 +332,13 @@ function dig(direction)
             checkInventory()
         end
     elseif direction == "up" then
-        if turtle.detect() and not turtle.digUp() then
+        if turtle.detectUp() and not turtle.digUp() then
             endProgram()
         else
             checkInventory()
         end
     elseif direction == "down" then
-        if turtle.detect() and not turtle.digDown() then
+        if turtle.detectDown() and not turtle.digDown() then
             endProgram()
         else
             checkInventory()
@@ -345,26 +347,21 @@ function dig(direction)
 end
 
 function digAndGo(direction)
-    if direction == nil or direction == "forward" then
-        while not forward() do dig() end
-    elseif direction == "up" then
-        while not up() do dig(direction) end
-    elseif direction == "down" then
-        while not down() do dig(direction) end
-    end
+    while not step(direction) do dig(direction) end
 end
 
 --dig an area defined by a given radius
 function plane()
+    clog("plane")
+    print("("..pos.x.."/"..pos.y.."/"..pos.z..")")
     local dug = 1
-    local below = false --mine level below or not
-    local above = false -- mine level above or not
     local function digStep()
-        if above then dig("up") end
-        if below then dig("down") end
         digAndGo()
+        dig("up")
+        dig("down")
         dug = dug + 1
     end
+    dig("down")
     while true do
         digStep()
         if dug == (2*r+1)^2 then break end
@@ -387,19 +384,35 @@ refuel()
 --go to right edge
 right()
 for i=1, r do
-    dig()
+    digAndGo()
 end
 --go to lower right corner
 right()
 for i=1, r do
-    dig()
+    digAndGo()
 end
 left()
 left()
-while pos.z > -depth do
+local sink = 0 --go down this many blocks before the next level
+while pos.z > -depth + 1 do
+    sink = pos.z + depth
+    clog(sink)
+    if pos.z == 0 then
+        clog("z=0 and sink > 2")
+        sink = 1
+    elseif sink > 3 then
+        clog("sink > 3")
+        sink = 3 --max 4 blocks
+    elseif sink == 2 then --last level
+        sink = 1
+        clog("sink = 1")
+    end
+    clog("sink = "..sink)
+    for i=1, sink do
+        digAndGo("down")
+    end
     plane()
     clog("level done")
-    dig("down")
     left()
     left()
     --reset coordinate system on next level
@@ -407,6 +420,7 @@ while pos.z > -depth do
     pos.y = -r
     orientation = 0
 end
-plane()
+clog("all done. returning home")
 returnHome()
 dumpInventory()
+clog("finished")
