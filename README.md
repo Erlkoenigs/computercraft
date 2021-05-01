@@ -70,7 +70,7 @@ Mimics a buildcraft quarry with a variable radius und depth.
 
 The starting position is the middle of the area it will mine.
 
-The center block is excluded from the radius, the diameter is 2*r+1: _r = 2_ will mine a 5x5 area.
+The center block is excluded from the radius, therefore the diameter is 2*r+1, meaning _r = 2_ will mine a 5x5 area.
 
 Can be used to level an area to a certain depth.
 
