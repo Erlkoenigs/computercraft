@@ -30,7 +30,7 @@ Variable parameters:
 
 ![strip layout from input parameters](images/strip_layout_from_input_parameters.png)
 
-This image show two examples of the strip layout created by the turtle (t) as viewed from behind. The upper layout is created when the input width ranges from 25 to 28 with an input height of 5 to 6. The lower layout is created with an input width ranging from 29 to 32 and an input height of 5 to 6. The spacing between strips is 3. The input width will be reduced until width + 3 is a multitude of 4. The turtle will then go a maximum of (width - 1) / 2 steps to either side of its starting position and will dig as many strips as can fit into that length.
+This image shows two examples of the strip layout created by the turtle (t) as viewed from behind. The upper layout is created when the input width ranges from 25 to 28 with an input height of 5 to 6. The lower layout is created with an input width ranging from 29 to 32 and an input height of 5 to 6. The spacing between strips is 3. The input width will be reduced until width + 3 is a multitude of 4. The turtle will then go a maximum of (width - 1) / 2 steps to either side of its starting position and will dig as many strips as can fit into that length.
 
 Once one row of strips is finished, the turtle will start a new one diagonally until there's not enough space within the given height to fit another row.
 
