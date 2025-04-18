@@ -18,5 +18,7 @@ if site then
     local h = fs.open(program..".lua","w")
     h.write(github_file)
     h.close()
+    site.close()
+else
+    print("Error: "..program.." not found")
 end
-site.close()
