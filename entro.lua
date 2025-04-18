@@ -51,13 +51,21 @@ while true do
             turtle.dig()
             --if theres a block above the turtle, assume it's an inventory
             if turtle.inspectUp() == true then
+                --drop slot 4 into chest
                 turtle.select(4)
-                while turtle.getItemCount > 0 and turtle.dropUp() == false do
+                while turtle.getItemCount() > 0 and turtle.dropUp() == false do
                     print("chest full. waiting 10 seconds")
                     os.sleep(10)
                 end
+                --drop slot 5 into chest
                 turtle.select(5)
-                while turtle.getItemCount > 0 and turtle.dropUp() == false do
+                while turtle.getItemCount() > 0 and turtle.dropUp() == false do
+                    print("chest full. waiting 10 seconds")
+                    os.sleep(10)
+                end
+                --drop slot 6 into chest
+                turtle.select(6)
+                while turtle.getItemCount() > 0 and turtle.dropUp() == false do
                     print("chest full. waiting 10 seconds")
                     os.sleep(10)
                 end
