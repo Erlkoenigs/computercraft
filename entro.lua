@@ -26,12 +26,12 @@ while true do
             if turtle.inspectUp() == true then
                 turtle.select(4)
                 if turtle.dropUp() == false then
-                    turtle.println("chest full. waiting 10 seconds")
+                    print("chest full. waiting 10 seconds")
                     os.sleep(10)
                 end
                 turtle.select(5)
                 if turtle.dropUp() == false then
-                    turtle.println("chest full. waiting 10 seconds")
+                    print("chest full. waiting 10 seconds")
                     os.sleep(10)
                 end
             end
@@ -52,7 +52,7 @@ end
 function replaceFluixBlock()
     --check inventory
     while turtle.getItemCount(2) == 0 or turtle.getItemCount(3) == 0 do
-        turtle.println("No seed or fluix block found in inventory. Waiting 30 seconds.")
+        print("No seed or fluix block found in inventory. Waiting 30 seconds.")
         os.sleep(30)
     end
     --select slot 4 and dig possible immature crystal
