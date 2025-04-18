@@ -48,6 +48,7 @@ while true do
     if success then
         --if crystal fully grown
         if data.name == "extendedae:entro_cluster" then
+            turtle.select(4)
             turtle.dig()
             --if theres a block above the turtle, assume it's an inventory
             if turtle.inspectUp() == true then
@@ -80,6 +81,6 @@ while true do
         --no crystal is found, place new
         replaceFluixBlock()
     end
-    --wait 20 seconds before checking again 
-    os.sleep(20)
+    --wait 50 seconds before checking again 
+    os.sleep(50)
 end
