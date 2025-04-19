@@ -822,7 +822,7 @@ while not turtle.refuel(0) do --check for valid fuel in slot 1
     os.pullEvent("key")
 end
 fuelType = turtle.getItemDetail(1).name
-while not turtle.getItemDetail(2).name == "minecraft:torch" do
+while not (turtle.getItemDetail(2) and turtle.getItemDetail(2).name == "minecraft:torch") do
     print("no torches in slot 2. Input torches")
     os.pullEvent("key")
 end
