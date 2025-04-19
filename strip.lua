@@ -816,15 +816,16 @@ end --reposition
 
 --action
 getParameters()
-while turtle.getItemCount(1) == 0 do
-    print("first slot empty. Input fuel.")
-    os.pullEvent("key")
-end
-while turtle.getItemCount(2) == 0 do
-    print("second slot empty. Input torches")
+turtle.select(1) --fuel
+while not turtle.refuel(0) do --check for valid fuel in slot 1
+    print("no fuel in first slot. Input fuel.")
     os.pullEvent("key")
 end
 fuelType = turtle.getItemDetail(1).name
+while not turtle.getItemDetail(2).name == "minecraft:torch" do
+    print("no torches in slot 2. Input torches")
+    os.pullEvent("key")
+end
 printEvent("starting")
 refuel()
 repeat
