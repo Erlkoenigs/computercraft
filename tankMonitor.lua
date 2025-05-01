@@ -28,9 +28,6 @@ function clearLine()
     mon.write(string.rep(" ", width))
     mon.setCursorPos(1, y)
 end
-    mon.write(string.rep(" ", mon.getSize()))
-    mon.setCursorPos(1, y)
-end
 
 mon.setBackgroundColor(colors.black)
 mon.clear()
