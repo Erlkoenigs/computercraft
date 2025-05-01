@@ -9,14 +9,13 @@ function clear()
     mon.setCursorPos(1, 1)
 end
 
-function mon.writeLine(text)
-    local x, y = mon.getCursorPos()
+function mon:writeLine(text)
+    local x, y = self.getCursorPos()
     self.write(text)
-    mon.setCursorPos(1, y + 1)
+    self.setCursorPos(1, y + 1)
 end
 
 while true do
-    clear()
     local width, height = mon.getSize()
     local content = table.remove(tank.tanks()) -- tank.tanks() returns nested tables
     local name[1] = string.sub(content.name, string.find(content.name, ":") + 1, string.len(content.name))
@@ -28,14 +27,15 @@ while true do
             name[1] = string.sub(name[1], 1, underscore)
         end
     end
-    mon.writeLine(name[1])
+    mon:writeLine(name[1])
     if name[2] then
-        mon.writeLine(name[2])
+        mon:writeLine(name[2])
     end
+    os.sleep(1)
     local x, y = mon.getCursorPos()
     local barHeight = height - y
     for i=1, barHeight do
-        local percent = content.amount / maxLevel
+        local percent = content.amount / 1000 / maxLevel
         if i > (1 - percent) * barHeight then
             if percent > 0.9 then
                 mon.setBackgroundColor(colors.red)
@@ -45,8 +45,6 @@ while true do
         else
             mon.setBackgroundColor(colors.gray)
         end
-        mon.writeLine(string.rep(" ", width))
-        mon.setBackgroundColor(colors.gray)
-        mon.write(string.rep(" ", width))
+        mon:writeLine(string.rep(" ", width))
     end
 end
