@@ -1,14 +1,10 @@
 local peripheralList = peripheral.getNames()
-for peripheralName, _ in pairs(peripheralList) do
+for _, peripheralName in pairs(peripheralList) do
     if string.find(peripheralName, "immersiveengineering:tank_master") then
         print("Found tank master: " .. peripheralName)
-        peripheral.wrap(peripheralName)
-    else
-        print("No tank found")
-        os.pullEvent("key")
+        tank = peripheral.wrap(peripheralName)
     end
 end
-local tank = peripheral.wrap("immersiveengineering:tank_master_0")
 
 local mon = peripheral.find("monitor")
 
