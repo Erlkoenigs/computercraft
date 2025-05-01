@@ -3,19 +3,26 @@ local mon = peripheral.find("monitor")
 
 local maxLevel = 512 --512 buckets in immersive engineering tanks
 
-function clear()
-    mon.setBackgroundColor(colors.black)
-    mon.clear()
-    mon.setCursorPos(1, 1)
-end
-
 function mon:writeLine(text)
     local x, y = self.getCursorPos()
     self.write(text)
     self.setCursorPos(1, y + 1)
 end
 
+function clearLine()
+    local x, y = mon.getCursorPos()
+    mon.setBackgroundColor(colors.black)
+    mon.setCursorPos(1, y)
+    mon.write(string.rep(" ", monitor.getSize()))
+    mon.setCursorPos(1, y)
+end
+
+mon.setBackgroundColor(colors.black)
+mon.clear()
+mon.setCursorPos(1, 1)
 while true do
+    mon.setBackgroundColor(colors.black)
+    mon.setCursorPos(1, 1)
     local width, height = mon.getSize()
     local content = table.remove(tank.tanks()) -- tank.tanks() returns nested tables
     local name = {}
@@ -28,13 +35,16 @@ while true do
             name[1] = string.sub(name[1], 1, underscore)
         end
     end
+    mon.setBackgroundColor(colors.black)
+    mon.setCursorPos(1, 1)
+    clearLine()
     mon:writeLine(name[1])
     if name[2] then
+        clearLine()
         mon:writeLine(name[2])
     end
-    os.sleep(1)
     local x, y = mon.getCursorPos()
-    local barHeight = height - y
+    local barHeight = height - y + 1
     for i=1, barHeight do
         local percent = content.amount / 1000 / maxLevel
         if i > (1 - percent) * barHeight then
