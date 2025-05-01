@@ -18,7 +18,8 @@ end
 while true do
     local width, height = mon.getSize()
     local content = table.remove(tank.tanks()) -- tank.tanks() returns nested tables
-    local name[1] = string.sub(content.name, string.find(content.name, ":") + 1, string.len(content.name))
+    local name = {}
+    name[1] = string.sub(content.name, string.find(content.name, ":") + 1, string.len(content.name))
     -- if name longer than width break line at underscore
     if string.len(name[1]) > width then
         local underscore = string.find(name[1], "_")
