@@ -13,7 +13,11 @@ function clearLine()
     local x, y = mon.getCursorPos()
     mon.setBackgroundColor(colors.black)
     mon.setCursorPos(1, y)
-    mon.write(string.rep(" ", monitor.getSize()))
+    local width, height = mon.getSize()
+    mon.write(string.rep(" ", width))
+    mon.setCursorPos(1, y)
+end
+    mon.write(string.rep(" ", mon.getSize()))
     mon.setCursorPos(1, y)
 end
 
