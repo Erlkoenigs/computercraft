@@ -62,7 +62,7 @@ while true do
     local x, y = mon.getCursorPos()
     local barHeight = height - y + 1
     for i=1, barHeight do
-        local percent = content.amount / 1000 / maxLevel
+        local percent = amount / 1000 / maxLevel
         if i > (1 - percent) * barHeight then
             if percent > 0.9 then
                 mon.setBackgroundColor(colors.red)
