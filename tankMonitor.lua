@@ -74,4 +74,6 @@ while true do
         end
         mon:writeLine(string.rep(" ", width))
     end
+    
+    os.sleep(10)
 end
