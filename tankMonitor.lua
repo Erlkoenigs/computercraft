@@ -34,9 +34,16 @@ while true do
     mon.setCursorPos(1, 1)
     local width, height = mon.getSize()
     local content = table.remove(tank.tanks()) -- tank.tanks() returns nested tables
+    local amount = 0
     local name = {}
-    name[1] = string.sub(content.name, string.find(content.name, ":") + 1, string.len(content.name))
-    -- if name longer than width break line at underscore
+    if content == nil then
+        amount = 0
+        name[1] = "empty"
+    else
+        amount = content.amount
+        name[1] = string.sub(content.name, string.find(content.name, ":") + 1, string.len(content.name))
+    end
+    -- if name longer than width and contains underscore break line at underscore
     if string.len(name[1]) > width then
         local underscore = string.find(name[1], "_")
         if underscore then
