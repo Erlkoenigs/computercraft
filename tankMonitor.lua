@@ -25,6 +25,7 @@ function clearLine()
     mon.setCursorPos(1, y)
 end
 
+mon.setTextScale(0.5)
 mon.setBackgroundColor(colors.black)
 mon.clear()
 mon.setCursorPos(1, 1)
