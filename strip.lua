@@ -177,13 +177,24 @@ function getParameters()
     end
     
     if webhookUrl == "" then
-        print("webhook url?")
-        webhookUrl = read()
-        if webhookUrl ~= "" then
-            -- save to file
-            local file = fs.open(webhookUrlFile, "w")
-            file.write(webhookUrl)
+        -- if webhook file exists, read it
+        if fs.exists(webhookUrlFile) then
+            local file = fs.open(webhookUrlFile, "r")
+            webhookUrl = file.readAll()
             file.close()
+            print("webhook url read from file")
+        else -- if webhook file does not exist, ask for webhook and create file
+            print("webhook url?")
+            webhookUrl = read()
+            if webhookUrl ~= "" then
+                -- save to file
+                local file = fs.open(webhookUrlFile, "w")
+                file.write(webhookUrl)
+                file.close()
+                print("webhook url saved to file")
+            else
+                print("no webhook url given. No messages will be sent.")
+            end
         end
     end
 
@@ -853,7 +864,7 @@ while turtle.getItemCount(2) == 0 do
     os.pullEvent("key")
 end
 fuelType = turtle.getItemDetail(1).name
-printEvent("starting")
+printEvent("starting x:"..pos.x..", y:"..pos.y..", z:"..pos.z..", w:"..width..", h:"..height..", d:"..depth)
 refuel()
 repeat
     reposition()
