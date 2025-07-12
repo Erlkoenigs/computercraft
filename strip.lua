@@ -19,13 +19,6 @@
     The turtle can move outside of the specified area when following an ore vein. Define the mining area a little smaller than the
     chunk loaded area.
 
-    ideas:
-    -   restart resistant with gps
-        with this feature bigger projects can be started that might (hopefully) run for a long time
-            => add a display to display the current status. maybe gather statistics.
-    -   ability to add more turtles to work on the same project
-        *   calculate all strips beforehand and save which ones have been finished, then assign a strip to a turtle as a task
-            => major change
 ]]
 
 --settings
@@ -43,7 +36,16 @@ dummy[2] = "stone"
 dummy[3] = "marble2"
 dummy[4] = "limestone2"
 local webhookUrl = "" --can be input here. Alternatively the turtle will ask for it
-local webhookLabel = os.getComputerLabel() --turtles label used as name in discord messages
+local webhookLabel = os.getComputerLabel()
+if not webhookLabel or webhookLabel == "" then
+    -- Generate 3 random digits
+    local rand = ""
+    for i = 1, 3 do
+        rand = rand .. tostring(math.random(0,9))
+    end
+    webhookLabel = "strip" .. rand
+    os.setComputerLabel(webhookLabel)
+end
 local webhookImg = "https://turtleappstore.com/static/images/turtle_pickaxe.png" --avatar used in discord messages
 
 --states
