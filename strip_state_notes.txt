@@ -1,0 +1,67 @@
+notes strip state:
+
+save state to file at every move
+differentiate between the following modes:
+- mining (digging a strip)
+- searching (for ore on the way back down the strip)
+- following a vein (when ore was found during searching)
+ - returning home (when returning to the chests if inventory is full or fuel is low)
+ - returning to strip (on the way back to the current position from the chests)
+
+save variables to file:
+- orientation
+- pos (x, y, z)
+- pos_snap (x, y, z) (if current mode is returning home)
+- currentMode
+- miningArea (width, height, depth, even(?), maxX(?) ...!! )
+- table of path into a vein
+
+log when:
+- moving (forward, up, down)
+- turning
+
+log mode change when:
+- mining -> searching: when end of strip is reached and turtle returns back down starting the search pattern
+- searching -> following_vein: when ore is found during searching
+- mining -> returning_home: when inventory is full or fuel is low
+- following_vein -> returning_home: when inventory is full or fuel is low  (?? do i return home while following a vein?)
+- searching -> returning_home: when inventory is full or fuel is low
+- returning_home -> returning_to_strip: once torches picked up from third chest
+- returning_to_strip -> mining: when returned to strip
+- returning_to_strip -> searching: when returned to strip
+- returning_to_strip -> following_vein: when returned to vein (?? do i return home while following a vein?)
+
+on startup:
+check for state file
+if exists:
+  inform user that state file was found, and that program will resume in 30 seconds
+  and that he can cancel by pressing any key
+  wait 30 seconds for key press
+  if key pressed:
+    ask for input parameters as usual and continue
+  if no key pressed:
+    load state
+    if state.currentMode == "mining" then
+        check if orientation is in positive "x" direction
+        if not: error "state after startup: mining, but orientation is (print orientation)"
+        if it is: continue digging
+    if state.currentMode == "searching" then
+        continue searching by
+        - checking the elevation inside the strip (!!)
+        - checking the current orientation and continuing the search pattern (rotation and checking for ore)
+    if state.currentMode == "following_vein" then
+        load the table of path into a vein to determine the current position inside the vein and continue following the vein
+    if state.currentMode == "returning_home" then
+        check if orientation is in negative "x" direction
+        if not: error "state after startup: returning home, but orientation is (print orientation)"
+        if it is: continue returning home
+    if state.currentMode == "returning_to_strip" then
+        check if orientation is in positive "x" direction
+        if not: error "state after startup: returning to strip, but orientation is (print orientation)"
+        if it is: continue returning to strip
+if it does not exist:
+    create state file
+        if no success: error message and continue without state file (message user)
+    ask for input parameters as usual
+    write parameters to state file
+    start mining
