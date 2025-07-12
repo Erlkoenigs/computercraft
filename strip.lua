@@ -48,6 +48,9 @@ if not webhookLabel or webhookLabel == "" then
 end
 local webhookImg = "https://turtleappstore.com/static/images/turtle_pickaxe.png" --avatar used in discord messages
 
+local stateFile = "strip_state.txt" --file to save state
+local webhookUrlFile = "webhook_url.txt" --file to save webhook url
+
 --states
 local orientation = 0 --left turn is negative, right turn is positive: 0 is strip direction (y axis), 1 is to the right of that 
 --(x axis), -1 is left (negative x axis), 2 and -2 are back (negative y axis)
@@ -71,26 +74,44 @@ local even = true --is the amount of strips on the first level (= every odd leve
 local maxX = 0 --absolute of maximum x value on both sides. calculated from width. goes this amount of blocks to either side
 local fuelType = "" --if fuel is mined on the way, put it in fuel chest, not in item chest. only really does smth with coal
 
+local state = {
+    orientation = "",
+    pos = {},
+    pos_snap = {},
+    currentMode = "", -- to be set according to current mode logic
+    miningArea = {
+        width = "",
+        height = "",
+        depth = "",
+        even = "",
+        maxX = ""
+    },
+    path = "" -- table of path into a vein
+}
+
 --for messages that help with debugging
 function clog(logstr)
     if debug then print(logstr) end
 end
 
---doesn't need to be its own function atm
-local function discordMsg(msg)
-    http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..webhookLabel.."\", \"avatar_url\": \""..webhookImg.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
-end
-
 --for events that are interesting
 function printEvent(msg)
     if webhookUrl ~= "" then
-        discordMsg(msg) --to discord
+        -- to discord
+        http.post(webhookUrl, "{  \"content\": \""..msg.."\", \"username\": \""..webhookLabel.."\", \"avatar_url\": \""..webhookImg.."\"}", { ["Content-Type"] = "application/json", ["User-Agent"] = "ComputerCraft"})
     end
-        print(msg) --to console
+    -- to console
+    print(msg)
 end
 
 --get user input. either through command line arguments or by asking
 function getParameters()
+    -- 1. check if 3 command line arguments are given
+    -- 2. if not, ask for parameters width, height and depth
+    -- 3. calculate width of mining area and check if even or odd number of strips,
+    -- which determines position of first strip
+    -- 4. ask for discord webhook url if not already hardcoded
+
     --check if value is number and greater than zero
     local function checkValue(value)
         if value == nil then value = 0 end
@@ -134,31 +155,36 @@ function getParameters()
         print("Make sure there's fuel in slot one and torches in slot two")
         print("press any button to continue")
         os.pullEvent("key")
-    else
-        --ask for it
+    else -- if not exaclty 3 arguments given, ask for them
         --width
         while width == 0 do
             print("Enter width of mining area:")
-            width = tonumber(read())
-            checkValue(width)
+            width = tonumber(read()) --returns nil if no number is given
+            checkValue(width) -- converts nil to 0
         end 
         --height
         while height == 0 do
             print("Enter heigth of mining area:")
-            height = tonumber(read())
-            checkValue(height)
+            height = tonumber(read()) --returns nil if no number is given
+            checkValue(height) -- converts nil to 0
         end
         --depth
         while depth == 0 do
             print("Enter depth of mining area:")
-            depth = tonumber(read())
-            checkValue(depth)
+            depth = tonumber(read()) --returns nil if no number is given
+            checkValue(depth) -- converts nil to 0
         end
     end
     
     if webhookUrl == "" then
         print("webhook url?")
         webhookUrl = read()
+        if webhookUrl ~= "" then
+            -- save to file
+            local file = fs.open(webhookUrlFile, "w")
+            file.write(webhookUrl)
+            file.close()
+        end
     end
 
     --calculate "even"
